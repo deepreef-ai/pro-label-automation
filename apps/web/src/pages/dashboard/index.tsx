@@ -18,6 +18,7 @@ import { useMockSettings } from '../settings/store'
 import {
   FIXTURE_WASTAGE_TOL,
   applyMockWastageTolerance,
+  lowProfitJobs,
   machineRows,
   profitRiskRows,
   sortAlerts,
@@ -48,8 +49,12 @@ export default function DashboardPage() {
   const briefQ = useApi<AgentBrief>('/api/agents/brief')
   const alertsQ = useApi<AlertsResponse>('/api/alerts')
   const settingsQ = useApi<Settings>('/api/settings')
-  const jobsQ = useApi<JobListResponse>('/api/jobs')
-  const runsQ = useApi<Run[]>('/api/production/runs')
+  const summary = summaryQ.data
+  // Job-wise profit and per-machine figures come with the live summary. Only mock mode (or an older
+  // backend without them) needs the full job and run lists, for the tolerance demo and the fallbacks.
+  const needLists = API_MODE === 'mock' || (summary !== undefined && (!summary.machines || !summary.top_jobs))
+  const jobsQ = useApi<JobListResponse>(needLists ? '/api/jobs' : null)
+  const runsQ = useApi<Run[]>(needLists ? '/api/production/runs' : null)
   const machinesQ = useApi<Machine[]>('/api/machines')
   const oeeQ = useApi<Oee>('/api/production/oee')
 
@@ -58,7 +63,6 @@ export default function DashboardPage() {
   const wastageTol =
     (API_MODE === 'mock' ? mockSettings?.wastage_tol : undefined) ?? settingsQ.data?.wastage_tol ?? FIXTURE_WASTAGE_TOL
 
-  const summary = summaryQ.data
   const jobs = jobsQ.data?.items
   const runs = runsQ.data
 
@@ -70,17 +74,20 @@ export default function DashboardPage() {
     return sortAlerts(shaped)
   }, [alertsQ.data, jobs, runs, wastageTol])
 
+  // Mock: the alerts above were re-derived client-side. Live: the server already recalculated them.
   const toleranceNote =
-    API_MODE === 'mock' && Math.abs(wastageTol - FIXTURE_WASTAGE_TOL) > 1e-9
-      ? `Wastage limit is ${formatPercent(wastageTol, { digits: 0 })} (was ${formatPercent(FIXTURE_WASTAGE_TOL, {
+    Math.abs(wastageTol - FIXTURE_WASTAGE_TOL) > 1e-9
+      ? `Wastage limit is ${formatPercent(wastageTol, { digits: 0 })} (default ${formatPercent(FIXTURE_WASTAGE_TOL, {
           digits: 0,
         })}). Wastage alerts recalculated.`
       : null
 
+  const lowJobs = useMemo(() => lowProfitJobs(summary), [summary])
   const riskRows = useMemo(() => (jobs && runs ? profitRiskRows(jobs, runs) : undefined), [jobs, runs])
+  const periodMachines = summary?.machines
   const machines = useMemo(
-    () => (machinesQ.data ? machineRows(machinesQ.data, oeeQ.data, runs ?? []) : undefined),
-    [machinesQ.data, oeeQ.data, runs],
+    () => (machinesQ.data ? machineRows(machinesQ.data, oeeQ.data, runs ?? [], periodMachines) : undefined),
+    [machinesQ.data, oeeQ.data, runs, periodMachines],
   )
 
   const revenueSeries = summary?.trend.map((t) => t.revenue) ?? []
@@ -192,7 +199,11 @@ export default function DashboardPage() {
 
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
         <TopClientsCard summary={summary} loading={summaryQ.loading} />
-        <LowProfitCard summary={summary} riskRows={riskRows} loading={jobsQ.loading || runsQ.loading} />
+        <LowProfitCard
+          jobs={lowJobs}
+          riskRows={riskRows}
+          loading={(summaryQ.loading && !summary) || jobsQ.loading || runsQ.loading}
+        />
       </div>
 
       <MachinesCard
@@ -200,6 +211,7 @@ export default function DashboardPage() {
         loading={machinesQ.loading}
         error={machinesQ.error && !machinesQ.noData ? machinesQ : null}
         wastageTol={wastageTol}
+        period={periodMachines ? period : null}
       />
     </div>
   )

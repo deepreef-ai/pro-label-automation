@@ -253,9 +253,9 @@ const TREND_DESC: Record<DashboardSummary['period'], string> = {
 }
 
 export function TrendCard({ summary, loading }: { summary: SummaryExt | undefined; loading: boolean }) {
-  const daily = summary?.daily?.slice(-30)
+  const daily = summary?.trend_30d?.slice(-30)
   const data = daily?.length
-    ? daily.map((d) => ({ label: formatDateShort(d.date), revenue: d.dispatch_value, profit: d.profit }))
+    ? daily.map((d) => ({ label: d.label ?? formatDateShort(d.date), revenue: d.revenue, profit: d.profit }))
     : (summary?.trend ?? [])
   return (
     <Card className="flex flex-col">
@@ -398,16 +398,17 @@ function JobCell({ jc, client, demo }: { jc: string; client: string; demo?: bool
 }
 
 export function LowProfitCard({
-  summary,
+  jobs,
   riskRows,
   loading,
 }: {
-  summary: SummaryExt | undefined
+  /** Job-wise profit from the API, lowest first (null: the API has none, use the risk fallback). */
+  jobs: LowProfitJob[] | null
   riskRows: ProfitRiskRow[] | undefined
   loading: boolean
 }) {
   const navigate = useNavigate()
-  const fromApi = summary?.low_profit_jobs
+  const fromApi = jobs
 
   const profitCols: Column<LowProfitJob>[] = [
     { key: 'job_card', header: 'Job', cell: (r) => <JobCell jc={r.job_card} client={r.client_name} demo={r.is_demo} /> },
@@ -463,16 +464,18 @@ export function LowProfitCard({
     <Card className="flex flex-col">
       <CardHeader
         title="Lowest-profit jobs"
-        description={fromApi ? '10 jobs with the lowest profit in the period' : 'Jobs most at risk on profit (flags, wastage)'}
+        description={fromApi ? 'Invoiced jobs with the lowest profit in the period' : 'Jobs most at risk on profit (flags, wastage)'}
       />
       <div className="p-5 pt-4">
         {fromApi ? (
           <DataTable
             dense
             columns={profitCols}
-            rows={[...fromApi].sort((a, b) => a.profit - b.profit).slice(0, 10)}
+            rows={fromApi}
+            loading={loading}
             rowKey={(r) => r.job_card}
             onRowClick={(r) => navigate(`/jobs/${r.job_card}`)}
+            empty={<EmptyState compact title="No invoiced jobs" description="No invoices were raised in this period." />}
           />
         ) : (
           <DataTable
@@ -492,6 +495,12 @@ export function LowProfitCard({
 
 /* Machines ---------------------------------------------------------- */
 
+const MACHINE_PERIOD: Record<DashboardSummary['period'], string> = {
+  today: 'Today',
+  month: 'This month',
+  year: 'This year',
+}
+
 function oeeTone(v: number): Tone {
   return v >= 0.65 ? 'ok' : v >= 0.5 ? 'warn' : 'danger'
 }
@@ -501,11 +510,14 @@ export function MachinesCard({
   loading,
   error,
   wastageTol,
+  period,
 }: {
   rows: MachineRow[] | undefined
   loading: boolean
   error?: UseApiResult<unknown> | null
   wastageTol: number
+  /** Live: the figures are for the dashboard's period. null: this month (mock fixtures). */
+  period?: DashboardSummary['period'] | null
 }) {
   const navigate = useNavigate()
   const cols: Column<MachineRow>[] = [
@@ -565,7 +577,7 @@ export function MachinesCard({
     <Card>
       <CardHeader
         title="Machines"
-        description="This month · OEE = availability × performance × quality; wastage from ended press runs"
+        description={`${period ? MACHINE_PERIOD[period] : 'This month'} · OEE = availability × performance × quality; wastage from ended press runs`}
         actions={
           <Button asChild variant="ghost" size="sm">
             <Link to="/production">

@@ -43,7 +43,7 @@ class Tool:
 
 # ----------------------------------------------------------------- helpers
 
-JOB_RE = re.compile(r"\bJC[-\s]?(\d{3,5})\b", re.I)
+JOB_RE = re.compile(r"\bJC[-\s]?(\d{3,8})\b", re.I)  # real ERP job cards have up to 8 digits
 
 
 def job_card_from(text: Any) -> str | None:
