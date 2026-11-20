@@ -90,7 +90,7 @@ def post_enquiry(body: EnquiryCreate, db: DB, role: Role) -> dict:
         "qty": body.qty, "colours": body.colours, "source": source,
         "assigned_to": (body.assigned_to or "").strip() or "Unassigned",
         "status": "new", "lost_reason": None, "follow_up_on": day + timedelta(days=FOLLOW_UP_DAYS),
-        "is_demo": True, "created_at": now(), "updated_at": now(),
+        "is_demo": False, "created_at": now(), "updated_at": now(),
     }
     db.execute(tbl.insert().values({k: v for k, v in row.items() if k in tbl.c}))
     audit(db, role=role, action="enquiry_create", entity="enquiries", entity_id=enq_id, after=row)
@@ -124,7 +124,7 @@ def post_quote(id: str, body: QuoteCreate, db: DB, role: Role) -> dict:
     row = {
         "id": quote_id, "enquiry_id": id, "date": day, "valid_until": valid_until, "qty": qty,
         "rate": rate, "cost_estimate": cost, "notes": (body.notes or "").strip(), "status": "sent",
-        "is_demo": True, "created_at": now(), "updated_at": now(),
+        "is_demo": False, "created_at": now(), "updated_at": now(),
     }
     db.execute(q.insert().values({k: v for k, v in row.items() if k in q.c}))
     e = T("enquiries")
