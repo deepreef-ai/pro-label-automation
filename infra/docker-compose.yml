@@ -1,0 +1,38 @@
+# API + web for a Docker host (not needed on the demo laptop; there use run-demo).
+#   cp .env.example .env    # at the repo root
+#   docker compose -f infra/docker-compose.yml up --build
+# Web: http://localhost:8080 (nginx, proxies /api)   API: http://localhost:8000
+name: pro-label-automation
+
+services:
+  api:
+    build:
+      context: ..
+      dockerfile: infra/api.Dockerfile
+    env_file: ../.env
+    environment:
+      DATABASE_URL: sqlite:///data/demo.db
+      LLM_CACHE_PATH: data/llm_cache.json
+      CORS_ORIGINS: http://localhost:8080
+      # Local AI mode: reach Ollama on the Docker host.
+      OLLAMA_URL: ${OLLAMA_URL_DOCKER:-http://host.docker.internal:11434/v1}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ../data:/app/data
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+
+  web:
+    build:
+      context: ..
+      dockerfile: infra/web.Dockerfile
+      args:
+        VITE_API_URL: ${WEB_PUBLIC_URL:-http://localhost:8080}
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - "8080:80"
+    restart: unless-stopped
