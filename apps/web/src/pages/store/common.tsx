@@ -139,3 +139,13 @@ export function daysBetween(a: string, b: string): number {
   const pb = new Date(`${b}T00:00:00`)
   return Math.round((pb.getTime() - pa.getTime()) / 86_400_000)
 }
+
+/**
+ * Rows saved on this screen first, then the list from the API. In live mode the API list is refetched
+ * after a save, so a saved row that is already in it is dropped here (no duplicates).
+ */
+export function withAdded<T extends { id: string }>(added: T[], rows: T[]): T[] {
+  if (!added.length) return rows
+  const ids = new Set(rows.map((r) => r.id))
+  return [...added.filter((a) => !ids.has(a.id)), ...rows]
+}
