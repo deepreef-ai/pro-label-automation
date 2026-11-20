@@ -231,7 +231,7 @@ def test_role_not_in_x_roles_gets_403(api, method, path, role):
     op = SPEC["paths"][path][method.lower()]
     assert "owner" in op["x-roles"], "owner may call everything"
     url = url_for(path, op)
-    if "text/event-stream" in op["responses"]["200"].get("content", {}):
+    if "text/event-stream" in op["responses"].get("200", {}).get("content", {}):
         status, _, _ = sse_request(api, url, role=role)
         assert status == 403
         return
