@@ -7,7 +7,6 @@ import {
   Badge,
   Button,
   DataTable,
-  DemoBadge,
   EmptyState,
   PageHeader,
   PageSkeleton,
@@ -199,19 +198,10 @@ export default function AgentsPage() {
         title="Agents Center"
         subtitle="Eight agents watch store, production, planning and money. They only draft: nothing happens until you approve."
         meta={
-          s.lastRunAt || s.sample ? (
-            <>
-              {s.lastRunAt && (
-                <span className="text-sm text-muted-foreground" title={formatDateTime(s.lastRunAt)}>
-                  Last run {formatRelative(s.lastRunAt)}
-                </span>
-              )}
-              <DemoBadge
-                show={s.sample}
-                label="Sample data"
-                title="The live backend does not serve the agents yet; showing sample data from the demo fixtures."
-              />
-            </>
+          s.lastRunAt ? (
+            <span className="text-sm text-muted-foreground" title={formatDateTime(s.lastRunAt)}>
+              Last run {formatRelative(s.lastRunAt)}
+            </span>
           ) : undefined
         }
         actions={

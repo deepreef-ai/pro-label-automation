@@ -14,6 +14,8 @@ from __future__ import annotations
 
 import logging
 import re
+import socket
+import time
 from dataclasses import dataclass, field
 from datetime import date
 from typing import Any
@@ -131,7 +133,7 @@ def route_navigation(message: str) -> tuple[str, str] | None:
     rest_text = " ".join(words)
     if len(words) <= 3:
         ent = _entity_route(rest_text)
-        if ent and re.fullmatch(r"(jc|inv|dc|cl|enq)[-\s]?\d{3,5}", rest_text.strip()):
+        if ent and re.fullmatch(r"(jc|inv|dc|cl|enq)[-\s]?\d{3,8}", rest_text.strip()):
             return ent
         scr = _screen_route(rest_text)
         if scr and (_SHOW.search(low) or len(words) <= 2):
@@ -153,7 +155,7 @@ def _safe_navigate(action: Any) -> dict | None:
     if not isinstance(to, str) or not to.startswith("/") or "//" in to or len(to) > 200:
         return None
     path = to.split("?")[0].split("#")[0]
-    if path in KNOWN_ROUTES or re.fullmatch(r"/jobs/JC-\d{3,5}", path):
+    if path in KNOWN_ROUTES or re.fullmatch(r"/jobs/JC-\d{3,8}", path):
         return {"type": "navigate", "to": to}
     return None
 
@@ -260,6 +262,20 @@ def _t_locks(message: str, ctx: ToolContext, hi: bool) -> ChatReply:
     return ChatReply(reply, [{"type": "navigate", "to": "/money?tab=debtors"}], res.get("sources", []))
 
 
+_CHECK_NAMES = {"wastage_tol": "Wastage", "material_tol": "Material issued vs plan", "overprod_tol": "Over-production",
+                "ink_tol": "Ink use", "slit_tol": "Slitting wastage", "qc_balance": "QC balance",
+                "dispatch_le_qc": "Dispatch vs QC approved"}
+
+
+def _failed_check(c: dict) -> str:
+    """One failed rule check as text, e.g. 'Wastage 18.0% (limit 15.0%): 457.2 m over 2,540 m required'."""
+    name = _CHECK_NAMES.get(str(c.get("rule")), str(c.get("label")))
+    value, limit = c.get("value"), c.get("limit")
+    fractions = isinstance(value, (int, float)) and isinstance(limit, (int, float)) and abs(limit) < 1.5
+    head = f"{name} {pct(value)} (limit {pct(limit)})" if fractions else f"{name} out of limit"
+    return f"{head}: {c.get('detail')}" if c.get("detail") else head
+
+
 def _t_flag(jc: str, ctx: ToolContext, hi: bool) -> ChatReply:
     res = _run("explain_flag", {"job_card": jc}, ctx)
     data = res.get("data") or {}
@@ -267,7 +283,7 @@ def _t_flag(jc: str, ctx: ToolContext, hi: bool) -> ChatReply:
     failed = [c for c in data.get("checks") or [] if isinstance(c, dict) and c.get("ok") is False]
     parts = []
     if failed:
-        parts += [f"{c.get('label')}: {c.get('detail') or pct(c.get('value'))}" for c in failed]
+        parts += [_failed_check(c) for c in failed]
     elif job.get("flags"):
         parts.append("flags: " + ", ".join(str(f).replace("_", " ") for f in job["flags"]))
     if job.get("required_m") is not None and job.get("issued_m") is not None:
@@ -329,6 +345,19 @@ def _t_profit(message: str, ctx: ToolContext, hi: bool) -> ChatReply:
                      [{"type": "navigate", "to": "/money?tab=pnl"}], [])
 
 
+def _clean_snippet(text: str, limit: int = 300) -> str:
+    """Readable text from a document chunk: no markdown tables, code ticks or headings; whole sentences."""
+    lines = [ln for ln in text.splitlines() if ln.strip() and not ln.lstrip().startswith("|")
+             and not re.fullmatch(r"\s*[-=|: ]+\s*", ln)]
+    flat = re.sub(r"[`*#>]+", "", " ".join(lines))
+    flat = re.sub(r"\s+", " ", flat).strip()
+    if len(flat) <= limit:
+        return flat
+    cut = flat[:limit]
+    end = max(cut.rfind(". "), cut.rfind("? "), cut.rfind("! "))
+    return cut[: end + 1] if end > 80 else cut.rsplit(" ", 1)[0] + "..."
+
+
 def _t_howto(message: str, ctx: ToolContext, hi: bool) -> ChatReply:
     res = _run("rag_search", {"query": message}, ctx)
     hits = (res.get("data") or {}).get("hits") or []
@@ -338,9 +367,10 @@ def _t_howto(message: str, ctx: ToolContext, hi: bool) -> ChatReply:
         tips.append("Only the owner can release a lock: Money > Debtors > pick the locked client > "
                     "Release lock, give a reason. It is logged with time and re-applies after the "
                     "valid-until date if still unpaid.")
-    if hits:
-        snippet = re.sub(r"\s+", " ", hits[0]["text"]).strip()[:350]
-        tips.append(f"From {hits[0]['source']}: \"{snippet}...\"")
+    if hits and not tips:
+        snippet = _clean_snippet(hits[0].get("text") or "")
+        if snippet:
+            tips.append(f"From {hits[0].get('source')}: \"{snippet}\"")
     if not tips:
         tips.append("I could not find that in the documents. Try the search bar or ask about a "
                     "job card, client or screen.")
@@ -463,6 +493,49 @@ def deterministic_answer(message: str, ctx: ToolContext, hi: bool) -> ChatReply:
     return reply
 
 
+# ----------------------------------------------------------------- LLM reachability
+
+_PROBE_TTL = 30.0
+_probe_cache: dict[str, tuple[float, bool]] = {}
+
+
+def _port_open(url: str) -> bool:
+    """Quick TCP probe of a local provider URL (cached for 30 s)."""
+    now = time.monotonic()
+    hit = _probe_cache.get(url)
+    if hit and now - hit[0] < _PROBE_TTL:
+        return hit[1]
+    m = re.match(r"^\w+://([^/:]+)(?::(\d+))?", url or "")
+    ok = False
+    if m:
+        host = "127.0.0.1" if m.group(1) == "localhost" else m.group(1)
+        port = int(m.group(2) or (443 if url.startswith("https") else 80))
+        try:
+            with socket.create_connection((host, port), timeout=0.3):
+                ok = True
+        except OSError:
+            ok = False
+    _probe_cache[url] = (now, ok)
+    return ok
+
+
+def llm_reachable(gateway: Any) -> bool:
+    """False when the default gateway has no provider it could reach: no cloud key is set and the
+    local model server (Ollama) is not listening. Then the agent is skipped and the deterministic
+    templates answer at once, instead of waiting for a refused connection on every message."""
+    providers = getattr(gateway, "providers", None)
+    if not isinstance(providers, list):
+        return True
+    avail = [p for p in providers if getattr(p, "available", True)]
+    if any(not getattr(p, "is_local", False) for p in avail):
+        return True
+    for p in avail:
+        url = getattr(getattr(p, "config", None), "url", None)
+        if not isinstance(url, str) or _port_open(url):
+            return True
+    return False
+
+
 # ----------------------------------------------------------------- main entry
 
 def _nav_reply(route: str, label: str, hi: bool) -> ChatReply:
@@ -489,16 +562,20 @@ def answer(message: str, *, role: str = "owner", history: list | None = None,
         api = default_api(role)
     ctx = ToolContext(role=role, api=api)
 
+    use_agent = True
     if gateway is None:
         from core.llm import get_gateway
 
         gateway = get_gateway()
+        use_agent = llm_reachable(gateway)
 
     reply: ChatReply | None = None
     try:
         from chat.graph import AgentGaveUp, run_agent
 
         try:
+            if not use_agent:
+                raise LLMUnavailable("no LLM provider reachable")
             prompt = message + ("\n(Answer in Hindi.)" if hi else "")
             state = run_agent(prompt, role=role, gateway=gateway, ctx=ctx, history=history)
             actions = list(state.get("llm_actions") or []) + list(state.get("drafts") or [])

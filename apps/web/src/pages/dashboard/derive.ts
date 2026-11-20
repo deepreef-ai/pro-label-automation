@@ -13,7 +13,7 @@
 import type { Alert, DashboardSummary, Job, Machine, Oee, Run } from '@contract/types'
 import { formatPercent } from '@/lib/format'
 
-/** Optional fields the dashboard uses when the API provides them (not in the contract yet). */
+/** Job-wise profit rows the live API adds to the summary (`top_jobs` / `bottom_jobs`; not in openapi.yaml yet). */
 export interface LowProfitJob {
   job_card: string
   client_name: string
@@ -21,19 +21,46 @@ export interface LowProfitJob {
   revenue: number
   profit: number
   margin_pct: number
+  link?: string
   is_demo?: boolean
 }
 
+/** One day of the live API's `trend_30d`. */
 export interface DailyPoint {
   date: string
-  dispatch_value: number
+  label?: string
+  revenue: number
   profit: number
 }
 
+/** Per-machine figures for the period from the live API's summary (`machines`). */
+export interface SummaryMachine {
+  machine_id: string
+  machine_name: string
+  type: Machine['type']
+  runs: number
+  printed_qty: number
+  run_hours: number
+  wastage_pct: number | null
+  oee: number | null
+  running?: boolean
+}
+
+/** Extra fields the live backend returns on top of the contract's DashboardSummary (mock fixtures lack them). */
 export type SummaryExt = DashboardSummary & {
-  low_profit_jobs?: LowProfitJob[]
-  daily?: DailyPoint[]
+  top_jobs?: LowProfitJob[]
+  bottom_jobs?: LowProfitJob[]
+  trend_30d?: DailyPoint[]
+  machines?: SummaryMachine[]
   is_demo?: boolean
+}
+
+/** Lowest-profit jobs of the period from the summary's job-wise rows (null when the API has none). */
+export function lowProfitJobs(summary: SummaryExt | undefined): LowProfitJob[] | null {
+  if (!summary || (!summary.top_jobs && !summary.bottom_jobs)) return null
+  const seen = new Map<string, LowProfitJob>()
+  for (const j of [...(summary.bottom_jobs ?? []), ...(summary.top_jobs ?? [])]) seen.set(j.job_card, j)
+  return [...seen.values()].sort((a, b) => a.profit - b.profit).slice(0, 10)
 }
 
 export type DashAlert = Alert & { derived?: boolean }
@@ -61,7 +88,7 @@ export function jobWastage(job: Job, runs: Run[]): JobWastage | null {
   return null
 }
 
-const WASTAGE_TITLE = /^(JC-\d{4}) wastage/i
+const WASTAGE_TITLE = /^(JC-\d+) wastage/i
 
 /** Mock mode only: add / drop job wastage alerts for a changed tolerance. See file header. */
 export function applyMockWastageTolerance(alerts: Alert[], tol: number, jobs: Job[], runs: Run[]): DashAlert[] {
@@ -121,10 +148,30 @@ export interface MachineRow {
   is_demo: boolean
 }
 
-/** All machines, joined with OEE (press only) and wastage from ended press runs. */
-export function machineRows(machines: Machine[], oee: Oee | undefined, runs: Run[]): MachineRow[] {
+/** All machines, joined with OEE (press only) and wastage. Live: OEE, wastage and hours come from the
+ *  summary's per-machine rows for the selected period; mock: wastage from ended press runs. */
+export function machineRows(
+  machines: Machine[],
+  oee: Oee | undefined,
+  runs: Run[],
+  periodRows?: SummaryMachine[],
+): MachineRow[] {
   return machines.map((m) => {
     const o = oee?.machines.find((x) => x.machine_id === m.id)
+    if (periodRows) {
+      const p = periodRows.find((x) => x.machine_id === m.id)
+      return {
+        id: m.id,
+        name: m.name,
+        type: m.type,
+        oee: m.type === 'press' ? (p?.oee ?? o?.oee ?? null) : null,
+        wastage: m.type === 'press' && p && p.run_hours > 0 ? (p.wastage_pct ?? null) : null,
+        hours: p?.run_hours ?? 0,
+        hour_rate: o?.hour_rate ?? m.hour_rate,
+        top_loss: o?.top_loss ?? null,
+        is_demo: m.is_demo,
+      }
+    }
     const ended = runs.filter((r) => r.machine_id === m.id && r.used_m != null && r.required_m)
     const req = ended.reduce((s, r) => s + (r.required_m ?? 0), 0)
     const used = ended.reduce((s, r) => s + (r.used_m ?? 0), 0)

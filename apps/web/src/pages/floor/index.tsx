@@ -25,6 +25,9 @@ const STATUS: Record<FloorMachine['status'], { label: string; tone: Tone }> = {
   idle: { label: 'Idle', tone: 'neutral' },
 }
 
+/** Live backend adds these per machine (not in openapi.yaml yet): OEE this month and the job queue. */
+type BoardMachine = FloorMachine & { oee?: number | null; queue?: string[] }
+
 const QUEUE_STATUSES: Job['status'][] = ['planned', 'design', 'printing', 'hold']
 const PRIORITY = { high: 0, normal: 1, low: 2 }
 
@@ -257,7 +260,9 @@ function PressColumn({
 export default function FloorBoardPage() {
   const [dark, setDark] = useState(true)
   const board = useApi<FloorBoard>('/api/floor/board')
-  const oee = useApi<Oee>('/api/production/oee')
+  // The live board carries OEE and the queue per machine; mock fixtures don't, so derive them there.
+  const boardHasExtras = board.data?.machines.some((m) => 'queue' in m) ?? false
+  const oee = useApi<Oee>(board.data && !boardHasExtras ? '/api/production/oee' : null)
   const morning = useApi<MorningReport>('/api/production/morning-report')
   const jobs = useApi<JobListResponse>('/api/jobs')
   const runs = useApi<Run[]>('/api/production/runs')
@@ -281,10 +286,15 @@ export default function FloorBoardPage() {
     if (!data) return out
     const today = data.as_of.slice(0, 10)
     const jobList = jobs.data?.items ?? []
-    for (const m of data.machines) {
+    const jobByCard = new Map(jobList.map((j) => [j.job_card, j]))
+    for (const m of data.machines as BoardMachine[]) {
       const om = oee.data?.machines.find((x) => x.machine_id === m.machine_id)
       const mm = morning.data?.machines.find((x) => x.machine_id === m.machine_id)
-      const candidates = jobList
+      const fromBoard = m.queue?.map((jc) => {
+        const j = jobByCard.get(jc)
+        return { job_card: jc, client: j?.client_name ?? '', product: j?.product ?? '' }
+      })
+      const candidates = fromBoard ?? jobList
         .filter((j) => j.machine_id === m.machine_id && j.job_card !== m.job_card && QUEUE_STATUSES.includes(j.status))
         .sort(
           (a, b) =>
@@ -297,7 +307,7 @@ export default function FloorBoardPage() {
         candidates.unshift({ job_card: m.next_job_card, client: '', product: '' })
       }
       out[m.machine_id] = {
-        oee: om?.oee ?? null,
+        oee: m.oee !== undefined ? m.oee : (om?.oee ?? null),
         wastageYesterday: mm?.wastage_pct ?? null,
         ranYesterday: (mm?.runs ?? 0) > 0,
         queue: candidates.slice(0, 3),

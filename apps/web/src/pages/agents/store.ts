@@ -1,8 +1,7 @@
 /**
  * Agents Center state. Findings + outbox are held in a module-level store so
  * decisions survive tab switches and navigation. In mock mode every decision is
- * applied in memory (fixtures never change); in live mode the server reply wins. Live mode against a
- * backend without the agents endpoints yet serves fixture "sample data", handled like mock mode.
+ * applied in memory (fixtures never change); in live mode the server reply wins and the API is the truth.
  */
 import { useSyncExternalStore } from 'react'
 import type {
@@ -14,7 +13,7 @@ import type {
   OutboxItem,
   OutboxResponse,
 } from '@contract/types'
-import { api, isNoData, isSampleData } from '@/lib/api'
+import { api, isNoData } from '@/lib/api'
 import { getRole } from '@/lib/role'
 
 export interface AgentsState {
@@ -26,8 +25,6 @@ export interface AgentsState {
   lastRunAt: string | null
   /** ids approved in this session (for the "moved to Done" highlight) */
   recentlyDone: string[]
-  /** Live mode, but the backend has no agents endpoints yet: showing fixture sample data. */
-  sample: boolean
 }
 
 let state: AgentsState = {
@@ -38,7 +35,6 @@ let state: AgentsState = {
   agents: null,
   lastRunAt: null,
   recentlyDone: [],
-  sample: false,
 }
 const listeners = new Set<() => void>()
 
@@ -64,9 +60,9 @@ export function useAgentsState(): AgentsState {
 
 export const isMock = api.mode === 'mock'
 
-/** Decisions are simulated in memory when the data is fixtures (mock mode or live sample data). */
+/** Mock mode only: decisions are simulated in memory because the fixtures never change. */
 function simulated(): boolean {
-  return isMock || state.sample
+  return isMock
 }
 
 async function safeGet<T>(path: string, fallback: T): Promise<T> {
@@ -207,7 +203,6 @@ export const agentsStore = {
         findings,
         outbox: [...outbox.items].sort((a, b) => b.created_at.localeCompare(a.created_at)),
         agents,
-        sample: [open, done, rejected, outbox, agents].some(isSampleData),
         lastRunAt: state.lastRunAt ?? maxIso(agents?.agents.map((a) => a.last_run_at) ?? []),
       })
     } catch (e) {
@@ -217,7 +212,7 @@ export const agentsStore = {
 
   async runAll(): Promise<AgentRunResponse> {
     const res = await api.post<AgentRunResponse>('/api/agents/run', { agent: 'all' })
-    const sim = simulated() || isSampleData(res)
+    const sim = simulated()
     const last = sim ? nowIso() : maxIso(res.runs.map((r) => r.finished_at ?? r.started_at))
     set({ lastRunAt: last ?? state.lastRunAt })
     if (!sim) await agentsStore.load(true)
