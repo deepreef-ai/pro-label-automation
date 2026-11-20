@@ -493,6 +493,41 @@ def deterministic_answer(message: str, ctx: ToolContext, hi: bool) -> ChatReply:
     return reply
 
 
+# ----------------------------------------------------------------- grounding
+
+_FACTUAL = re.compile(
+    r"\b(lock|locked|locks|at[- ]risk|debtors?|overdue|udhaar|bakaya|profit|margin|munafa|fayda|faayda|"
+    r"remind|reminder|yaad|record|grn|received|aaya|release|unlock|flag|flagged|wastage|kyun|kyon|why)\b"
+)
+_HOWTO = re.compile(r"\b(how|kaise|process|steps|policy|procedure|guide)\b")
+_ALIAS = re.compile(r"\b(?:Client|Vendor)[- ](?:\d{1,4}|[A-Z])\b")
+_JOB_ID = re.compile(r"\bJC-\d{4,8}\b")
+
+
+def _is_factual(message: str) -> bool:
+    low = message.lower()
+    return bool(_FACTUAL.search(low)) and not _HOWTO.search(low)
+
+
+def _is_generic(text: str) -> bool:
+    """The catch-all search reply means no specific template matched."""
+    return text.startswith(("I found no", "अभी", "The AI model is offline"))
+
+
+def _ungrounded(text: str, ctx: ToolContext) -> bool:
+    """True when an LLM answer shows an unrestored privacy alias or a job card that does not exist."""
+    if _ALIAS.search(text or ""):
+        return True
+    for jc in sorted(set(_JOB_ID.findall(text or "")))[:6]:
+        try:
+            found = ctx.api.get(f"/api/jobs/{jc}")
+        except Exception:
+            return True
+        if not isinstance(found, dict) or found.get("detail") or found.get("error"):
+            return True
+    return False
+
+
 # ----------------------------------------------------------------- LLM reachability
 
 _PROBE_TTL = 30.0
@@ -570,13 +605,22 @@ def answer(message: str, *, role: str = "owner", history: list | None = None,
         use_agent = llm_reachable(gateway)
 
     reply: ChatReply | None = None
+    # Factual questions (locks, profit, flags, reminders, GRN, release) get the exact, tool-backed
+    # template answer first: free models can paraphrase IDs or invent rows, templates cannot.
+    if _is_factual(message):
+        templ = deterministic_answer(message, ctx, hi)
+        if templ.reply and not _is_generic(templ.reply):
+            reply = templ
     try:
         from chat.graph import AgentGaveUp, run_agent
 
         try:
+            if reply is not None:
+                raise AgentGaveUp("answered from tools")
             if not use_agent:
                 raise LLMUnavailable("no LLM provider reachable")
-            prompt = message + ("\n(Answer in Hindi.)" if hi else "")
+            # State the language both ways: without it some free models drift into Hindi for English questions.
+            prompt = message + ("\n(Answer in Hindi.)" if hi else "\n(Answer in English.)")
             state = run_agent(prompt, role=role, gateway=gateway, ctx=ctx, history=history)
             actions = list(state.get("llm_actions") or []) + list(state.get("drafts") or [])
             text = str(state.get("answer") or "")
@@ -584,6 +628,9 @@ def answer(message: str, *, role: str = "owner", history: list | None = None,
             if refusals:
                 text = (text + "\n\n" + refusals[0]).strip()
             reply = ChatReply(text, actions, list(state.get("sources") or []))
+            if _ungrounded(text, ctx):
+                log.info("chat: LLM answer mentioned unknown IDs or unrestored aliases; using tools")
+                reply = None
         except (LLMUnavailable, AgentGaveUp) as exc:
             log.info("chat: LLM path unavailable (%s); using deterministic answer", exc)
     except Exception as exc:  # never break the demo
@@ -610,7 +657,7 @@ _SUGGESTIONS: dict[str, list[tuple[str, str]]] = {
               ("Fresh Juice ko Hindi mein reminder likho", "hi"), ("Is mahine ka profit kitna hai?", "hi")],
     "accounts": [("Which clients get locked this week?", "en"), ("Show debtors", "en"),
                  ("Fresh Juice ko Hindi mein reminder likho", "hi"), ("Aaj kaunse MSME bill due hain?", "hi")],
-    "store": [("Record: 10 rolls PP Silver received from Vendor X", "en"), ("Show stock", "en"),
+    "store": [("Record: 10 rolls PP Silver received from Polyfilm Industries", "en"), ("Show stock", "en"),
               ("How many issue lines have no job card?", "en"), ("Store kholo", "hi")],
     "ppic": [("Open JC-1301", "en"), ("Is there enough PP Silver for next week's jobs?", "en"),
              ("Why is JC-1240 flagged?", "en"), ("Jobs dikhao", "hi")],

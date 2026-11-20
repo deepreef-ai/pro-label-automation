@@ -36,7 +36,7 @@ A 20-minute walkthrough that follows one order, **Fresh Juice Co., 50,000 labels
 | 7 | QC | 52,000 checked / 50,900 approved / 1,100 rejected; show Hold warning | "Only approved labels can be dispatched." |
 | 8 | Dispatch | Try 51,000 (refused) → 50,000 → open challan PDF | "The system enforces it." |
 | 9 | Money | Invoice INV-2390, debtors ageing, locked client → owner release, cash plan, P&L vs Tally | "Bills make themselves; late payers lock automatically." |
-| 10 | Job 360 | JC-1301 timeline + profit card (Rs 9,425, 31%) | "From the first call to profit, on one page." |
+| 10 | Job 360 | JC-1301 timeline + profit card (live: Rs 9,375, 31%) | "From the first call to profit, on one page." |
 | 11 | Chatbot | The 7 questions below | "Ask anything in English or Hindi." |
 | 12 | Agents Center | Approve collections reminders → Outbox; reject one with a reason | "AI works every morning; nothing happens without your approval." |
 | 13 | Settings | Wastage limit 15% → 10% → back to Dashboard (new alerts) | "You set the rules." |
@@ -50,7 +50,7 @@ A 20-minute walkthrough that follows one order, **Fresh Juice Co., 50,000 labels
 4. Profit from Fresh Juice this month?
 5. How do I release a lock?
 6. Fresh Juice ko Hindi mein reminder likho
-7. Record: 10 rolls PP Silver received from Vendor X
+7. Record: 10 rolls PP Silver received from Polyfilm Industries
 
 ## If something goes wrong
 
