@@ -73,18 +73,28 @@ export function toneForStatus(status: string | null | undefined): Tone {
   return 'neutral'
 }
 
-/** "DEMO" pill for rows with is_demo: true. Renders nothing otherwise. */
-export function DemoBadge({ show = true, className }: { show?: boolean | null; className?: string }) {
+/** "DEMO" pill for rows with is_demo: true (or `label="Sample data"` for live-mode fallbacks). Renders nothing otherwise. */
+export function DemoBadge({
+  show = true,
+  className,
+  label = 'Demo',
+  title = 'Synthetic demo data',
+}: {
+  show?: boolean | null
+  className?: string
+  label?: string
+  title?: string
+}) {
   if (!show) return null
   return (
     <span
-      title="Synthetic demo data"
+      title={title}
       className={cn(
         'inline-flex h-[18px] items-center rounded-sm border border-dashed border-border-strong px-1.5 text-[10px] font-semibold uppercase tracking-wider text-subtle-foreground',
         className,
       )}
     >
-      Demo
+      {label}
     </span>
   )
 }

@@ -2,8 +2,8 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { AlertTriangle, ArrowLeft, Factory, Gauge, Moon, RefreshCw, Sun, Timer, User } from 'lucide-react'
 import type { FloorBoard, FloorMachine, Job, JobListResponse, MorningReport, Oee, Run, Settings } from '@contract/types'
-import { Skeleton } from '@/components/ui'
-import { api, useApi } from '@/lib/api'
+import { DemoBadge, Skeleton } from '@/components/ui'
+import { api, useApi, useSampleDataShown } from '@/lib/api'
 import { formatNumber, formatPercent } from '@/lib/format'
 import { cn } from '@/lib/utils'
 
@@ -315,6 +315,7 @@ export default function FloorBoardPage() {
   }, [board.data])
 
   const plant = settings.data?.company_name ?? 'Pro Labels'
+  const sampleShown = useSampleDataShown()
 
   return (
     <div className={cn(dark && 'dark', 'flex min-h-screen flex-col bg-background text-foreground')}>
@@ -325,7 +326,14 @@ export default function FloorBoardPage() {
           </span>
           <div className="min-w-0">
             <div className="truncate text-[clamp(0.875rem,1vw,1.25rem)] text-muted-foreground">{plant}</div>
-            <h1 className="text-[clamp(1.5rem,2.2vw,2.75rem)] leading-tight font-semibold tracking-tight">Floor Board</h1>
+            <div className="flex items-center gap-3">
+              <h1 className="text-[clamp(1.5rem,2.2vw,2.75rem)] leading-tight font-semibold tracking-tight">Floor Board</h1>
+              <DemoBadge
+                show={sampleShown}
+                label="Sample data"
+                title="The live backend does not serve the floor board yet; showing sample data from the demo fixtures."
+              />
+            </div>
           </div>
         </div>
 

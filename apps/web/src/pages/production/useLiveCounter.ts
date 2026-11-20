@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import type { CounterTick, Run } from '@contract/types'
-import { API_URL, api } from '@/lib/api'
+import { API_URL, api, backendHasRoute } from '@/lib/api'
 import { getRole } from '@/lib/role'
 
 export interface LiveCounter {
@@ -81,6 +81,17 @@ export function useLiveCounter(run: Run | null, ups: number, repeatMm: number): 
     } else {
       // EventSource cannot send headers, so the role also goes on the query string.
       const url = `${API_URL}/api/production/counter/stream?run_id=${encodeURIComponent(runId)}&role=${getRole()}`
+      void backendHasRoute('GET', '/api/production/counter/stream').then((served) => {
+        if (cancelled) return
+        if (!served) {
+          simulate(fallbackSeed()) // backend has no counter stream yet
+          return
+        }
+        openStream(url)
+      })
+    }
+
+    function openStream(url: string) {
       try {
         es = new EventSource(url)
         es.onmessage = (ev) => {
