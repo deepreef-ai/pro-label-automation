@@ -12,8 +12,10 @@ npm run dev          # http://localhost:5173 (mock data, no backend needed)
 
 | Script | What it does |
 |---|---|
-| `npm run dev` | Dev server with hot reload |
-| `npm run build` | Type-check (`tsc -b`) and build to `dist/` |
+| `npm run dev` | Dev server with hot reload, **mock** data |
+| `npm run dev:live` | Dev server against the **live** FastAPI backend (`vite --mode live`) |
+| `npm run build` | Type-check (`tsc -b`) and build to `dist/` (mock unless `VITE_API_MODE=live`) |
+| `npm run build:live` | Same, built for live mode |
 | `npm run preview` | Serve the built app (`--port 4173` for the smoke test) |
 | `npm run typecheck` | Type-check only |
 | `npm run lint` | ESLint (typescript-eslint + react-hooks) |
@@ -37,6 +39,34 @@ A GET with no fixture returns "No data yet" (`noData: true`), never a crash. A P
 
 **Live mode** sends `fetch(VITE_API_URL + path)` with the `X-Role` header from the role switcher. Errors surface the
 backend's `{"detail"}` message.
+
+**Sample-data fallback (live mode).** The backend lands in steps (A1: shell, masters, marketing, jobs, design; A2/A3/G1:
+store, production, QC, dispatch, money, agents, floor, chat, Job 360). So every screen keeps working, the client reads
+the backend's `/openapi.json` once; a call to a route the backend does not serve (or that answers 404 `"Not Found"` /
+405) is answered from the mock fixture instead. Such data is marked: `useApi()` returns `sample: true`,
+`isSampleData(data)` is true, `QueryState` shows a small **Sample data** badge, and the top bar shows one while any
+sample data is on screen. A 404 for a missing record (e.g. `job JC-9999 not found`) is *not* replaced. The fallback
+disappears by itself as each endpoint ships.
+
+### Run against the real backend
+
+```bash
+# 1. Build the local demo DB from the client files (git-ignored data/, from the repo root)
+set PYTHONPATH=apps/api
+python -m core.etl.build_demo_db --raw data/raw --db sqlite:///data/demo.db
+
+# 2. Start the API (port 8000). CORS allows :5173 by default; add :4173 to use `npm run preview`.
+set DATABASE_URL=sqlite:///data/demo.db
+set CORS_ORIGINS=http://localhost:5173,http://localhost:4173
+python -m uvicorn app.main:app --port 8000
+
+# 3. In apps/web
+npm run dev:live                 # http://localhost:5173, live data
+# or: npm run build:live && npm run preview
+```
+
+Set `VITE_API_URL` if the API is not on `http://localhost:8000`. The smoke test (`npm run test:e2e`) always uses
+mock mode.
 
 ## Using the API
 

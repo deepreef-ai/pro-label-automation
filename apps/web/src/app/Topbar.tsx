@@ -1,5 +1,5 @@
 import { Check, ChevronDown, Cloud, Cpu, Menu, Moon, Search, Sun, UserRound } from 'lucide-react'
-import { useApi } from '@/lib/api'
+import { useApi, useSampleDataShown } from '@/lib/api'
 import { ROLES, ROLE_LABELS, setRole, useRole, type Role } from '@/lib/role'
 import { cn } from '@/lib/utils'
 import {
@@ -10,6 +10,7 @@ import {
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
   DropdownMenuSeparator,
+  DemoBadge,
   DropdownMenuTrigger,
   Kbd,
   Tooltip,
@@ -35,6 +36,19 @@ function AiModePill() {
         AI: {local ? 'Local' : 'Cloud'}
       </span>
     </Tooltip>
+  )
+}
+
+/** Live mode: some data on screen is sample data because the backend lacks that endpoint yet. */
+function SampleDataPill() {
+  const shown = useSampleDataShown()
+  return (
+    <DemoBadge
+      show={shown}
+      label="Sample data"
+      title="Part of this screen uses sample data: the live backend does not serve that endpoint yet."
+      className="hidden sm:inline-flex"
+    />
   )
 }
 
@@ -94,6 +108,7 @@ export function Topbar({ onOpenSearch, onOpenMobileNav }: { onOpenSearch: () => 
       </button>
 
       <div className="ml-auto flex items-center gap-2">
+        <SampleDataPill />
         <AiModePill />
         <FeedbackDialog />
         <Tooltip content={theme === 'dark' ? 'Light mode' : 'Dark mode'}>

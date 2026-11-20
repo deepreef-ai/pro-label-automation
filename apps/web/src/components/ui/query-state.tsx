@@ -4,6 +4,9 @@ import type { UseApiResult } from '@/lib/api'
 import { Button } from './button'
 import { EmptyState } from './empty-state'
 import { PageSkeleton } from './skeleton'
+import { DemoBadge } from './badge'
+
+const SAMPLE_TITLE = 'The live backend does not serve this yet; showing sample data from the demo fixtures.'
 
 /**
  * Renders loading / "No data yet" / error for a useApi() result, else children(data).
@@ -53,5 +56,15 @@ export function QueryState<T>({
     )
   }
   if (data === undefined) return <>{loading ?? <PageSkeleton />}</>
+  if (query.sample) {
+    return (
+      <>
+        <div className="mb-2 flex justify-end">
+          <DemoBadge label="Sample data" title={SAMPLE_TITLE} />
+        </div>
+        {children(data)}
+      </>
+    )
+  }
   return <>{children(data)}</>
 }
