@@ -124,6 +124,23 @@ npm run dev                      # runs on mock data until the API is connected
 
 A single `run-demo` command will start everything once issue #19 (G2) is merged.
 
+### LLM providers and keys (`.env`)
+
+All AI calls go through one gateway (`apps/api/core/llm/`, details in its README). Every provider is
+optional and used only when its key is set in `.env` (copy `.env.example`; **never commit `.env` or keys**).
+
+| Provider | Key env | Cost |
+|---|---|---|
+| Claude (Anthropic SDK, `claude-opus-5-5`) | `ANTHROPIC_API_KEY` | paid: ~$4 / $20 per million input / output tokens |
+| Groq, Cerebras, Gemini, SambaNova, Mistral, NVIDIA, GitHub Models, OpenRouter, Hugging Face | `GROQ_API_KEY`, `CEREBRAS_API_KEY`, `GEMINI_API_KEY`, `SAMBANOVA_API_KEY`, `MISTRAL_API_KEY`, `NVIDIA_API_KEY`, `GITHUB_MODELS_TOKEN`, `OPENROUTER_API_KEY`, `HF_TOKEN` | free tiers |
+| Ollama (local) | none (`OLLAMA_URL`) | free |
+
+- **Order:** `LLM_ORDER` (default `anthropic,groq,cerebras,gemini,sambanova,mistral,nvidia,github,openrouter,huggingface,ollama`). Claude goes first when its key is set; put the free ones first to save money.
+- **More keys:** add `<KEY>_2` .. `<KEY>_9` (e.g. `GEMINI_API_KEY_2`). Calls rotate across keys; a key that hits 429/quota/5xx rests for `LLM_COOLDOWN_SECONDS` (60).
+- **Speed:** `LLM_PARALLEL=2` races two providers and keeps the first answer (`1` = one at a time).
+- **Models:** each provider has a `<NAME>_MODEL` override; `ANTHROPIC_EFFORT` (`low` default) trades Claude speed/cost for depth.
+- **Privacy:** in cloud mode client and vendor names are replaced by aliases before any request leaves the machine (Claude included); `AI_MODE=local` uses only Ollama.
+
 ---
 
 ## How we work

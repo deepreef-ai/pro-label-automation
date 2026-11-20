@@ -6,10 +6,16 @@
     except LLMUnavailable:
         ...  # deterministic fallback
 
-Flow of ``complete``: answer cache -> anonymize (cloud mode only) -> provider
-chain in order (skip unavailable, on any error/timeout/429 try the next) ->
-restore names -> optional JSON extraction/validation. If every provider fails,
-``LLMUnavailable`` is raised. The LLM never computes money or stock.
+Flow of ``complete``: answer cache -> anonymize (every non-local provider in
+cloud mode) -> provider chain in order (skip unavailable, on any error/timeout/429
+try the next) -> restore names -> optional JSON extraction/validation. If every
+provider fails, ``LLMUnavailable`` is raised. The LLM never computes money or stock.
+
+Hedged requests: with ``parallel=N`` (env ``LLM_PARALLEL``, default 2) the first N
+available providers are raced in threads; the first good answer wins and the rest
+are ignored. Each failure starts the next provider in the chain, so at most N calls
+are in flight. ``parallel=1`` is strictly sequential. A gateway built with an
+explicit ``providers=`` list is sequential unless ``parallel=`` is also passed.
 """
 from __future__ import annotations
 
@@ -18,6 +24,7 @@ import logging
 import os
 import threading
 from collections.abc import Iterable
+from concurrent.futures import FIRST_COMPLETED, ThreadPoolExecutor, wait
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -124,6 +131,7 @@ class LLMGateway:
         anonymizer: Anonymizer | None = None,
         cache_purposes: Iterable[str] | None = None,
         record: bool | None = None,
+        parallel: int | None = None,
     ):
         """
         providers: ordered chain (objects with ``name``, ``available``,
@@ -134,6 +142,8 @@ class LLMGateway:
         anonymizer: applied to outgoing messages in cloud mode only.
         cache_purposes: purposes that may be answered from cache; None = all.
         record: also store live answers in the cache (env ``LLM_CACHE_RECORD=1``).
+        parallel: providers raced at once. Default: 1 when ``providers`` is given
+            (deterministic tests), else env ``LLM_PARALLEL`` or 2.
         """
         self.mode = (mode or os.getenv("AI_MODE") or "cloud").strip().lower()
         if self.mode not in MODES:
@@ -151,6 +161,9 @@ class LLMGateway:
         if record is None:
             record = os.getenv("LLM_CACHE_RECORD", "").strip() in ("1", "true", "yes")
         self.record = record
+        if parallel is None:
+            parallel = 1 if self._custom_providers else _env_int("LLM_PARALLEL", 2)
+        self.parallel = max(1, int(parallel))
 
     # -- configuration
 
@@ -171,7 +184,8 @@ class LLMGateway:
 
     def status(self) -> list[dict]:
         return [
-            {"name": p.name, "available": _available(p), "local": _is_local(p)}
+            {"name": p.name, "available": _available(p), "local": _is_local(p),
+             "paid": bool(getattr(p, "paid", False)), "keys": getattr(p, "keys", None)}
             for p in self.chain()
         ]
 
@@ -208,32 +222,82 @@ class LLMGateway:
             out_messages = [_json_instruction(json_schema)] + out_messages
 
         errors: list = []
-        for provider in self.chain():
-            name = getattr(provider, "name", type(provider).__name__)
-            if not _available(provider):
-                continue
-            mapping: dict = {}
-            send = out_messages
-            if self.anonymizer is not None and self.mode == "cloud" and not _is_local(provider):
-                send, mapping = self._anonymize(out_messages)
-            try:
-                raw = provider.complete(send, json_schema=json_schema, timeout=timeout)
-                text = Anonymizer.restore(raw, mapping) if mapping else raw
-                data = self._parse(text, json_schema)
-            except Exception as exc:  # error, timeout, 429, bad JSON -> next
-                log.warning("LLM provider %s failed (purpose=%s): %s", name, purpose, exc)
-                errors.append((name, str(exc)))
-                continue
-            if use_cache and self.record:
+        chain = [p for p in self.chain() if _available(p)]
+        width = 1 if self.mode == "local" else self.parallel
+        if width <= 1:
+            for provider in chain:
                 try:
-                    self.cache.put(messages, text, purpose)
-                except OSError as exc:
-                    log.warning("could not write LLM cache: %s", exc)
-            return LLMResult(text=text, provider=name, cached=False, data=data, errors=errors)
+                    text, data = self._attempt(provider, out_messages, json_schema, timeout)
+                except Exception as exc:  # error, timeout, 429, bad JSON -> next
+                    self._failed(provider, purpose, exc, errors)
+                    continue
+                return self._success(provider, text, data, errors, messages, purpose, use_cache)
+        else:
+            won = self._race(chain, width, out_messages, json_schema, timeout, purpose, errors)
+            if won is not None:
+                provider, text, data = won
+                return self._success(provider, text, data, errors, messages, purpose, use_cache)
 
         raise LLMUnavailable(
             "all LLM providers failed" if errors else "no LLM provider configured", errors
         )
+
+    # -- provider calls
+
+    def _attempt(self, provider, out_messages, json_schema, timeout) -> tuple[str, Any]:
+        mapping: dict = {}
+        send = out_messages
+        if self.anonymizer is not None and self.mode == "cloud" and not _is_local(provider):
+            send, mapping = self._anonymize(out_messages)
+        raw = provider.complete(send, json_schema=json_schema, timeout=timeout)
+        text = Anonymizer.restore(raw, mapping) if mapping else raw
+        return text, self._parse(text, json_schema)
+
+    def _race(self, chain, width, out_messages, json_schema, timeout, purpose, errors):
+        """Keep up to ``width`` providers in flight; first success wins."""
+        pending = list(chain)
+        if not pending:
+            return None
+        pool = ThreadPoolExecutor(max_workers=width, thread_name_prefix="llm-hedge")
+        running: dict = {}
+        try:
+            def launch():
+                while pending and len(running) < width:
+                    p = pending.pop(0)
+                    fut = pool.submit(self._attempt, p, out_messages, json_schema, timeout)
+                    running[fut] = p
+
+            launch()
+            while running:
+                done, _ = wait(list(running), return_when=FIRST_COMPLETED)
+                for fut in done:
+                    provider = running.pop(fut)
+                    try:
+                        text, data = fut.result()
+                    except Exception as exc:
+                        self._failed(provider, purpose, exc, errors)
+                        continue
+                    return provider, text, data
+                launch()
+            return None
+        finally:
+            # Losers keep running until their own timeout; their answers are ignored.
+            pool.shutdown(wait=False, cancel_futures=True)
+
+    @staticmethod
+    def _failed(provider, purpose, exc, errors) -> None:
+        name = getattr(provider, "name", type(provider).__name__)
+        log.warning("LLM provider %s failed (purpose=%s): %s", name, purpose, exc)
+        errors.append((name, str(exc)))
+
+    def _success(self, provider, text, data, errors, messages, purpose, use_cache) -> LLMResult:
+        name = getattr(provider, "name", type(provider).__name__)
+        if use_cache and self.record:
+            try:
+                self.cache.put(messages, text, purpose)
+            except OSError as exc:
+                log.warning("could not write LLM cache: %s", exc)
+        return LLMResult(text=text, provider=name, cached=False, data=data, errors=list(errors))
 
     # -- helpers
 
@@ -255,6 +319,13 @@ class LLMGateway:
         data = extract_json(text)
         validate_json(data, json_schema)
         return data
+
+
+def _env_int(name: str, default: int) -> int:
+    try:
+        return int(os.getenv(name) or default)
+    except ValueError:
+        return default
 
 
 def _available(p) -> bool:
