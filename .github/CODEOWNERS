@@ -8,19 +8,16 @@
 # ---- Areas ----
 /apps/web/              @Vinay-deepreef
 /apps/api/chat/         @Vinay-deepreef
-# TODO: add Ravi's GitHub username here
-/apps/api/app/          @Vinay-deepreef
-# TODO: add Ravi's GitHub username here
-/apps/api/agents/       @Vinay-deepreef
-# TODO: add Ravi's GitHub username here
-/infra/                 @Vinay-deepreef
+/apps/api/app/          @Ravi-deepreef
+/apps/api/agents/       @Ravi-deepreef
+/infra/                 @Ravi-deepreef
 
 # ---- Locked (need the other developer's approval) ----
-/tests/                 @Vinay-deepreef
-/apps/web/e2e/          @Vinay-deepreef
-/.github/               @Vinay-deepreef
-/scripts/ci/            @Vinay-deepreef
-/contract/              @Vinay-deepreef
-/pyproject.toml         @Vinay-deepreef
-/requirements-dev.txt   @Vinay-deepreef
-/CLAUDE.md @Vinay-deepreef  # TODO: add Ravi so a change needs the other developer's review
+/tests/                 @Vinay-deepreef @Ravi-deepreef
+/apps/web/e2e/          @Vinay-deepreef @Ravi-deepreef
+/.github/               @Vinay-deepreef @Ravi-deepreef
+/scripts/ci/            @Vinay-deepreef @Ravi-deepreef
+/contract/              @Vinay-deepreef @Ravi-deepreef
+/pyproject.toml         @Vinay-deepreef @Ravi-deepreef
+/requirements-dev.txt   @Vinay-deepreef @Ravi-deepreef
+/CLAUDE.md              @Vinay-deepreef @Ravi-deepreef
