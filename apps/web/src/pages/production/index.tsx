@@ -1,7 +1,8 @@
 import { useMemo, useState } from 'react'
 import { Factory } from 'lucide-react'
 import type { JobListResponse, Machine, Run, Settings } from '@contract/types'
-import { useApi } from '@/lib/api'
+import { api, useApi } from '@/lib/api'
+import { withAdded } from '@/pages/store/common'
 import { formatDateTime, formatNumber, formatPercent } from '@/lib/format'
 import {
   type Column,
@@ -32,7 +33,16 @@ export default function ProductionPage() {
   const [endRun, setEndRun] = useState<Run | null>(null)
   const [result, setResult] = useState<Run | null>(null)
 
-  const runs = useMemo(() => [...extra, ...(runsQ.data ?? []).map((r) => overrides[r.id] ?? r)], [extra, runsQ.data, overrides])
+  const runs = useMemo(
+    () => withAdded(extra, (runsQ.data ?? []).map((r) => overrides[r.id] ?? r)),
+    [extra, runsQ.data, overrides],
+  )
+  // Live mode: reload runs and jobs after a start/end (job status, printed totals, morning numbers).
+  const refreshLive = () => {
+    if (api.mode !== 'live') return
+    runsQ.refetch()
+    jobsQ.refetch()
+  }
   const presses = useMemo(() => (machinesQ.data ?? []).filter((m) => m.type === 'press'), [machinesQ.data])
   const jobs = jobsQ.data?.items ?? []
 
@@ -154,6 +164,7 @@ export default function ProductionPage() {
           setExtra((x) => [r, ...x])
           setSelectedId(r.machine_id)
           setStartFor(null)
+          refreshLive()
         }}
       />
       <EndRunDialog
@@ -168,6 +179,7 @@ export default function ProductionPage() {
           else setOverrides((o) => ({ ...o, [r.id]: r }))
           setResult(r)
           setEndRun(null)
+          refreshLive()
         }}
       />
     </div>

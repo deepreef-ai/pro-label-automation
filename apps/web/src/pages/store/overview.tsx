@@ -161,6 +161,9 @@ function Ageing({ stock }: { stock: StockResponse }) {
   const buckets = useMemo(() => {
     const b = { moving: { n: 0, v: 0 }, slow: { n: 0, v: 0 }, non: { n: 0, v: 0 } }
     for (const it of stock.items) {
+      // The real ERP import has items issued beyond opening + received (negative stock). They hold no
+      // stock to age and would turn the bars negative, so only items with stock on hand count here.
+      if (!(it.value > 0)) continue
       const days = daysBetween(it.last_movement, stock.as_of)
       const key = it.status === 'non_moving' || days > 90 ? 'non' : days > 30 ? 'slow' : 'moving'
       b[key].n += 1
@@ -202,7 +205,9 @@ function Ageing({ stock }: { stock: StockResponse }) {
 }
 
 function BelowMin({ stock }: { stock: StockResponse }) {
-  const rows = stock.items.filter((i) => i.stock < i.min_stock || i.status === 'low' || i.status === 'short')
+  const all = stock.items.filter((i) => i.stock < i.min_stock || i.status === 'low' || i.status === 'short')
+  // The real item master has well over a hundred items below minimum: show the worst first, capped.
+  const rows = [...all].sort((a, b) => rank(a) - rank(b) || a.stock - a.min_stock - (b.stock - b.min_stock)).slice(0, BELOW_MIN_SHOWN)
   if (rows.length === 0)
     return <EmptyState compact icon={PackageCheck} title="All items above minimum" description="Nothing to reorder today." />
   return (
@@ -225,9 +230,17 @@ function BelowMin({ stock }: { stock: StockResponse }) {
           </div>
         </li>
       ))}
+      {all.length > rows.length && (
+        <li className="pt-3 text-sm text-muted-foreground">
+          and {formatNumber(all.length - rows.length)} more items below minimum (see All stock)
+        </li>
+      )}
     </ul>
   )
 }
+
+const BELOW_MIN_SHOWN = 10
+const rank = (i: StockResponse['items'][number]) => (i.status === 'short' ? 0 : i.status === 'low' ? 1 : 2)
 
 function DataQualityPanel({ onOpenTab }: { onOpenTab: (tab: string) => void }) {
   const q = useApi<DataQuality>('/api/store/data-quality')
