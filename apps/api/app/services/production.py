@@ -387,7 +387,8 @@ def oee(db: Session, month: str | None) -> dict:
         qual = min(Decimal(apr) / Decimal(chk), Decimal(1)) if chk > 0 else Decimal(1)
         a, p, q = (float(x.quantize(Decimal("0.0001"))) for x in (avail, perf, qual))
         value = P.oee(a, p, q)
-        oees.append(value)
+        if mine:  # plant OEE averages presses that ran; idle presses show their own 0 below
+            oees.append(value)
         losses: dict[str, int] = defaultdict(int)
         for r in mine:
             for s in r["stops"]:
