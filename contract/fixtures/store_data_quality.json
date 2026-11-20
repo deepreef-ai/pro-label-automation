@@ -1,0 +1,98 @@
+{
+  "period_from": "2026-08-01",
+  "period_to": "2026-10-31",
+  "source": "ERP issue + GRN export (Aug-Oct 2026)",
+  "issue_lines": 1834,
+  "issue_lines_without_jc": 514,
+  "pct_without_jc": 0.2803,
+  "value_without_jc": 186240.0,
+  "date_fixes": {
+    "count": 212,
+    "examples": [
+      {
+        "source_row": 118,
+        "doc_no": "PL/GI/27/9012",
+        "raw": "03-11-26",
+        "excel_read_as": "2026-03-11",
+        "fixed_to": "2026-11-03"
+      },
+      {
+        "source_row": 245,
+        "doc_no": "PL/GI/27/9140",
+        "raw": "07/10/2026",
+        "excel_read_as": "2026-07-10",
+        "fixed_to": "2026-10-07"
+      },
+      {
+        "source_row": 389,
+        "doc_no": "PL/GR/27/2210",
+        "raw": "12-09-26",
+        "excel_read_as": "2026-12-09",
+        "fixed_to": "2026-09-12"
+      },
+      {
+        "source_row": 402,
+        "doc_no": "PL/GI/27/9301",
+        "raw": "25-10-2026",
+        "excel_read_as": null,
+        "fixed_to": "2026-10-25"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "key": "issue_without_jc",
+      "label": "Issue lines without job card",
+      "count": 514,
+      "pct": 0.2803,
+      "value": 186240.0,
+      "severity": "high",
+      "link": "/store?tab=issues&jc=missing"
+    },
+    {
+      "key": "date_fixes",
+      "label": "Dates fixed to day-first",
+      "count": 212,
+      "pct": 0.1156,
+      "value": null,
+      "severity": "medium",
+      "link": "/store?tab=data-quality#dates"
+    },
+    {
+      "key": "unknown_job_card",
+      "label": "Job card not in PPIC register",
+      "count": 37,
+      "pct": 0.0202,
+      "value": 21480.0,
+      "severity": "medium",
+      "link": "/store?tab=issues&jc=unknown"
+    },
+    {
+      "key": "item_no_rate",
+      "label": "Items without rate",
+      "count": 19,
+      "pct": null,
+      "value": null,
+      "severity": "medium",
+      "link": "/store?tab=items&rate=missing"
+    },
+    {
+      "key": "item_no_head",
+      "label": "Items without stock head",
+      "count": 11,
+      "pct": null,
+      "value": null,
+      "severity": "low",
+      "link": "/store?tab=items&head=missing"
+    },
+    {
+      "key": "duplicate_grn",
+      "label": "Possible duplicate GRN lines",
+      "count": 4,
+      "pct": null,
+      "value": 38600.0,
+      "severity": "medium",
+      "link": "/store?tab=grns&dup=1"
+    }
+  ]
+}

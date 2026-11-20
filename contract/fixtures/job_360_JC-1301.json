@@ -1,0 +1,568 @@
+{
+  "job": {
+    "job_card": "JC-1301",
+    "created_on": "2026-11-03",
+    "client_id": "CL-001",
+    "client_name": "Fresh Juice Co.",
+    "po_no": "FJ/2026/118",
+    "po_date": "2026-11-02",
+    "product": "Mango juice 200 ml bottle label",
+    "label_size": "60 x 80 mm",
+    "order_qty": 50000,
+    "rate": 0.6,
+    "po_value": 30000.0,
+    "item_id": "IT-0101",
+    "material": "PP White 250 mm",
+    "paper_width_mm": 250,
+    "machine_id": "M-01",
+    "machine_name": "Gallus EM 280",
+    "ups_across": 4,
+    "ups_along": 3,
+    "ups": 12,
+    "repeat_mm": 254.0,
+    "units": [
+      "Cyan",
+      "Magenta",
+      "Yellow",
+      "Black",
+      "Gloss varnish"
+    ],
+    "required_m": 1058.33,
+    "planned_m": 1164.17,
+    "issued_m": 1150.0,
+    "printed_qty": 52000,
+    "qc_approved": 50900,
+    "dispatched_qty": 50000,
+    "invoiced_qty": 50000,
+    "status": "invoiced",
+    "priority": "normal",
+    "due_date": "2026-11-14",
+    "enquiry_id": "ENQ-0045",
+    "quote_id": "Q-0045",
+    "flags": [],
+    "is_demo": true
+  },
+  "enquiry": {
+    "id": "ENQ-0045",
+    "date": "2026-10-28",
+    "client_id": "CL-001",
+    "client_name": "Fresh Juice Co.",
+    "product": "Mango juice 200 ml bottle label",
+    "label_size": "60 x 80 mm",
+    "qty": 50000,
+    "material": "PP White",
+    "colours": 5,
+    "finish": "Gloss varnish",
+    "source": "whatsapp",
+    "assigned_to": "Rohit Mehra",
+    "status": "won",
+    "quote_id": "Q-0045",
+    "value": 30000.0,
+    "lost_reason": null,
+    "follow_up_on": null,
+    "job_card": "JC-1301",
+    "is_demo": true
+  },
+  "quote": {
+    "id": "Q-0045",
+    "enquiry_id": "ENQ-0045",
+    "date": "2026-10-29",
+    "qty": 50000,
+    "rate": 0.6,
+    "value": 30000.0,
+    "cost_estimate": 20575.0,
+    "margin_pct": 0.3142,
+    "valid_until": "2026-11-13",
+    "notes": "Ex-works Pune; GST 18% extra; 30 days credit",
+    "status": "accepted",
+    "is_demo": true
+  },
+  "design": {
+    "job_card": "JC-1301",
+    "client_name": "Fresh Juice Co.",
+    "product": "Mango juice 200 ml bottle label",
+    "stage": "done",
+    "designer": "Kavya Nair",
+    "artwork_version": 1,
+    "proof_sent_on": "2026-11-05",
+    "approved_on": "2026-11-06",
+    "approved_by": "Anil Deshmukh (client)",
+    "repeat_mm": 254.0,
+    "ups_across": 4,
+    "ups_along": 3,
+    "die_id": "D-114",
+    "plate_ids": [
+      "PL-00871",
+      "PL-00872",
+      "PL-00873",
+      "PL-00874",
+      "PL-00875"
+    ],
+    "units": [
+      {
+        "unit": 1,
+        "colour": "Cyan",
+        "anilox_lpi": 800,
+        "plate_id": "PL-00871"
+      },
+      {
+        "unit": 2,
+        "colour": "Magenta",
+        "anilox_lpi": 800,
+        "plate_id": "PL-00872"
+      },
+      {
+        "unit": 3,
+        "colour": "Yellow",
+        "anilox_lpi": 700,
+        "plate_id": "PL-00873"
+      },
+      {
+        "unit": 4,
+        "colour": "Black",
+        "anilox_lpi": 900,
+        "plate_id": "PL-00874"
+      },
+      {
+        "unit": 5,
+        "colour": "Gloss varnish",
+        "anilox_lpi": 400,
+        "plate_id": "PL-00875"
+      }
+    ],
+    "route": [
+      "Print Gallus EM 280",
+      "Inspection RW-1",
+      "Slitting / rewinding",
+      "Pack"
+    ],
+    "notes": "Varnish spot-free on barcode area",
+    "updated_at": "2026-11-07T17:30:00+05:30",
+    "is_demo": true
+  },
+  "plates": [
+    {
+      "id": "PL-00871",
+      "job_card": "JC-1301",
+      "client_name": "Fresh Juice Co.",
+      "unit": 1,
+      "colour": "Cyan",
+      "made_on": "2026-11-07",
+      "vendor_id": "VN-004",
+      "cost": 500.0,
+      "impressions": 7534,
+      "status": "in_use",
+      "rack": "P-3-1",
+      "is_demo": true
+    },
+    {
+      "id": "PL-00872",
+      "job_card": "JC-1301",
+      "client_name": "Fresh Juice Co.",
+      "unit": 2,
+      "colour": "Magenta",
+      "made_on": "2026-11-07",
+      "vendor_id": "VN-004",
+      "cost": 500.0,
+      "impressions": 7534,
+      "status": "in_use",
+      "rack": "P-3-2",
+      "is_demo": true
+    },
+    {
+      "id": "PL-00873",
+      "job_card": "JC-1301",
+      "client_name": "Fresh Juice Co.",
+      "unit": 3,
+      "colour": "Yellow",
+      "made_on": "2026-11-07",
+      "vendor_id": "VN-004",
+      "cost": 500.0,
+      "impressions": 7534,
+      "status": "in_use",
+      "rack": "P-3-3",
+      "is_demo": true
+    },
+    {
+      "id": "PL-00874",
+      "job_card": "JC-1301",
+      "client_name": "Fresh Juice Co.",
+      "unit": 4,
+      "colour": "Black",
+      "made_on": "2026-11-07",
+      "vendor_id": "VN-004",
+      "cost": 500.0,
+      "impressions": 7534,
+      "status": "in_use",
+      "rack": "P-4-1",
+      "is_demo": true
+    },
+    {
+      "id": "PL-00875",
+      "job_card": "JC-1301",
+      "client_name": "Fresh Juice Co.",
+      "unit": 5,
+      "colour": "Gloss varnish",
+      "made_on": "2026-11-07",
+      "vendor_id": "VN-004",
+      "cost": 500.0,
+      "impressions": 7534,
+      "status": "in_use",
+      "rack": "P-4-2",
+      "is_demo": true
+    }
+  ],
+  "die": {
+    "id": "D-114",
+    "type": "rotary",
+    "label_size": "60 x 80 mm",
+    "ups_across": 4,
+    "ups_along": 3,
+    "repeat_mm": 254.0,
+    "vendor_id": "VN-004",
+    "cost": 14500.0,
+    "made_on": "2025-07-02",
+    "last_job_card": "JC-1316",
+    "impressions": 182400,
+    "status": "ok",
+    "location": "Die rack A-3",
+    "is_demo": true
+  },
+  "issues": [
+    {
+      "id": "ISS-02218",
+      "date": "2026-11-10",
+      "job_card": "JC-1301",
+      "item_id": "IT-0101",
+      "item_name": "PP White 250 mm",
+      "qty": 575.0,
+      "uom": "m",
+      "sqm": 143.75,
+      "roll_id": "R-2026-0912",
+      "rate": 38.0,
+      "value": 5462.5,
+      "issued_to": "Gallus EM 280",
+      "source": "app",
+      "is_demo": true
+    },
+    {
+      "id": "ISS-02219",
+      "date": "2026-11-10",
+      "job_card": "JC-1301",
+      "item_id": "IT-0101",
+      "item_name": "PP White 250 mm",
+      "qty": 575.0,
+      "uom": "m",
+      "sqm": 143.75,
+      "roll_id": "R-2026-0913",
+      "rate": 38.0,
+      "value": 5462.5,
+      "issued_to": "Gallus EM 280",
+      "source": "app",
+      "is_demo": true
+    }
+  ],
+  "rolls": [
+    {
+      "id": "R-2026-0912",
+      "item_id": "IT-0101",
+      "item_name": "PP White 250 mm",
+      "width_mm": 250,
+      "length_m": 1000.0,
+      "balance_m": 425.0,
+      "source": "grn",
+      "source_ref": "GRN-00412",
+      "received_on": "2026-11-04",
+      "status": "partly_issued",
+      "issued_to": [
+        "JC-1301"
+      ],
+      "location": "Bay 2 / Rack 4",
+      "is_demo": true
+    },
+    {
+      "id": "R-2026-0913",
+      "item_id": "IT-0101",
+      "item_name": "PP White 250 mm",
+      "width_mm": 250,
+      "length_m": 1000.0,
+      "balance_m": 425.0,
+      "source": "grn",
+      "source_ref": "GRN-00412",
+      "received_on": "2026-11-04",
+      "status": "partly_issued",
+      "issued_to": [
+        "JC-1301"
+      ],
+      "location": "Bay 2 / Rack 4",
+      "is_demo": true
+    }
+  ],
+  "runs": [
+    {
+      "id": "RUN-05531",
+      "job_card": "JC-1301",
+      "client_name": "Fresh Juice Co.",
+      "machine_id": "M-01",
+      "machine_name": "Gallus EM 280",
+      "machine_type": "press",
+      "shift": "day",
+      "operator": "Suresh Patil",
+      "start": "2026-11-10T10:00:00+05:30",
+      "end": "2026-11-10T13:30:00+05:30",
+      "hours": 3.5,
+      "status": "ended",
+      "printed_qty": 52000,
+      "required_m": 1058.33,
+      "used_m": 1150.0,
+      "wastage_m": 91.67,
+      "wastage_pct": 0.0866,
+      "wastage_flag": false,
+      "overprod_flag": false,
+      "hour_rate": 800.0,
+      "crew_cost": 2800.0,
+      "stops": [
+        {
+          "reason": "Make-ready",
+          "minutes": 20
+        }
+      ],
+      "is_demo": true
+    },
+    {
+      "id": "RUN-05532",
+      "job_card": "JC-1301",
+      "client_name": "Fresh Juice Co.",
+      "machine_id": "M-06",
+      "machine_name": "Inspection Rewinder RW-1",
+      "machine_type": "offline",
+      "shift": "day",
+      "operator": "Vikas More",
+      "start": "2026-11-11T09:00:00+05:30",
+      "end": "2026-11-11T11:00:00+05:30",
+      "hours": 2.0,
+      "status": "ended",
+      "printed_qty": 52000,
+      "required_m": null,
+      "used_m": null,
+      "wastage_m": null,
+      "wastage_pct": null,
+      "wastage_flag": false,
+      "overprod_flag": false,
+      "hour_rate": 200.0,
+      "crew_cost": 400.0,
+      "stops": [],
+      "is_demo": true
+    }
+  ],
+  "qc": [
+    {
+      "id": "QC-03310",
+      "date": "2026-11-11",
+      "job_card": "JC-1301",
+      "client_name": "Fresh Juice Co.",
+      "run_id": "RUN-05531",
+      "checked": 52000,
+      "approved": 50900,
+      "rejected": 1100,
+      "rejection_pct": 0.0212,
+      "decision": "Approved",
+      "counts_as_approved": true,
+      "defects": [
+        {
+          "type": "Colour variation",
+          "qty": 600
+        },
+        {
+          "type": "Die-cut miss",
+          "qty": 300
+        },
+        {
+          "type": "Ink smudge",
+          "qty": 200
+        }
+      ],
+      "inspector": "QC Inspector B",
+      "notes": "",
+      "is_demo": true
+    }
+  ],
+  "dispatches": [
+    {
+      "id": "DC-1388",
+      "date": "2026-11-12",
+      "job_card": "JC-1301",
+      "client_id": "CL-001",
+      "client_name": "Fresh Juice Co.",
+      "qty": 50000,
+      "boxes": 10,
+      "vehicle_no": "MH12 PQ 3321",
+      "transporter": "Metro Freight Carriers",
+      "freight": 600.0,
+      "lr_no": "MFC/55260",
+      "qc_approved": 50900,
+      "dispatched_before": 0,
+      "balance_after": 900,
+      "status": "invoiced",
+      "invoice_id": "INV-2390",
+      "is_demo": true
+    }
+  ],
+  "invoices": [
+    {
+      "id": "INV-2390",
+      "date": "2026-11-12",
+      "client_id": "CL-001",
+      "client_name": "Fresh Juice Co.",
+      "job_card": "JC-1301",
+      "dispatch_id": "DC-1388",
+      "qty": 50000,
+      "rate": 0.6,
+      "taxable": 30000.0,
+      "gst_rate": 0.18,
+      "gst": 5400.0,
+      "total": 35400.0,
+      "received": 0.0,
+      "outstanding": 35400.0,
+      "due_date": "2026-12-12",
+      "days_past_due": 0,
+      "bucket": "not_due",
+      "status": "open",
+      "is_demo": true
+    }
+  ],
+  "cost": {
+    "revenue": 30000.0,
+    "revenue_basis": "invoiced",
+    "material": 10925.0,
+    "plates": 2500.0,
+    "ink": 1900.0,
+    "salaries": 2800.0,
+    "freight": 600.0,
+    "admin_share": 1500.0,
+    "direct_overhead": 350.0,
+    "profit": 9425.0,
+    "margin_pct": 0.3142
+  },
+  "timeline": [
+    {
+      "date": "2026-10-28",
+      "stage": "enquiry",
+      "text": "Enquiry on WhatsApp: 50,000 mango juice labels",
+      "ref": "ENQ-0045",
+      "link": "/marketing"
+    },
+    {
+      "date": "2026-10-29",
+      "stage": "quote",
+      "text": "Quote Rs 0.60/label = Rs 30,000 (est. margin 31.4%)",
+      "ref": "Q-0045",
+      "link": "/marketing"
+    },
+    {
+      "date": "2026-11-02",
+      "stage": "po",
+      "text": "PO FJ/2026/118 received",
+      "ref": null,
+      "link": null
+    },
+    {
+      "date": "2026-11-03",
+      "stage": "po",
+      "text": "Job card JC-1301 created on Gallus EM 280",
+      "ref": "JC-1301",
+      "link": "/jobs/JC-1301"
+    },
+    {
+      "date": "2026-11-06",
+      "stage": "design",
+      "text": "Proof approved by client (v1)",
+      "ref": null,
+      "link": "/design"
+    },
+    {
+      "date": "2026-11-07",
+      "stage": "plates",
+      "text": "5 plates made PL-00871..PL-00875 (Rs 2,500)",
+      "ref": null,
+      "link": "/design?tab=plates"
+    },
+    {
+      "date": "2026-11-10",
+      "stage": "store",
+      "text": "Issued 1,150 m PP White 250 mm from R-2026-0912/0913",
+      "ref": "ISS-02218",
+      "link": "/store"
+    },
+    {
+      "date": "2026-11-10",
+      "stage": "production",
+      "text": "Printed 52,000 in 3.5 h; wastage 91.67 m (8.7%)",
+      "ref": "RUN-05531",
+      "link": "/production"
+    },
+    {
+      "date": "2026-11-11",
+      "stage": "qc",
+      "text": "QC: 52,000 checked, 50,900 approved, 1,100 rejected",
+      "ref": "QC-03310",
+      "link": "/qc"
+    },
+    {
+      "date": "2026-11-12",
+      "stage": "dispatch",
+      "text": "Challan DC-1388: 50,000 labels, freight Rs 600",
+      "ref": "DC-1388",
+      "link": "/dispatch"
+    },
+    {
+      "date": "2026-11-12",
+      "stage": "invoice",
+      "text": "INV-2390 Rs 35,400 (taxable 30,000 + GST 5,400), due 12-Dec",
+      "ref": "INV-2390",
+      "link": "/money?tab=invoices"
+    }
+  ],
+  "checks": [
+    {
+      "rule": "wastage_tol",
+      "label": "Wastage % <= 15%",
+      "value": 0.0866,
+      "limit": 0.15,
+      "ok": true,
+      "detail": "91.67 m over 1,058.33 m required"
+    },
+    {
+      "rule": "material_tol",
+      "label": "Issued vs planned within 3%",
+      "value": -0.0122,
+      "limit": 0.03,
+      "ok": true,
+      "detail": "Issued 1,150 m vs planned 1,164.17 m"
+    },
+    {
+      "rule": "overprod_tol",
+      "label": "Printed <= order + 10%",
+      "value": 52000.0,
+      "limit": 55000.0,
+      "ok": true,
+      "detail": "52,000 printed for 50,000 ordered"
+    },
+    {
+      "rule": "qc_balance",
+      "label": "Approved + rejected = checked",
+      "value": 52000.0,
+      "limit": 52000.0,
+      "ok": true,
+      "detail": "50,900 + 1,100 = 52,000"
+    },
+    {
+      "rule": "dispatch_le_qc",
+      "label": "Dispatched <= QC approved",
+      "value": 50000.0,
+      "limit": 50900.0,
+      "ok": true,
+      "detail": "900 approved labels left in stock"
+    }
+  ]
+}

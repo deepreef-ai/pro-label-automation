@@ -1,0 +1,18 @@
+{
+  "id": "COL-0157",
+  "date": "2026-11-20",
+  "client_id": "CL-008",
+  "client_name": "Bharat Home Care Ltd",
+  "invoice_ids": [
+    "INV-2325"
+  ],
+  "mode": "call",
+  "contact": "Dinesh Patel",
+  "note": "Promised NEFT on Monday",
+  "promise_date": "2026-11-23",
+  "promise_amount": 484980.0,
+  "status": "open",
+  "next_follow_up": "2026-11-23",
+  "by": "Accounts",
+  "is_demo": true
+}

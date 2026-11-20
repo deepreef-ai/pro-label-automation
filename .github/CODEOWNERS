@@ -1,0 +1,26 @@
+# Last matching pattern wins, so specific paths come after the default.
+# Every owner listed here must be a real GitHub user with write access,
+# otherwise GitHub ignores the line.
+
+# Default
+*                       @Vinay-deepreef
+
+# ---- Areas ----
+/apps/web/              @Vinay-deepreef
+/apps/api/chat/         @Vinay-deepreef
+# TODO: add Ravi's GitHub username here
+/apps/api/app/          @Vinay-deepreef
+# TODO: add Ravi's GitHub username here
+/apps/api/agents/       @Vinay-deepreef
+# TODO: add Ravi's GitHub username here
+/infra/                 @Vinay-deepreef
+
+# ---- Locked (need the other developer's approval) ----
+/tests/                 @Vinay-deepreef
+/apps/web/e2e/          @Vinay-deepreef
+/.github/               @Vinay-deepreef
+/scripts/ci/            @Vinay-deepreef
+/contract/              @Vinay-deepreef
+/pyproject.toml         @Vinay-deepreef
+/requirements-dev.txt   @Vinay-deepreef
+/CLAUDE.md @Vinay-deepreef  # TODO: add Ravi so a change needs the other developer's review

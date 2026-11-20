@@ -1,0 +1,190 @@
+{
+  "agents": [
+    {
+      "name": "import_checker",
+      "label": "Import checker",
+      "description": "Checks ERP/Excel imports: dates, job cards, duplicates",
+      "schedule": "daily 06:30",
+      "enabled": true,
+      "last_run_at": "2026-11-20T06:30:00+05:30",
+      "last_status": "ok",
+      "open_findings": 1
+    },
+    {
+      "name": "store_watchdog",
+      "label": "Store watchdog",
+      "description": "GRN rates, issues without job card, below-min stock",
+      "schedule": "daily 07:00",
+      "enabled": true,
+      "last_run_at": "2026-11-20T07:00:00+05:30",
+      "last_status": "ok",
+      "open_findings": 1
+    },
+    {
+      "name": "wastage_watchdog",
+      "label": "Wastage watchdog",
+      "description": "Runs above wastage / over-production tolerance",
+      "schedule": "after each run",
+      "enabled": true,
+      "last_run_at": "2026-11-20T07:00:00+05:30",
+      "last_status": "ok",
+      "open_findings": 1
+    },
+    {
+      "name": "planning",
+      "label": "Planning",
+      "description": "Paper needed for open jobs vs stock, late jobs",
+      "schedule": "daily 07:00",
+      "enabled": true,
+      "last_run_at": "2026-11-20T07:00:00+05:30",
+      "last_status": "ok",
+      "open_findings": 1
+    },
+    {
+      "name": "collections",
+      "label": "Collections",
+      "description": "Clients about to lock; drafts reminders",
+      "schedule": "daily 07:00",
+      "enabled": true,
+      "last_run_at": "2026-11-20T07:00:00+05:30",
+      "last_status": "ok",
+      "open_findings": 1
+    },
+    {
+      "name": "payables",
+      "label": "Payables",
+      "description": "MSME and due supplier bills; payment plan",
+      "schedule": "daily 07:00",
+      "enabled": true,
+      "last_run_at": "2026-11-20T07:00:00+05:30",
+      "last_status": "ok",
+      "open_findings": 1
+    },
+    {
+      "name": "month_end",
+      "label": "Month end",
+      "description": "P&L system vs Tally, unbooked costs",
+      "schedule": "monthly, day 5",
+      "enabled": true,
+      "last_run_at": "2026-11-20T07:00:00+05:30",
+      "last_status": "ok",
+      "open_findings": 1
+    },
+    {
+      "name": "owner_brief",
+      "label": "Owner brief",
+      "description": "Morning summary for the owner",
+      "schedule": "daily 07:15",
+      "enabled": true,
+      "last_run_at": "2026-11-20T07:15:00+05:30",
+      "last_status": "ok",
+      "open_findings": 1
+    }
+  ],
+  "recent_runs": [
+    {
+      "id": "AR-0412",
+      "agent": "import_checker",
+      "started_at": "2026-11-20T06:30:00+05:30",
+      "finished_at": "2026-11-20T06:30:09+05:30",
+      "status": "ok",
+      "findings_created": 1,
+      "finding_ids": [
+        "F-0231"
+      ],
+      "model": "rules",
+      "note": ""
+    },
+    {
+      "id": "AR-0413",
+      "agent": "store_watchdog",
+      "started_at": "2026-11-20T07:00:00+05:30",
+      "finished_at": "2026-11-20T07:00:09+05:30",
+      "status": "ok",
+      "findings_created": 1,
+      "finding_ids": [
+        "F-0232"
+      ],
+      "model": "rules",
+      "note": ""
+    },
+    {
+      "id": "AR-0414",
+      "agent": "wastage_watchdog",
+      "started_at": "2026-11-20T07:00:00+05:30",
+      "finished_at": "2026-11-20T07:00:09+05:30",
+      "status": "ok",
+      "findings_created": 1,
+      "finding_ids": [
+        "F-0233"
+      ],
+      "model": "rules",
+      "note": ""
+    },
+    {
+      "id": "AR-0415",
+      "agent": "planning",
+      "started_at": "2026-11-20T07:00:00+05:30",
+      "finished_at": "2026-11-20T07:00:09+05:30",
+      "status": "ok",
+      "findings_created": 1,
+      "finding_ids": [
+        "F-0234"
+      ],
+      "model": "rules",
+      "note": ""
+    },
+    {
+      "id": "AR-0416",
+      "agent": "collections",
+      "started_at": "2026-11-20T07:00:00+05:30",
+      "finished_at": "2026-11-20T07:00:09+05:30",
+      "status": "ok",
+      "findings_created": 1,
+      "finding_ids": [
+        "F-0235"
+      ],
+      "model": "rules + gemini-free",
+      "note": ""
+    },
+    {
+      "id": "AR-0417",
+      "agent": "payables",
+      "started_at": "2026-11-20T07:00:00+05:30",
+      "finished_at": "2026-11-20T07:00:09+05:30",
+      "status": "ok",
+      "findings_created": 1,
+      "finding_ids": [
+        "F-0236"
+      ],
+      "model": "rules",
+      "note": ""
+    },
+    {
+      "id": "AR-0418",
+      "agent": "month_end",
+      "started_at": "2026-11-20T07:00:00+05:30",
+      "finished_at": "2026-11-20T07:00:09+05:30",
+      "status": "ok",
+      "findings_created": 1,
+      "finding_ids": [
+        "F-0237"
+      ],
+      "model": "rules",
+      "note": ""
+    },
+    {
+      "id": "AR-0419",
+      "agent": "owner_brief",
+      "started_at": "2026-11-20T07:15:00+05:30",
+      "finished_at": "2026-11-20T07:15:09+05:30",
+      "status": "ok",
+      "findings_created": 1,
+      "finding_ids": [
+        "F-0238"
+      ],
+      "model": "rules + gemini-free",
+      "note": ""
+    }
+  ]
+}

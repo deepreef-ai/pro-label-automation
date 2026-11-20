@@ -1,0 +1,3 @@
+# Optional heavy local-AI extras (embeddings on CPU). Not installed in CI.
+# pip install -r apps/api/requirements.txt -r apps/api/requirements-ai.txt
+fastembed>=0.3

@@ -1,0 +1,16 @@
+{
+  "id": "ISS-02270",
+  "date": "2026-11-20",
+  "job_card": "JC-1317",
+  "item_id": "IT-0301",
+  "item_name": "Hot Foil Gold 100 mm",
+  "qty": 120.0,
+  "uom": "m",
+  "sqm": null,
+  "roll_id": null,
+  "rate": 4.5,
+  "value": 540.0,
+  "issued_to": "Taiyo 10",
+  "source": "app",
+  "is_demo": true
+}

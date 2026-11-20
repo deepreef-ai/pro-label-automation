@@ -1,0 +1,60 @@
+{
+  "status": "done",
+  "items": [
+    {
+      "id": "F-0219",
+      "agent": "import_checker",
+      "created_at": "2026-11-18T06:30:00+05:30",
+      "severity": "medium",
+      "title": "37 issue lines point to job cards not in PPIC",
+      "detail": "Matched 31 by PO number; 6 left for store to check.",
+      "evidence": [
+        {
+          "label": "Data quality",
+          "link": "/store?tab=data-quality"
+        }
+      ],
+      "suggested_action": {
+        "type": "apply_fixes",
+        "payload": {
+          "kind": "job_card_match",
+          "count": 31
+        }
+      },
+      "status": "done",
+      "decided_by": "store",
+      "decided_at": "2026-11-18T10:12:00+05:30",
+      "reason": null
+    },
+    {
+      "id": "F-0224",
+      "agent": "collections",
+      "created_at": "2026-11-11T07:00:00+05:30",
+      "severity": "high",
+      "title": "Coastal Seafoods promise broken (Rs 1,00,000)",
+      "detail": "Promise for 10-Nov not received; client already locked.",
+      "evidence": [
+        {
+          "label": "Debtors",
+          "link": "/money?tab=debtors"
+        }
+      ],
+      "suggested_action": {
+        "type": "draft_messages",
+        "payload": {
+          "messages": [
+            {
+              "channel": "email",
+              "to": "Coastal Seafoods Exports",
+              "body": "Reminder: Rs 2,42,640 overdue."
+            }
+          ]
+        }
+      },
+      "status": "done",
+      "decided_by": "owner",
+      "decided_at": "2026-11-11T09:02:00+05:30",
+      "reason": null
+    }
+  ]
+}

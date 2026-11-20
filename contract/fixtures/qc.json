@@ -1,0 +1,154 @@
+[
+  {
+    "id": "QC-03296",
+    "date": "2026-11-04",
+    "job_card": "JC-1288",
+    "client_name": "Lotus Cosmetics Pvt Ltd",
+    "run_id": "RUN-05540",
+    "checked": 82000,
+    "approved": 80400,
+    "rejected": 1600,
+    "rejection_pct": 0.0195,
+    "decision": "Approved",
+    "counts_as_approved": true,
+    "defects": [
+      {
+        "type": "Colour variation",
+        "qty": 900
+      },
+      {
+        "type": "Die-cut miss",
+        "qty": 700
+      }
+    ],
+    "inspector": "QC Inspector A",
+    "notes": "",
+    "is_demo": true
+  },
+  {
+    "id": "QC-03310",
+    "date": "2026-11-11",
+    "job_card": "JC-1301",
+    "client_name": "Fresh Juice Co.",
+    "run_id": "RUN-05531",
+    "checked": 52000,
+    "approved": 50900,
+    "rejected": 1100,
+    "rejection_pct": 0.0212,
+    "decision": "Approved",
+    "counts_as_approved": true,
+    "defects": [
+      {
+        "type": "Colour variation",
+        "qty": 600
+      },
+      {
+        "type": "Die-cut miss",
+        "qty": 300
+      },
+      {
+        "type": "Ink smudge",
+        "qty": 200
+      }
+    ],
+    "inspector": "QC Inspector B",
+    "notes": "",
+    "is_demo": true
+  },
+  {
+    "id": "QC-03318",
+    "date": "2026-11-16",
+    "job_card": "JC-1308",
+    "client_name": "Sunrise Pharma Ltd",
+    "run_id": "RUN-05552",
+    "checked": 30000,
+    "approved": 29500,
+    "rejected": 500,
+    "rejection_pct": 0.0167,
+    "decision": "Approved",
+    "counts_as_approved": true,
+    "defects": [
+      {
+        "type": "Ink smudge",
+        "qty": 500
+      }
+    ],
+    "inspector": "QC Inspector A",
+    "notes": "",
+    "is_demo": true
+  },
+  {
+    "id": "QC-03319",
+    "date": "2026-11-17",
+    "job_card": "JC-1308",
+    "client_name": "Sunrise Pharma Ltd",
+    "run_id": "RUN-05552",
+    "checked": 20000,
+    "approved": 19400,
+    "rejected": 600,
+    "rejection_pct": 0.03,
+    "decision": "Hold",
+    "counts_as_approved": false,
+    "defects": [
+      {
+        "type": "Colour variation",
+        "qty": 600
+      }
+    ],
+    "inspector": "QC Inspector A",
+    "notes": "Magenta shift on 2 rolls; waiting for client OK",
+    "is_demo": true
+  },
+  {
+    "id": "QC-03322",
+    "date": "2026-11-18",
+    "job_card": "JC-1295",
+    "client_name": "Green Valley Dairy",
+    "run_id": "RUN-05561",
+    "checked": 104000,
+    "approved": 101800,
+    "rejected": 2200,
+    "rejection_pct": 0.0212,
+    "decision": "Approved",
+    "counts_as_approved": true,
+    "defects": [
+      {
+        "type": "Registration",
+        "qty": 1400
+      },
+      {
+        "type": "Web splice",
+        "qty": 800
+      }
+    ],
+    "inspector": "QC Inspector B",
+    "notes": "",
+    "is_demo": true
+  },
+  {
+    "id": "QC-03330",
+    "date": "2026-11-20",
+    "job_card": "JC-1240",
+    "client_name": "Sunrise Pharma Ltd",
+    "run_id": "RUN-05570",
+    "checked": 60000,
+    "approved": 58200,
+    "rejected": 1800,
+    "rejection_pct": 0.03,
+    "decision": "Approved with Deviation",
+    "counts_as_approved": true,
+    "defects": [
+      {
+        "type": "Plate damage marks",
+        "qty": 1300
+      },
+      {
+        "type": "Colour variation",
+        "qty": 500
+      }
+    ],
+    "inspector": "QC Inspector A",
+    "notes": "Plate-damage streak cut out; remaining 61,500 under inspection",
+    "is_demo": true
+  }
+]

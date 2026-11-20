@@ -1,0 +1,82 @@
+[
+  {
+    "id": "SLT-0077",
+    "date": "2026-11-13",
+    "jumbo_roll_id": "R-2026-0901",
+    "item_name": "PP White 1020 mm jumbo",
+    "jumbo_width_mm": 1020,
+    "length_m": 1500.0,
+    "outputs": [
+      {
+        "width_mm": 250,
+        "count": 4,
+        "roll_ids": [
+          "R-2026-0932",
+          "R-2026-0933",
+          "R-2026-0934",
+          "R-2026-0935"
+        ]
+      }
+    ],
+    "used_width_mm": 1000,
+    "trim_mm": 20,
+    "trim_pct": 0.0196,
+    "trim_flag": false,
+    "trim_value": 1140.0,
+    "operator": "Vikas More",
+    "is_demo": true
+  },
+  {
+    "id": "SLT-0078",
+    "date": "2026-11-15",
+    "jumbo_roll_id": "R-2026-0902",
+    "item_name": "Chromo 1020 mm jumbo",
+    "jumbo_width_mm": 1020,
+    "length_m": 2000.0,
+    "outputs": [
+      {
+        "width_mm": 330,
+        "count": 3,
+        "roll_ids": [
+          "R-2026-0936",
+          "R-2026-0937",
+          "R-2026-0938"
+        ]
+      }
+    ],
+    "used_width_mm": 990,
+    "trim_mm": 30,
+    "trim_pct": 0.0294,
+    "trim_flag": false,
+    "trim_value": 1320.0,
+    "operator": "Vikas More",
+    "is_demo": true
+  },
+  {
+    "id": "SLT-0079",
+    "date": "2026-11-18",
+    "jumbo_roll_id": "R-2026-0903",
+    "item_name": "PP Silver 1020 mm jumbo",
+    "jumbo_width_mm": 1020,
+    "length_m": 1200.0,
+    "outputs": [
+      {
+        "width_mm": 240,
+        "count": 4,
+        "roll_ids": [
+          "R-2026-0941",
+          "R-2026-0942",
+          "R-2026-0943",
+          "R-2026-0944"
+        ]
+      }
+    ],
+    "used_width_mm": 960,
+    "trim_mm": 60,
+    "trim_pct": 0.0588,
+    "trim_flag": true,
+    "trim_value": 3168.0,
+    "operator": "Sanjay Jadhav",
+    "is_demo": true
+  }
+]

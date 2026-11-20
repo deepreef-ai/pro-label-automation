@@ -1,0 +1,58 @@
+{
+  "month": "2026-11",
+  "pool_value": 18240.0,
+  "estimate_value": 16800.0,
+  "variance_pct": 0.0857,
+  "ink_flag": false,
+  "rows": [
+    {
+      "job_card": "JC-1301",
+      "client_name": "Fresh Juice Co.",
+      "est_ink_kg": 1.0,
+      "share_pct": 0.1042,
+      "allocated_value": 1900.0
+    },
+    {
+      "job_card": "JC-1240",
+      "client_name": "Sunrise Pharma Ltd",
+      "est_ink_kg": 2.4,
+      "share_pct": 0.25,
+      "allocated_value": 4560.0
+    },
+    {
+      "job_card": "JC-1288",
+      "client_name": "Lotus Cosmetics Pvt Ltd",
+      "est_ink_kg": 1.6,
+      "share_pct": 0.1667,
+      "allocated_value": 3040.0
+    },
+    {
+      "job_card": "JC-1295",
+      "client_name": "Green Valley Dairy",
+      "est_ink_kg": 1.2,
+      "share_pct": 0.125,
+      "allocated_value": 2280.0
+    },
+    {
+      "job_card": "JC-1308",
+      "client_name": "Sunrise Pharma Ltd",
+      "est_ink_kg": 1.5,
+      "share_pct": 0.1562,
+      "allocated_value": 2850.0
+    },
+    {
+      "job_card": "JC-1304",
+      "client_name": "Neelgiri Aqua Pvt Ltd",
+      "est_ink_kg": 0.9,
+      "share_pct": 0.0938,
+      "allocated_value": 1710.0
+    },
+    {
+      "job_card": "JC-1317",
+      "client_name": "Saffron Sweets & Snacks",
+      "est_ink_kg": 1.0,
+      "share_pct": 0.1042,
+      "allocated_value": 1900.0
+    }
+  ]
+}

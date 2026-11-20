@@ -1,0 +1,21 @@
+{
+  "id": "ENQ-0054",
+  "date": "2026-11-15",
+  "client_id": "CL-006",
+  "client_name": "Royal Spices Pvt Ltd",
+  "product": "Chilli powder 200 g pouch label",
+  "label_size": "75 x 70 mm",
+  "qty": 120000,
+  "material": "Chromo",
+  "colours": 4,
+  "finish": "None",
+  "source": "repeat",
+  "assigned_to": "Pooja Iyer",
+  "status": "won",
+  "quote_id": "Q-0054",
+  "value": 55200.0,
+  "lost_reason": null,
+  "follow_up_on": null,
+  "job_card": null,
+  "is_demo": true
+}

@@ -1,0 +1,101 @@
+{
+  "period": "year",
+  "from": "2026-04-01",
+  "to": "2026-11-20",
+  "revenue": 39850500.0,
+  "invoices_count": 702,
+  "orders_booked_value": 44600000.0,
+  "orders_booked_count": 251,
+  "printed_qty": 19840000,
+  "wastage_pct": 0.1012,
+  "gross_profit": 8410000.0,
+  "margin_pct": 0.211,
+  "cash_in": 38900000.0,
+  "cash_out": 37650000.0,
+  "oee": 0.6034,
+  "trend": [
+    {
+      "label": "Apr",
+      "revenue": 4710000.0,
+      "profit": 968000.0
+    },
+    {
+      "label": "May",
+      "revenue": 5020000.0,
+      "profit": 1061000.0
+    },
+    {
+      "label": "Jun",
+      "revenue": 4880000.0,
+      "profit": 1012000.0
+    },
+    {
+      "label": "Jul",
+      "revenue": 5310000.0,
+      "profit": 1144000.0
+    },
+    {
+      "label": "Aug",
+      "revenue": 5460000.0,
+      "profit": 1170000.0
+    },
+    {
+      "label": "Sep",
+      "revenue": 5368000.0,
+      "profit": 1123300.0
+    },
+    {
+      "label": "Oct",
+      "revenue": 5240000.0,
+      "profit": 1159200.0
+    },
+    {
+      "label": "Nov",
+      "revenue": 3862500.0,
+      "profit": 772500.0
+    }
+  ],
+  "receivables": 4943642.0,
+  "overdue": 4502912.0,
+  "at_risk_value": 4260272.0,
+  "at_risk_clients": 5,
+  "locked_clients": 1,
+  "payables_due_7d": 534800.0,
+  "stock_value": 378773.26,
+  "jobs_by_status": {
+    "qc": 2,
+    "invoiced": 2,
+    "dispatch": 1,
+    "printing": 4,
+    "planned": 2,
+    "design": 2,
+    "hold": 1
+  },
+  "top_clients": [
+    {
+      "client_id": "CL-002",
+      "client_name": "Sunrise Pharma Ltd",
+      "revenue": 842000.0
+    },
+    {
+      "client_id": "CL-006",
+      "client_name": "Royal Spices Pvt Ltd",
+      "revenue": 611500.0
+    },
+    {
+      "client_id": "CL-004",
+      "client_name": "Green Valley Dairy",
+      "revenue": 534000.0
+    },
+    {
+      "client_id": "CL-005",
+      "client_name": "Neelgiri Aqua Pvt Ltd",
+      "revenue": 468000.0
+    },
+    {
+      "client_id": "CL-003",
+      "client_name": "Lotus Cosmetics Pvt Ltd",
+      "revenue": 392500.0
+    }
+  ]
+}

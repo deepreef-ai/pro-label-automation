@@ -1,0 +1,60 @@
+{
+  "month": "2026-11",
+  "from": "2026-11-01",
+  "to": "2026-11-20",
+  "plant_oee": 0.5527,
+  "machines": [
+    {
+      "machine_id": "M-01",
+      "machine_name": "Gallus EM 280",
+      "planned_hours": 152.0,
+      "run_hours": 128.0,
+      "downtime_hours": 24.0,
+      "availability": 0.8421,
+      "performance": 0.74,
+      "quality": 0.9786,
+      "oee": 0.6098,
+      "top_loss": "Plate damage stops (night shift)",
+      "hour_rate": 800.0
+    },
+    {
+      "machine_id": "M-02",
+      "machine_name": "Hontec CI",
+      "planned_hours": 152.0,
+      "run_hours": 118.0,
+      "downtime_hours": 34.0,
+      "availability": 0.7763,
+      "performance": 0.81,
+      "quality": 0.9788,
+      "oee": 0.6155,
+      "top_loss": "Anilox change / maintenance",
+      "hour_rate": 900.0
+    },
+    {
+      "machine_id": "M-03",
+      "machine_name": "Focus",
+      "planned_hours": 152.0,
+      "run_hours": 112.0,
+      "downtime_hours": 40.0,
+      "availability": 0.7368,
+      "performance": 0.77,
+      "quality": 0.9805,
+      "oee": 0.5563,
+      "top_loss": "Make-ready waiting for plates",
+      "hour_rate": 650.0
+    },
+    {
+      "machine_id": "M-04",
+      "machine_name": "Taiyo 10",
+      "planned_hours": 152.0,
+      "run_hours": 96.0,
+      "downtime_hours": 56.0,
+      "availability": 0.6316,
+      "performance": 0.69,
+      "quality": 0.985,
+      "oee": 0.4293,
+      "top_loss": "Waiting for foil / material",
+      "hour_rate": 600.0
+    }
+  ]
+}

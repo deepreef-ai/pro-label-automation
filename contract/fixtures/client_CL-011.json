@@ -1,0 +1,146 @@
+{
+  "client": {
+    "id": "CL-011",
+    "name": "Coastal Seafoods Exports",
+    "gstin": "32AABC011K1Z1",
+    "city": "Kochi",
+    "state": "Kerala",
+    "contact": "Thomas Varghese",
+    "phone": "+91 98470 11011",
+    "email": "accounts@coastal.example",
+    "credit_days": 30,
+    "credit_limit": 300000.0,
+    "outstanding": 242640.0,
+    "overdue": 242640.0,
+    "lock_status": "locked",
+    "locks_on": null,
+    "locked_since": "2026-10-02",
+    "is_demo": true
+  },
+  "buckets": {
+    "not_due": 0.0,
+    "1_30": 0.0,
+    "31_60": 115640.0,
+    "61_90": 127000.0,
+    "90_plus": 0.0
+  },
+  "invoices": [
+    {
+      "id": "INV-2201",
+      "date": "2026-08-17",
+      "client_id": "CL-011",
+      "client_name": "Coastal Seafoods Exports",
+      "job_card": "JC-1205",
+      "dispatch_id": null,
+      "qty": 200000,
+      "rate": 0.75,
+      "taxable": 150000.0,
+      "gst_rate": 0.18,
+      "gst": 27000.0,
+      "total": 177000.0,
+      "received": 50000.0,
+      "outstanding": 127000.0,
+      "due_date": "2026-09-16",
+      "days_past_due": 65,
+      "bucket": "61_90",
+      "status": "part_paid",
+      "is_demo": true
+    },
+    {
+      "id": "INV-2244",
+      "date": "2026-09-20",
+      "client_id": "CL-011",
+      "client_name": "Coastal Seafoods Exports",
+      "job_card": "JC-1231",
+      "dispatch_id": null,
+      "qty": 140000,
+      "rate": 0.7,
+      "taxable": 98000.0,
+      "gst_rate": 0.18,
+      "gst": 17640.0,
+      "total": 115640.0,
+      "received": 0.0,
+      "outstanding": 115640.0,
+      "due_date": "2026-10-20",
+      "days_past_due": 31,
+      "bucket": "31_60",
+      "status": "open",
+      "is_demo": true
+    }
+  ],
+  "jobs": [
+    {
+      "job_card": "JC-1298",
+      "created_on": "2026-11-01",
+      "client_id": "CL-011",
+      "client_name": "Coastal Seafoods Exports",
+      "po_no": "CSE/PO/0551",
+      "po_date": "2026-10-31",
+      "product": "Frozen prawns 1 kg pack label",
+      "label_size": "100 x 80 mm",
+      "order_qty": 40000,
+      "rate": 0.75,
+      "po_value": 30000.0,
+      "item_id": "IT-0107",
+      "material": "PET Clear 250 mm",
+      "paper_width_mm": 250,
+      "machine_id": "M-03",
+      "machine_name": "Focus",
+      "ups_across": 2,
+      "ups_along": 3,
+      "ups": 6,
+      "repeat_mm": 254.0,
+      "units": [
+        "Cyan",
+        "Black",
+        "White"
+      ],
+      "required_m": 1693.33,
+      "planned_m": 1862.67,
+      "issued_m": 0.0,
+      "printed_qty": 0,
+      "qc_approved": 0,
+      "dispatched_qty": 0,
+      "invoiced_qty": 0,
+      "status": "hold",
+      "priority": "low",
+      "due_date": "2026-11-18",
+      "enquiry_id": null,
+      "quote_id": null,
+      "flags": [
+        "client_locked",
+        "late"
+      ],
+      "is_demo": true
+    }
+  ],
+  "collections": [
+    {
+      "id": "COL-0141",
+      "date": "2026-11-10",
+      "client_id": "CL-011",
+      "client_name": "Coastal Seafoods Exports",
+      "invoice_ids": [
+        "INV-2201",
+        "INV-2244"
+      ],
+      "mode": "call",
+      "contact": "Thomas Varghese",
+      "note": "Promised part payment by 10-Nov; not received",
+      "promise_date": "2026-11-10",
+      "promise_amount": 100000.0,
+      "status": "broken",
+      "next_follow_up": "2026-11-21",
+      "by": "Accounts",
+      "is_demo": true
+    }
+  ],
+  "lock_log": [
+    {
+      "at": "2026-10-02T00:05:00+05:30",
+      "event": "locked",
+      "by": "system",
+      "reason": "INV-2201 unpaid 16 days after due date 2026-09-16"
+    }
+  ]
+}
