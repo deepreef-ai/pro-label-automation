@@ -10,6 +10,7 @@ before the request body is validated, so a forbidden caller gets 403 even with a
 """
 from __future__ import annotations
 
+import importlib
 import os
 from collections.abc import Iterator
 from datetime import date
@@ -73,8 +74,9 @@ Role = Annotated[str, Depends(current_role)]
 
 def T(name: str) -> Table:
     """A table from ``core.models`` by its ``contract/schema.md`` name, e.g. ``T("jobs")``."""
-    from core import models  # noqa: F401  (registers every table on Base.metadata)
-
+    # import_module (not ``from core import models``) so a re-imported ``core.db`` gets its
+    # tables registered too: the package attribute can still point at an older module.
+    importlib.import_module("core.models")
     try:
         return Base.metadata.tables[name]
     except KeyError:  # pragma: no cover - programming error
