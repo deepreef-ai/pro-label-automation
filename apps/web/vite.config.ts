@@ -6,8 +6,11 @@ import tailwindcss from '@tailwindcss/vite'
 const contractDir = fileURLToPath(new URL('../../contract', import.meta.url))
 const srcDir = fileURLToPath(new URL('./src', import.meta.url))
 
-export default defineConfig({
+// `vite --mode live` (npm run dev:live / build:live) talks to the FastAPI backend; any other mode keeps
+// VITE_API_MODE from the environment / .env files (default mock).
+export default defineConfig(({ mode }) => ({
   plugins: [react(), tailwindcss()],
+  define: mode === 'live' ? { 'import.meta.env.VITE_API_MODE': JSON.stringify('live') } : {},
   resolve: {
     alias: {
       '@contract': contractDir,
@@ -23,4 +26,4 @@ export default defineConfig({
   preview: {
     port: 4173,
   },
-})
+}))

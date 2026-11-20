@@ -3,12 +3,15 @@
  *
  *   VITE_API_MODE=mock (default)  -> answers come from contract/fixtures via fixtures/index.json
  *   VITE_API_MODE=live            -> fetch(VITE_API_URL + path) with the X-Role header
+ *                                    (an endpoint the backend has not built yet -- 404 "Not Found" for
+ *                                    the route, or 405 -- falls back to its mock fixture, marked as
+ *                                    sample data: see isSampleData() / useApi().sample)
  *
  * Usage:
  *   const jobs = await api.get<Job[]>('/api/jobs?status=open')
  *   const { data, loading, error, noData, refetch } = useApi<Job[]>('/api/jobs')
  */
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState, useSyncExternalStore } from 'react'
 import { getRole, useRole } from './role'
 import { sleep } from './utils'
 
@@ -229,11 +232,129 @@ async function liveRequest<T>(method: Method, path: string, body?: unknown, sign
 }
 
 /* ------------------------------------------------------------------ */
+/* Live mode: sample-data fallback for endpoints not built yet          */
+/* ------------------------------------------------------------------ */
+
+/** Responses that came from a mock fixture while in live mode (the endpoint is not on the backend yet). */
+const sampleResponses = new WeakSet<object>()
+
+/** True when `data` is mock fixture data served in live mode because the backend lacks the endpoint. */
+export function isSampleData(data: unknown): boolean {
+  return API_MODE === 'live' && typeof data === 'object' && data !== null && sampleResponses.has(data)
+}
+
+/**
+ * A route the backend does not serve at all: FastAPI answers 404 {"detail":"Not Found"} for an unknown
+ * path (a missing record gets a specific detail such as "job JC-9999 not found") and 405 for a path that
+ * exists with another method.
+ */
+function isMissingRoute(err: unknown): boolean {
+  if (!(err instanceof ApiError)) return false
+  if (err.status === 405) return true
+  return err.status === 404 && err.message === 'Not Found'
+}
+
+interface LiveRoute {
+  method: string
+  segments: string[]
+}
+
+let liveRoutesPromise: Promise<LiveRoute[] | null> | null = null
+
+/** The backend's routes from its OpenAPI document (read once), so calls to endpoints that are not built
+ *  yet go straight to the fixture instead of logging a 404 in the console. null = unknown (just try). */
+function loadLiveRoutes(): Promise<LiveRoute[] | null> {
+  if (liveRoutesPromise) return liveRoutesPromise
+  liveRoutesPromise = (async () => {
+    try {
+      const res = await fetch(`${API_URL}/openapi.json`, { headers: { Accept: 'application/json' } })
+      if (!res.ok) return null
+      const doc = (await res.json()) as { paths?: Record<string, Record<string, unknown>> }
+      if (!doc.paths) return null
+      const out: LiveRoute[] = []
+      for (const [p, ops] of Object.entries(doc.paths)) {
+        for (const m of Object.keys(ops)) out.push({ method: m.toUpperCase(), segments: splitPath(p).segments })
+      }
+      return out
+    } catch {
+      liveRoutesPromise = null // backend not up yet: ask again next time
+      return null
+    }
+  })()
+  return liveRoutesPromise
+}
+
+function backendServes(routes: LiveRoute[], method: Method, path: string): boolean {
+  const { segments } = splitPath(path)
+  return routes.some(
+    (r) =>
+      r.method === method &&
+      r.segments.length === segments.length &&
+      r.segments.every((rs, i) => /^\{.+\}$/.test(rs) || safeDecode(rs) === safeDecode(segments[i])),
+  )
+}
+
+/** Live mode: does the backend serve this route? (true when it cannot tell; false in mock mode).
+ *  For callers that bypass `api`, e.g. an EventSource stream. */
+export async function backendHasRoute(method: Method, path: string): Promise<boolean> {
+  if (API_MODE !== 'live') return false
+  const routes = await loadLiveRoutes()
+  return routes ? backendServes(routes, method, path) : true
+}
+
+async function sampleFallback<T>(method: Method, path: string, err: unknown): Promise<T> {
+  const hit = await resolveFixture(method, path)
+  if (!hit.found) {
+    if (method === 'GET') throw new ApiError(404, `No data yet for ${method} ${path}`, { missingFixture: true })
+    throw err
+  }
+  const data = hit.data
+  if (typeof data === 'object' && data !== null) sampleResponses.add(data)
+  return data as T
+}
+
+async function liveWithFallback<T>(method: Method, path: string, body?: unknown, signal?: AbortSignal): Promise<T> {
+  const routes = await loadLiveRoutes()
+  if (routes && !backendServes(routes, method, path)) {
+    return sampleFallback<T>(method, path, new ApiError(404, 'Not Found'))
+  }
+  try {
+    return await liveRequest<T>(method, path, body, signal)
+  } catch (err) {
+    if (!isMissingRoute(err)) throw err
+    return sampleFallback<T>(method, path, err)
+  }
+}
+
+/* Which mounted useApi() hooks currently show sample data (drives the shell's "Sample data" pill). */
+let sampleCount = 0
+const sampleListeners = new Set<() => void>()
+function changeSampleCount(delta: number) {
+  sampleCount += delta
+  sampleListeners.forEach((l) => l())
+}
+function subscribeSample(l: () => void) {
+  sampleListeners.add(l)
+  return () => {
+    sampleListeners.delete(l)
+  }
+}
+
+/** True while any data on screen is mock sample data served in live mode. */
+export function useSampleDataShown(): boolean {
+  return useSyncExternalStore(
+    subscribeSample,
+    () => sampleCount > 0,
+    () => false,
+  )
+}
+
+/* ------------------------------------------------------------------ */
 /* Public client                                                       */
 /* ------------------------------------------------------------------ */
 
 function request<T>(method: Method, path: string, body?: unknown, signal?: AbortSignal): Promise<T> {
-  return API_MODE === 'live' ? liveRequest<T>(method, path, body, signal) : mockRequest<T>(method, path, body)
+  return API_MODE === 'live' ? liveWithFallback<T>(method, path, body, signal) : mockRequest<T>(method, path, body)
 }
 
 export const api = {
@@ -260,6 +381,8 @@ export interface UseApiResult<T> {
   loading: boolean
   /** True when there is simply no data (missing fixture / 404): show an EmptyState, not an error. */
   noData: boolean
+  /** Live mode only: the backend lacks this endpoint, so `data` is mock sample data (show a DEMO badge). */
+  sample: boolean
   refetch: () => void
 }
 
@@ -301,12 +424,20 @@ export function useApi<T>(path: string | null): UseApiResult<T> {
 
   const refetch = useCallback(() => setTick((t) => t + 1), [])
 
-  if (path === null) return { data: undefined, error: undefined, loading: false, noData: false, refetch }
+  const sample = path !== null && isSampleData(state.data)
+  useEffect(() => {
+    if (!sample) return
+    changeSampleCount(1)
+    return () => changeSampleCount(-1)
+  }, [sample])
+
+  if (path === null) return { data: undefined, error: undefined, loading: false, noData: false, sample: false, refetch }
   return {
     data: state.data,
     error: state.error,
     loading: state.loading || state.key !== path,
     noData: isNoData(state.error),
+    sample,
     refetch,
   }
 }
