@@ -10,7 +10,8 @@ chroma/
 *.xlsx
 *.xls
 *.z0*
-models/
+/models/
+data/models/
 
 # ---- Python ----
 .venv/
