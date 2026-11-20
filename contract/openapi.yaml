@@ -1,0 +1,6833 @@
+# Shared API contract. Generated from SPEC.md decisions; edit via a [contract] PR.
+openapi: 3.1.0
+info:
+  title: Pro Label Automation demo API
+  version: 0.1.0
+  description: 'Shared contract. Source of truth: contract/SPEC.md. Money in rupees (2 dp), dates ISO. Every operation
+    lists allowed X-Role values in `x-roles` (owner may call everything). Change only via a `[contract]` PR.'
+servers:
+- url: http://localhost:8000
+tags:
+- name: Shell
+- name: Dashboard
+- name: Masters
+- name: Marketing
+- name: Jobs
+- name: Design
+- name: Store
+- name: Production
+- name: QC
+- name: Dispatch
+- name: Money
+- name: Agents
+- name: Floor
+- name: Chat
+paths:
+  /api/health:
+    get:
+      tags:
+      - Shell
+      summary: Liveness + mode
+      operationId: get_health
+      x-roles:
+      - owner
+      - ppic
+      - design
+      - store
+      - production
+      - qc
+      - dispatch
+      - accounts
+      - marketing
+      parameters:
+      - $ref: '#/components/parameters/XRole'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Health'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /api/search:
+    get:
+      tags:
+      - Shell
+      summary: Global search (jobs, clients, invoices, rolls...)
+      operationId: get_search
+      x-roles:
+      - owner
+      - ppic
+      - design
+      - store
+      - production
+      - qc
+      - dispatch
+      - accounts
+      - marketing
+      parameters:
+      - $ref: '#/components/parameters/XRole'
+      - name: q
+        in: query
+        required: true
+        schema:
+          type: string
+        description: Search text, min 2 chars
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /api/settings:
+    get:
+      tags:
+      - Shell
+      summary: Tolerances and switches
+      operationId: get_settings
+      x-roles:
+      - owner
+      - ppic
+      - design
+      - store
+      - production
+      - qc
+      - dispatch
+      - accounts
+      - marketing
+      parameters:
+      - $ref: '#/components/parameters/XRole'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Settings'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    put:
+      tags:
+      - Shell
+      summary: Update settings (owner only)
+      operationId: put_settings
+      x-roles:
+      - owner
+      parameters:
+      - $ref: '#/components/parameters/XRole'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SettingsUpdate'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Settings'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /api/feedback:
+    post:
+      tags:
+      - Shell
+      summary: Send demo feedback
+      operationId: post_feedback
+      x-roles:
+      - owner
+      - ppic
+      - design
+      - store
+      - production
+      - qc
+      - dispatch
+      - accounts
+      - marketing
+      parameters:
+      - $ref: '#/components/parameters/XRole'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FeedbackCreate'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Feedback'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    get:
+      tags:
+      - Shell
+      summary: List feedback
+      operationId: get_feedback
+      x-roles:
+      - owner
+      - ppic
+      - design
+      - store
+      - production
+      - qc
+      - dispatch
+      - accounts
+      - marketing
+      parameters:
+      - $ref: '#/components/parameters/XRole'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Feedback'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /api/dashboard/summary:
+    get:
+      tags:
+      - Dashboard
+      summary: KPIs for a period
+      operationId: get_dashboard_summary
+      x-roles:
+      - owner
+      - accounts
+      parameters:
+      - $ref: '#/components/parameters/XRole'
+      - name: period
+        in: query
+        required: false
+        schema:
+          type: string
+          enum:
+          - today
+          - month
+          - year
+        description: Default month
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardSummary'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /api/alerts:
+    get:
+      tags:
+      - Dashboard
+      summary: Open alerts (filtered by role server-side)
+      operationId: get_alerts
+      x-roles:
+      - owner
+      - ppic
+      - design
+      - store
+      - production
+      - qc
+      - dispatch
+      - accounts
+      - marketing
+      parameters:
+      - $ref: '#/components/parameters/XRole'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AlertsResponse'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /api/agents/brief:
+    get:
+      tags:
+      - Dashboard
+      summary: AI morning brief for the owner
+      operationId: get_agents_brief
+      x-roles:
+      - owner
+      - accounts
+      parameters:
+      - $ref: '#/components/parameters/XRole'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentBrief'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /api/clients:
+    get:
+      tags:
+      - Masters
+      summary: Clients with outstanding and lock status
+      operationId: get_clients
+      x-roles:
+      - owner
+      - ppic
+      - design
+      - store
+      - production
+      - qc
+      - dispatch
+      - accounts
+      - marketing
+      parameters:
+      - $ref: '#/components/parameters/XRole'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Client'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /api/clients/{id}:
+    get:
+      tags:
+      - Masters
+      summary: Client detail
+      operationId: get_clients_id
+      x-roles:
+      - owner
+      - ppic
+      - design
+      - store
+      - production
+      - qc
+      - dispatch
+      - accounts
+      - marketing
+      parameters:
+      - $ref: '#/components/parameters/XRole'
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+        description: CL-###
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClientDetail'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/vendors:
+    get:
+      tags:
+      - Masters
+      summary: Vendors
+      operationId: get_vendors
+      x-roles:
+      - owner
+      - store
+      - accounts
+      - ppic
+      parameters:
+      - $ref: '#/components/parameters/XRole'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Vendor'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /api/items:
+    get:
+      tags:
+      - Masters
+      summary: Item master
+      operationId: get_items
+      x-roles:
+      - owner
+      - ppic
+      - design
+      - store
+      - production
+      - qc
+      - dispatch
+      - accounts
+      - marketing
+      parameters:
+      - $ref: '#/components/parameters/XRole'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Item'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /api/machines:
+    get:
+      tags:
+      - Masters
+      summary: Machines with hour rate
+      operationId: get_machines
+      x-roles:
+      - owner
+      - ppic
+      - design
+      - store
+      - production
+      - qc
+      - dispatch
+      - accounts
+      - marketing
+      parameters:
+      - $ref: '#/components/parameters/XRole'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Machine'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /api/enquiries:
+    get:
+      tags:
+      - Marketing
+      summary: Enquiry register
+      operationId: get_enquiries
+      x-roles:
+      - owner
+      - marketing
+      - ppic
+      - accounts
+      parameters:
+      - $ref: '#/components/parameters/XRole'
+      - name: status
+        in: query
+        required: false
+        schema:
+          type: string
+          enum:
+          - new
+          - quoted
+          - won
+          - lost
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Enquiry'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    post:
+      tags:
+      - Marketing
+      summary: New enquiry
+      operationId: post_enquiries
+      x-roles:
+      - owner
+      - marketing
+      parameters:
+      - $ref: '#/components/parameters/XRole'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EnquiryCreate'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Enquiry'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /api/enquiries/{id}/quote:
+    post:
+      tags:
+      - Marketing
+      summary: Create quote for enquiry
+      operationId: post_enquiries_id_quote
+      x-roles:
+      - owner
+      - marketing
+      parameters:
+      - $ref: '#/components/parameters/XRole'
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+        description: ENQ-####
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QuoteCreate'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Quote'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+  /api/enquiries/{id}/status:
+    post:
+      tags:
+      - Marketing
+      summary: Mark won / lost
+      operationId: post_enquiries_id_status
+      x-roles:
+      - owner
+      - marketing
+      parameters:
+      - $ref: '#/components/parameters/XRole'
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+        description: ENQ-####
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EnquiryStatusUpdate'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Enquiry'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+  /api/marketing/summary:
+    get:
+      tags:
+      - Marketing
+      summary: Targets, funnel, win rate
+      operationId: get_marketing_summary
+      x-roles:
+      - owner
+      - marketing
+      - ppic
+      - accounts
+      parameters:
+      - $ref: '#/components/parameters/XRole'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MarketingSummary'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /api/jobs:
+    get:
+      tags:
+      - Jobs
+      summary: Job register
+      operationId: get_jobs
+      x-roles:
+      - owner
+      - ppic
+      - design
+      - store
+      - production
+      - qc
+      - dispatch
+      - accounts
+      - marketing
+      parameters:
+      - $ref: '#/components/parameters/XRole'
+      - name: status
+        in: query
+        required: false
+        schema:
+          type: string
+          enum:
+          - planned
+          - design
+          - printing
+          - qc
+          - dispatch
+          - invoiced
+          - closed
+          - hold
+          description: planned = PO accepted, waiting for design/material; design = artwork/proof/plates; printing
+            = on press; qc = printed, inspection open; dispatch = QC approved, dispatch open; invoiced; closed =
+            paid; hold
+      - name: q
+        in: query
+        required: false
+        schema:
+          type: string
+        description: Text search on job card, client, product, PO
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobListResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    post:
+      tags:
+      - Jobs
+      summary: Create job card
+      operationId: post_jobs
+      x-roles:
+      - owner
+      - ppic
+      description: 409 if the client is LOCKED or the PO number already exists for the client.
+      parameters:
+      - $ref: '#/components/parameters/XRole'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JobCreate'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Job'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+  /api/jobs/{job_card}:
+    get:
+      tags:
+      - Jobs
+      summary: One job
+      operationId: get_jobs_job_card
+      x-roles:
+      - owner
+      - ppic
+      - design
+      - store
+      - production
+      - qc
+      - dispatch
+      - accounts
+      - marketing
+      parameters:
+      - $ref: '#/components/parameters/XRole'
+      - name: job_card
+        in: path
+        required: true
+        schema:
+          type: string
+        description: JC-####
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Job'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/jobs/from-po:
+    post:
+      tags:
+      - Jobs
+      summary: Read a PO PDF into a draft job (not saved)
+      operationId: post_jobs_from_po
+      x-roles:
+      - owner
+      - ppic
+      - marketing
+      parameters:
+      - $ref: '#/components/parameters/XRole'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+              - file
+              properties:
+                file:
+                  type: string
+                  contentMediaType: application/pdf
+                  description: PO PDF
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PoDraft'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /api/planning/material-summary:
+    get:
+      tags:
+      - Jobs
+      summary: Paper needed for open jobs vs stock
+      operationId: get_planning_material_summary
+      x-roles:
+      - owner
+      - ppic
+      - store
+      - production
+      parameters:
+      - $ref: '#/components/parameters/XRole'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MaterialSummary'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /api/design:
+    get:
+      tags:
+      - Design
+      summary: Design register
+      operationId: get_design
+      x-roles:
+      - owner
+      - design
+      - ppic
+      - production
+      parameters:
+      - $ref: '#/components/parameters/XRole'
+      - name: stage
+        in: query
+        required: false
+        schema:
+          type: string
+          enum:
+          - artwork
+          - proof_sent
+          - approved
+          - plates_ordered
+          - plates_ready
+          - done
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Design'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /api/design/{job_card}:
+    get:
+      tags:
+      - Design
+      summary: Design record for a job
+      operationId: get_design_job_card
+      x-roles:
+      - owner
+      - design
+      - ppic
+      - production
+      parameters:
+      - $ref: '#/components/parameters/XRole'
+      - name: job_card
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Design'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      tags:
+      - Design
+      summary: Update design record
+      operationId: put_design_job_card
+      x-roles:
+      - owner
+      - design
+      parameters:
+      - $ref: '#/components/parameters/XRole'
+      - name: job_card
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DesignUpdate'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Design'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/plates:
+    get:
+      tags:
+      - Design
+      summary: Plate store
+      operationId: get_plates
+      x-roles:
+      - owner
+      - design
+      - ppic
+      - production
+      - store
+      parameters:
+      - $ref: '#/components/parameters/XRole'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Plate'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /api/dies:
+    get:
+      tags:
+      - Design
+      summary: Die store
+      operationId: get_dies
+      x-roles:
+      - owner
+      - design
+      - ppic
+      - production
+      - store
+      parameters:
+      - $ref: '#/components/parameters/XRole'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Die'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /api/jobs/{job_card}/360:
+    get:
+      tags:
+      - Jobs
+      summary: Full journey of one job, enquiry to profit
+      operationId: get_jobs_job_card_360
+      x-roles:
+      - owner
+      - ppic
+      - design
+      - store
+      - production
+      - qc
+      - dispatch
+      - accounts
+      - marketing
+      parameters:
+      - $ref: '#/components/parameters/XRole'
+      - name: job_card
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Job360'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/store/summary:
+    get:
+      tags:
+      - Store
+      summary: Store KPIs
+      operationId: get_store_summary
+      x-roles:
+      - owner
+      - store
+      - ppic
+      - production
+      - accounts
+      parameters:
+      - $ref: '#/components/parameters/XRole'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StoreSummary'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /api/store/stock:
+    get:
+      tags:
+      - Store
+      summary: Live stock
+      operationId: get_store_stock
+      x-roles:
+      - owner
+      - store
+      - ppic
+      - production
+      - accounts
+      parameters:
+      - $ref: '#/components/parameters/XRole'
+      - name: group
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: q
+        in: query
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StockResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /api/store/grns:
+    get:
+      tags:
+      - Store
+      summary: Goods receipts
+      operationId: get_store_grns
+      x-roles:
+      - owner
+      - store
+      - ppic
+      - production
+      - accounts
+      parameters:
+      - $ref: '#/components/parameters/XRole'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Grn'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    post:
+      tags:
+      - Store
+      summary: Record a GRN (creates numbered rolls)
+      operationId: post_store_grns
+      x-roles:
+      - owner
+      - store
+      parameters:
+      - $ref: '#/components/parameters/XRole'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GrnCreate'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Grn'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /api/store/issues:
+    get:
+      tags:
+      - Store
+      summary: Material issues
+      operationId: get_store_issues
+      x-roles:
+      - owner
+      - store
+      - ppic
+      - production
+      - accounts
+      parameters:
+      - $ref: '#/components/parameters/XRole'
+      - name: job_card
+        in: query
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Issue'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    post:
+      tags:
+      - Store
+      summary: Issue material to a job card
+      operationId: post_store_issues
+      x-roles:
+      - owner
+      - store
+      description: 400 when job_card is missing or unknown; 409 when the roll balance is lower than qty.
+      parameters:
+      - $ref: '#/components/parameters/XRole'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IssueCreate'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Issue'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+  /api/store/rolls:
+    get:
+      tags:
+      - Store
+      summary: Roll register
+      operationId: get_store_rolls
+      x-roles:
+      - owner
+      - store
+      - ppic
+      - production
+      - accounts
+      parameters:
+      - $ref: '#/components/parameters/XRole'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Roll'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /api/store/slitting:
+    get:
+      tags:
+      - Store
+      summary: Slitting register
+      operationId: get_store_slitting
+      x-roles:
+      - owner
+      - store
+      - ppic
+      - production
+      - accounts
+      parameters:
+      - $ref: '#/components/parameters/XRole'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Slitting'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /api/store/party-laminate:
+    get:
+      tags:
+      - Store
+      summary: Customer-owned laminate ledger
+      operationId: get_store_party_laminate
+      x-roles:
+      - owner
+      - store
+      - ppic
+      - production
+      - accounts
+      parameters:
+      - $ref: '#/components/parameters/XRole'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PartyLaminateResponse'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /api/store/ink-allocation:
+    get:
+      tags:
+      - Store
+      summary: Ink pool without job card, shared to jobs
+      operationId: get_store_ink_allocation
+      x-roles:
+      - owner
+      - store
+      - ppic
+      - production
+      - accounts
+      parameters:
+      - $ref: '#/components/parameters/XRole'
+      - name: month
+        in: query
+        required: false
+        schema:
+          type: string
+        description: YYYY-MM, default current
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InkAllocation'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /api/store/data-quality:
+    get:
+      tags:
+      - Store
+      summary: ERP import quality report
+      operationId: get_store_data_quality
+      x-roles:
+      - owner
+      - store
+      - ppic
+      - production
+      - accounts
+      parameters:
+      - $ref: '#/components/parameters/XRole'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataQuality'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /api/production/runs:
+    get:
+      tags:
+      - Production
+      summary: Production log
+      operationId: get_production_runs
+      x-roles:
+      - owner
+      - production
+      - ppic
+      - qc
+      parameters:
+      - $ref: '#/components/parameters/XRole'
+      - name: status
+        in: query
+        required: false
+        schema:
+          type: string
+          enum:
+          - running
+          - ended
+      - name: machine_id
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: job_card
+        in: query
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Run'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /api/production/runs/start:
+    post:
+      tags:
+      - Production
+      summary: Start a run
+      operationId: post_production_runs_start
+      x-roles:
+      - owner
+      - production
+      description: 409 if the machine already has a running run.
+      parameters:
+      - $ref: '#/components/parameters/XRole'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RunStart'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Run'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+  /api/production/runs/{id}/end:
+    post:
+      tags:
+      - Production
+      summary: End a run
+      operationId: post_production_runs_id_end
+      x-roles:
+      - owner
+      - production
+      description: 409 if the run already ended.
+      parameters:
+      - $ref: '#/components/parameters/XRole'
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+        description: RUN-#####
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RunEnd'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Run'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+  /api/production/press-setup/{job_card}:
+    get:
+      tags:
+      - Production
+      summary: Press setup for a job
+      operationId: get_production_press_setup_job_card
+      x-roles:
+      - owner
+      - production
+      - ppic
+      - qc
+      - design
+      parameters:
+      - $ref: '#/components/parameters/XRole'
+      - name: job_card
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PressSetup'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/production/press-setup:
+    post:
+      tags:
+      - Production
+      summary: Save press setup
+      operationId: post_production_press_setup
+      x-roles:
+      - owner
+      - production
+      - design
+      parameters:
+      - $ref: '#/components/parameters/XRole'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PressSetupInput'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PressSetup'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /api/production/oee:
+    get:
+      tags:
+      - Production
+      summary: OEE per press, month to date
+      operationId: get_production_oee
+      x-roles:
+      - owner
+      - production
+      - ppic
+      - qc
+      parameters:
+      - $ref: '#/components/parameters/XRole'
+      - name: month
+        in: query
+        required: false
+        schema:
+          type: string
+        description: YYYY-MM
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Oee'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /api/production/morning-report:
+    get:
+      tags:
+      - Production
+      summary: Yesterday per press + MTD
+      operationId: get_production_morning_report
+      x-roles:
+      - owner
+      - production
+      - ppic
+      - qc
+      parameters:
+      - $ref: '#/components/parameters/XRole'
+      - name: date
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MorningReport'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /api/production/counter/stream:
+    get:
+      tags:
+      - Production
+      summary: Live counter (Server-Sent Events)
+      operationId: get_production_counter_stream
+      x-roles:
+      - owner
+      - production
+      - ppic
+      - qc
+      description: 'SSE. Each event is `data: <CounterTick JSON>`; one per ~2 s. Mock mode replays fixtures/counter_stream.json.'
+      parameters:
+      - $ref: '#/components/parameters/XRole'
+      - name: run_id
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            text/event-stream:
+              schema:
+                type: string
+                description: SSE stream; each data line is CounterTick
+              x-event-schema:
+                $ref: '#/components/schemas/CounterTick'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /api/qc:
+    get:
+      tags:
+      - QC
+      summary: QC log
+      operationId: get_qc
+      x-roles:
+      - owner
+      - qc
+      - production
+      - dispatch
+      - ppic
+      parameters:
+      - $ref: '#/components/parameters/XRole'
+      - name: job_card
+        in: query
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/QcRow'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    post:
+      tags:
+      - QC
+      summary: Record inspection
+      operationId: post_qc
+      x-roles:
+      - owner
+      - qc
+      description: 400 if approved + rejected != checked, or cumulative checked > printed.
+      parameters:
+      - $ref: '#/components/parameters/XRole'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QcCreate'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QcRow'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /api/dispatch:
+    get:
+      tags:
+      - Dispatch
+      summary: Dispatch register
+      operationId: get_dispatch
+      x-roles:
+      - owner
+      - dispatch
+      - qc
+      - accounts
+      - ppic
+      parameters:
+      - $ref: '#/components/parameters/XRole'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Dispatch'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    post:
+      tags:
+      - Dispatch
+      summary: Create challan
+      operationId: post_dispatch
+      x-roles:
+      - owner
+      - dispatch
+      description: 409 if cumulative dispatched would exceed QC approved, or the client is LOCKED.
+      parameters:
+      - $ref: '#/components/parameters/XRole'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DispatchCreate'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Dispatch'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+  /api/dispatch/{id}/challan.pdf:
+    get:
+      tags:
+      - Dispatch
+      summary: Delivery challan PDF
+      operationId: get_dispatch_id_challan_pdf
+      x-roles:
+      - owner
+      - dispatch
+      - accounts
+      parameters:
+      - $ref: '#/components/parameters/XRole'
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+        description: DC-####
+      responses:
+        '200':
+          description: OK
+          content:
+            application/pdf:
+              schema:
+                type: string
+                contentMediaType: application/pdf
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/invoices:
+    get:
+      tags:
+      - Money
+      summary: Invoices
+      operationId: get_invoices
+      x-roles:
+      - owner
+      - accounts
+      parameters:
+      - $ref: '#/components/parameters/XRole'
+      - name: status
+        in: query
+        required: false
+        schema:
+          type: string
+          enum:
+          - draft
+          - open
+          - part_paid
+          - paid
+      - name: client_id
+        in: query
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvoiceListResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /api/invoices/draft-from-dispatch/{dispatch_id}:
+    post:
+      tags:
+      - Money
+      summary: Draft invoice from a challan
+      operationId: post_invoices_draft_from_dispatch_dispatch_id
+      x-roles:
+      - owner
+      - accounts
+      description: 409 if the challan is already invoiced.
+      parameters:
+      - $ref: '#/components/parameters/XRole'
+      - name: dispatch_id
+        in: path
+        required: true
+        schema:
+          type: string
+        description: DC-####
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Invoice'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+  /api/debtors:
+    get:
+      tags:
+      - Money
+      summary: Debtors ageing + lock status
+      operationId: get_debtors
+      x-roles:
+      - owner
+      - accounts
+      - marketing
+      parameters:
+      - $ref: '#/components/parameters/XRole'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Debtors'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /api/clients/{id}/release-lock:
+    post:
+      tags:
+      - Money
+      summary: Release a client lock (owner only, audited)
+      operationId: post_clients_id_release_lock
+      x-roles:
+      - owner
+      description: 409 if the client is not locked.
+      parameters:
+      - $ref: '#/components/parameters/XRole'
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReleaseLockRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReleaseLockResult'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+  /api/collections:
+    get:
+      tags:
+      - Money
+      summary: Follow-ups and promises
+      operationId: get_collections
+      x-roles:
+      - owner
+      - accounts
+      - marketing
+      parameters:
+      - $ref: '#/components/parameters/XRole'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Collection'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    post:
+      tags:
+      - Money
+      summary: Log a follow-up / promise
+      operationId: post_collections
+      x-roles:
+      - owner
+      - accounts
+      - marketing
+      parameters:
+      - $ref: '#/components/parameters/XRole'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CollectionCreate'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Collection'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /api/creditors:
+    get:
+      tags:
+      - Money
+      summary: Supplier bills, MSME due dates
+      operationId: get_creditors
+      x-roles:
+      - owner
+      - accounts
+      parameters:
+      - $ref: '#/components/parameters/XRole'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Creditors'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /api/payments:
+    post:
+      tags:
+      - Money
+      summary: Pay a vendor (FIFO allocation)
+      operationId: post_payments
+      x-roles:
+      - owner
+      - accounts
+      parameters:
+      - $ref: '#/components/parameters/XRole'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentCreate'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Payment'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /api/cashplan:
+    get:
+      tags:
+      - Money
+      summary: 6-month cash plan
+      operationId: get_cashplan
+      x-roles:
+      - owner
+      - accounts
+      parameters:
+      - $ref: '#/components/parameters/XRole'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CashPlan'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /api/pnl:
+    get:
+      tags:
+      - Money
+      summary: P&L system vs Tally
+      operationId: get_pnl
+      x-roles:
+      - owner
+      - accounts
+      parameters:
+      - $ref: '#/components/parameters/XRole'
+      - name: month
+        in: query
+        required: false
+        schema:
+          type: string
+        description: YYYY-MM
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pnl'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /api/agents:
+    get:
+      tags:
+      - Agents
+      summary: Agents and recent runs
+      operationId: get_agents
+      x-roles:
+      - owner
+      - ppic
+      - store
+      - production
+      - accounts
+      parameters:
+      - $ref: '#/components/parameters/XRole'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentsResponse'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /api/agents/findings:
+    get:
+      tags:
+      - Agents
+      summary: Findings by status
+      operationId: get_agents_findings
+      x-roles:
+      - owner
+      - ppic
+      - store
+      - production
+      - accounts
+      parameters:
+      - $ref: '#/components/parameters/XRole'
+      - name: status
+        in: query
+        required: false
+        schema:
+          type: string
+          enum:
+          - open
+          - done
+          - rejected
+        description: Default open
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FindingsResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /api/agents/run:
+    post:
+      tags:
+      - Agents
+      summary: Run one agent or all
+      operationId: post_agents_run
+      x-roles:
+      - owner
+      - ppic
+      - store
+      - production
+      - accounts
+      parameters:
+      - $ref: '#/components/parameters/XRole'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AgentRunRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentRunResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /api/agents/findings/{id}/approve:
+    post:
+      tags:
+      - Agents
+      summary: Approve suggested action
+      operationId: post_agents_findings_id_approve
+      x-roles:
+      - owner
+      - ppic
+      - store
+      - production
+      - accounts
+      description: 409 if the finding is not open.
+      parameters:
+      - $ref: '#/components/parameters/XRole'
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+        description: F-####
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApproveResult'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+  /api/agents/findings/{id}/reject:
+    post:
+      tags:
+      - Agents
+      summary: Reject with reason
+      operationId: post_agents_findings_id_reject
+      x-roles:
+      - owner
+      - ppic
+      - store
+      - production
+      - accounts
+      parameters:
+      - $ref: '#/components/parameters/XRole'
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RejectRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Finding'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+  /api/agents/findings/{id}/edit:
+    post:
+      tags:
+      - Agents
+      summary: Edit the suggested action payload
+      operationId: post_agents_findings_id_edit
+      x-roles:
+      - owner
+      - ppic
+      - store
+      - production
+      - accounts
+      parameters:
+      - $ref: '#/components/parameters/XRole'
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Finding'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+  /api/outbox:
+    get:
+      tags:
+      - Agents
+      summary: Drafted / sent messages
+      operationId: get_outbox
+      x-roles:
+      - owner
+      - accounts
+      parameters:
+      - $ref: '#/components/parameters/XRole'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OutboxResponse'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /api/floor/board:
+    get:
+      tags:
+      - Floor
+      summary: TV board for the presses
+      operationId: get_floor_board
+      x-roles:
+      - owner
+      - ppic
+      - design
+      - store
+      - production
+      - qc
+      - dispatch
+      - accounts
+      - marketing
+      parameters:
+      - $ref: '#/components/parameters/XRole'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FloorBoard'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /api/chat:
+    post:
+      tags:
+      - Chat
+      summary: Chatbot turn (read-only; drafts need confirm)
+      operationId: post_chat
+      x-roles:
+      - owner
+      - ppic
+      - design
+      - store
+      - production
+      - qc
+      - dispatch
+      - accounts
+      - marketing
+      parameters:
+      - $ref: '#/components/parameters/XRole'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /api/chat/suggestions:
+    get:
+      tags:
+      - Chat
+      summary: Starter questions for the role
+      operationId: get_chat_suggestions
+      x-roles:
+      - owner
+      - ppic
+      - design
+      - store
+      - production
+      - qc
+      - dispatch
+      - accounts
+      - marketing
+      parameters:
+      - $ref: '#/components/parameters/XRole'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatSuggestions'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+components:
+  parameters:
+    XRole:
+      name: X-Role
+      in: header
+      required: false
+      description: Demo role. Missing = owner.
+      schema:
+        type: string
+        enum:
+        - owner
+        - ppic
+        - design
+        - store
+        - production
+        - qc
+        - dispatch
+        - accounts
+        - marketing
+  responses:
+    BadRequest:
+      description: Validation or business rule broken
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
+    Forbidden:
+      description: 'Role not allowed: {"detail":"forbidden for role <r>"}'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
+    NotFound:
+      description: Not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
+    Conflict:
+      description: Guard failed (e.g. dispatch above QC approved)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
+  schemas:
+    ApiError:
+      type: object
+      properties:
+        detail:
+          type: string
+      required:
+      - detail
+      description: Error body for 400/403/404/409
+    Health:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+          - ok
+          - degraded
+        version:
+          type: string
+        time:
+          type: string
+          format: date-time
+        db:
+          type: string
+          enum:
+          - ok
+          - down
+        ai_mode:
+          type: string
+          enum:
+          - cloud
+          - local
+          - 'off'
+        demo:
+          type: boolean
+          description: demo data loaded
+      required:
+      - status
+      - version
+      - time
+      - db
+      - ai_mode
+      - demo
+    SearchResult:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+          - job
+          - client
+          - vendor
+          - item
+          - enquiry
+          - invoice
+          - dispatch
+          - grn
+          - roll
+          - plate
+          - die
+        id:
+          type: string
+        title:
+          type: string
+        subtitle:
+          type: string
+        link:
+          type: string
+          description: Frontend route
+      required:
+      - type
+      - id
+      - title
+      - subtitle
+      - link
+    SearchResponse:
+      type: object
+      properties:
+        q:
+          type: string
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/SearchResult'
+      required:
+      - q
+      - results
+    Settings:
+      type: object
+      properties:
+        wastage_tol:
+          type: number
+          description: Fraction 0..1 (0.087 = 8.7%), 4 decimals
+        overprod_tol:
+          type: number
+          description: Fraction 0..1 (0.087 = 8.7%), 4 decimals
+        material_tol:
+          type: number
+          description: Fraction 0..1 (0.087 = 8.7%), 4 decimals
+        ink_tol:
+          type: number
+          description: Fraction 0..1 (0.087 = 8.7%), 4 decimals
+        slit_tol:
+          type: number
+          description: Fraction 0..1 (0.087 = 8.7%), 4 decimals
+        grn_rate_tol:
+          type: number
+          description: Fraction 0..1 (0.087 = 8.7%), 4 decimals
+        grace_days:
+          type: integer
+        msme_days:
+          type: integer
+        gst_rate:
+          type: number
+          description: Fraction 0..1 (0.087 = 8.7%), 4 decimals
+        planning_extra:
+          type: number
+          description: Fraction 0..1 (0.087 = 8.7%), 4 decimals
+        admin_pct:
+          type: number
+          description: Fraction 0..1 (0.087 = 8.7%), 4 decimals
+        ai_mode:
+          type: string
+          enum:
+          - cloud
+          - local
+          - 'off'
+        stock_from:
+          type: string
+          description: Opening stock date
+          format: date
+        fy_start:
+          type: string
+          format: date
+        company_name:
+          type: string
+        updated_at:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        updated_by:
+          type:
+          - string
+          - 'null'
+      required:
+      - wastage_tol
+      - overprod_tol
+      - material_tol
+      - ink_tol
+      - slit_tol
+      - grn_rate_tol
+      - grace_days
+      - msme_days
+      - gst_rate
+      - planning_extra
+      - admin_pct
+      - ai_mode
+      - stock_from
+      - fy_start
+      - company_name
+      - updated_at
+      - updated_by
+    SettingsUpdate:
+      type: object
+      description: Any subset of Settings editable fields
+      properties:
+        wastage_tol:
+          type: number
+          description: Fraction 0..1 (0.087 = 8.7%), 4 decimals
+        overprod_tol:
+          type: number
+          description: Fraction 0..1 (0.087 = 8.7%), 4 decimals
+        material_tol:
+          type: number
+          description: Fraction 0..1 (0.087 = 8.7%), 4 decimals
+        ink_tol:
+          type: number
+          description: Fraction 0..1 (0.087 = 8.7%), 4 decimals
+        slit_tol:
+          type: number
+          description: Fraction 0..1 (0.087 = 8.7%), 4 decimals
+        grn_rate_tol:
+          type: number
+          description: Fraction 0..1 (0.087 = 8.7%), 4 decimals
+        grace_days:
+          type: integer
+        msme_days:
+          type: integer
+        gst_rate:
+          type: number
+          description: Fraction 0..1 (0.087 = 8.7%), 4 decimals
+        planning_extra:
+          type: number
+          description: Fraction 0..1 (0.087 = 8.7%), 4 decimals
+        admin_pct:
+          type: number
+          description: Fraction 0..1 (0.087 = 8.7%), 4 decimals
+        ai_mode:
+          type: string
+          enum:
+          - cloud
+          - local
+          - 'off'
+        stock_from:
+          type: string
+          format: date
+        fy_start:
+          type: string
+          format: date
+        company_name:
+          type: string
+    FeedbackCreate:
+      type: object
+      properties:
+        screen:
+          type: string
+          description: Route, e.g. /jobs
+        message:
+          type: string
+        rating:
+          type:
+          - integer
+          - 'null'
+          minimum: 1
+          maximum: 5
+      required:
+      - screen
+      - message
+    Feedback:
+      type: object
+      properties:
+        id:
+          type: string
+          description: FB-####
+        created_at:
+          type: string
+          format: date-time
+        role:
+          type: string
+          enum:
+          - owner
+          - ppic
+          - design
+          - store
+          - production
+          - qc
+          - dispatch
+          - accounts
+          - marketing
+        screen:
+          type: string
+        message:
+          type: string
+        rating:
+          type:
+          - integer
+          - 'null'
+        status:
+          type: string
+          enum:
+          - new
+          - seen
+          - done
+      required:
+      - id
+      - created_at
+      - role
+      - screen
+      - message
+      - rating
+      - status
+    TrendPoint:
+      type: object
+      properties:
+        label:
+          type: string
+        revenue:
+          type: number
+          description: Rupees, 2 decimals
+        profit:
+          type: number
+          description: Rupees, 2 decimals
+      required:
+      - label
+      - revenue
+      - profit
+    DashboardSummary:
+      type: object
+      properties:
+        period:
+          type: string
+          enum:
+          - today
+          - month
+          - year
+        from:
+          type: string
+          format: date
+        to:
+          type: string
+          format: date
+        revenue:
+          type: number
+          description: Invoiced taxable value in period
+        invoices_count:
+          type: integer
+        orders_booked_value:
+          type: number
+          description: PO value of jobs created in period
+        orders_booked_count:
+          type: integer
+        printed_qty:
+          type: integer
+          description: Press runs only
+        wastage_pct:
+          type: number
+          description: Fraction 0..1 (0.087 = 8.7%), 4 decimals
+        gross_profit:
+          type: number
+          description: Rupees, 2 decimals
+        margin_pct:
+          type: number
+          description: Fraction 0..1 (0.087 = 8.7%), 4 decimals
+        cash_in:
+          type: number
+          description: Receipts
+        cash_out:
+          type: number
+          description: Supplier payments + salaries
+        receivables:
+          type: number
+          description: All open invoices, as of today
+        overdue:
+          type: number
+          description: Rupees, 2 decimals
+        at_risk_value:
+          type: number
+          description: Overdue of clients that will lock within grace
+        at_risk_clients:
+          type: integer
+        locked_clients:
+          type: integer
+        payables_due_7d:
+          type: number
+          description: Rupees, 2 decimals
+        stock_value:
+          type: number
+          description: Rupees, 2 decimals
+        oee:
+          type: number
+          description: Fraction 0..1 (0.087 = 8.7%), 4 decimals
+        jobs_by_status:
+          type: object
+          additionalProperties:
+            type: integer
+          description: Count of active jobs per job status
+        trend:
+          type: array
+          items:
+            $ref: '#/components/schemas/TrendPoint'
+        top_clients:
+          type: array
+          items:
+            type: object
+            properties:
+              client_id:
+                type: string
+              client_name:
+                type: string
+              revenue:
+                type: number
+                description: Rupees, 2 decimals
+            required:
+            - client_id
+            - client_name
+            - revenue
+      required:
+      - period
+      - from
+      - to
+      - revenue
+      - invoices_count
+      - orders_booked_value
+      - orders_booked_count
+      - printed_qty
+      - wastage_pct
+      - gross_profit
+      - margin_pct
+      - cash_in
+      - cash_out
+      - receivables
+      - overdue
+      - at_risk_value
+      - at_risk_clients
+      - locked_clients
+      - payables_due_7d
+      - stock_value
+      - oee
+      - jobs_by_status
+      - trend
+      - top_clients
+    Alert:
+      type: object
+      properties:
+        id:
+          type: string
+        severity:
+          type: string
+          enum:
+          - high
+          - medium
+          - low
+        area:
+          type: string
+          enum:
+          - money
+          - production
+          - store
+          - qc
+          - dispatch
+          - planning
+          - design
+          - agents
+        title:
+          type: string
+        detail:
+          type: string
+        link:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+      required:
+      - id
+      - severity
+      - area
+      - title
+      - detail
+      - link
+      - created_at
+    AlertsResponse:
+      type: object
+      properties:
+        as_of:
+          type: string
+          format: date-time
+        alerts:
+          type: array
+          items:
+            $ref: '#/components/schemas/Alert'
+      required:
+      - as_of
+      - alerts
+    BriefItem:
+      type: object
+      properties:
+        text:
+          type: string
+        severity:
+          type: string
+          enum:
+          - high
+          - medium
+          - low
+        link:
+          type:
+          - string
+          - 'null'
+      required:
+      - text
+      - severity
+      - link
+    AgentBrief:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+        generated_at:
+          type: string
+          format: date-time
+        headline:
+          type: string
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/BriefItem'
+        source:
+          type: string
+          enum:
+          - llm
+          - template
+        finding_id:
+          type:
+          - string
+          - 'null'
+      required:
+      - date
+      - generated_at
+      - headline
+      - items
+      - source
+      - finding_id
+    Client:
+      type: object
+      properties:
+        id:
+          type: string
+          description: CL-###
+        name:
+          type: string
+        gstin:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        contact:
+          type: string
+        phone:
+          type: string
+        email:
+          type: string
+        credit_days:
+          type: integer
+        credit_limit:
+          type: number
+          description: Rupees, 2 decimals
+        outstanding:
+          type: number
+          description: Rupees, 2 decimals
+        overdue:
+          type: number
+          description: Rupees, 2 decimals
+        lock_status:
+          type: string
+          enum:
+          - ok
+          - at_risk
+          - locked
+        locks_on:
+          type:
+          - string
+          - 'null'
+          description: First day the client becomes LOCKED (due + grace + 1)
+          format: date
+        locked_since:
+          type:
+          - string
+          - 'null'
+          format: date
+        is_demo:
+          type: boolean
+          description: true for generated demo rows; UI shows a DEMO badge
+      required:
+      - id
+      - name
+      - gstin
+      - city
+      - state
+      - contact
+      - phone
+      - email
+      - credit_days
+      - credit_limit
+      - outstanding
+      - overdue
+      - lock_status
+      - locks_on
+      - locked_since
+      - is_demo
+    LockEvent:
+      type: object
+      properties:
+        at:
+          type: string
+          format: date-time
+        event:
+          type: string
+          enum:
+          - locked
+          - released
+        by:
+          type: string
+        reason:
+          type: string
+      required:
+      - at
+      - event
+      - by
+      - reason
+    ClientDetail:
+      type: object
+      properties:
+        client:
+          $ref: '#/components/schemas/Client'
+        buckets:
+          type: object
+          properties:
+            not_due:
+              type: number
+              description: Rupees, 2 decimals
+            '1_30':
+              type: number
+              description: Rupees, 2 decimals
+            '31_60':
+              type: number
+              description: Rupees, 2 decimals
+            '61_90':
+              type: number
+              description: Rupees, 2 decimals
+            90_plus:
+              type: number
+              description: Rupees, 2 decimals
+          required:
+          - not_due
+          - '1_30'
+          - '31_60'
+          - '61_90'
+          - 90_plus
+          description: Outstanding by days past due
+        invoices:
+          type: array
+          items:
+            $ref: '#/components/schemas/Invoice'
+        jobs:
+          type: array
+          items:
+            $ref: '#/components/schemas/Job'
+        collections:
+          type: array
+          items:
+            $ref: '#/components/schemas/Collection'
+        lock_log:
+          type: array
+          items:
+            $ref: '#/components/schemas/LockEvent'
+      required:
+      - client
+      - buckets
+      - invoices
+      - jobs
+      - collections
+      - lock_log
+    Vendor:
+      type: object
+      properties:
+        id:
+          type: string
+          description: VN-###
+        name:
+          type: string
+        city:
+          type: string
+        msme:
+          type: boolean
+        credit_days:
+          type: integer
+        effective_credit_days:
+          type: integer
+          description: min(credit_days, msme_days) if MSME
+        supplies:
+          type: string
+        outstanding:
+          type: number
+          description: Rupees, 2 decimals
+        is_demo:
+          type: boolean
+          description: true for generated demo rows; UI shows a DEMO badge
+      required:
+      - id
+      - name
+      - city
+      - msme
+      - credit_days
+      - effective_credit_days
+      - supplies
+      - outstanding
+      - is_demo
+    Item:
+      type: object
+      properties:
+        id:
+          type: string
+          description: IT-####
+        name:
+          type: string
+        group:
+          type: string
+          enum:
+          - Paper & Film
+          - Ink
+          - Varnish
+          - Foil
+          - Lamination
+        stock_head:
+          type: string
+        width_mm:
+          type:
+          - integer
+          - 'null'
+        uom:
+          type: string
+          enum:
+          - m
+          - kg
+          - sqm
+          - nos
+        rate:
+          type: number
+          description: Rupees, 2 decimals
+        rate_unit:
+          type: string
+          enum:
+          - per_sqm
+          - per_kg
+          - per_m
+          - per_nos
+        min_stock:
+          type: number
+        vendor_id:
+          type:
+          - string
+          - 'null'
+        is_demo:
+          type: boolean
+          description: true for generated demo rows; UI shows a DEMO badge
+      required:
+      - id
+      - name
+      - group
+      - stock_head
+      - width_mm
+      - uom
+      - rate
+      - rate_unit
+      - min_stock
+      - vendor_id
+      - is_demo
+    Machine:
+      type: object
+      properties:
+        id:
+          type: string
+          description: M-##
+        name:
+          type: string
+        type:
+          type: string
+          enum:
+          - press
+          - offline
+        units:
+          type: integer
+        max_speed_mpm:
+          type: integer
+        web_width_mm:
+          type: integer
+        crew_salary_month:
+          type: number
+          description: Rupees, 2 decimals
+        other_cost_month:
+          type: number
+          description: Rupees, 2 decimals
+        hours_run_month:
+          type: number
+        hour_rate:
+          type: number
+          description: (crew salary + other) / hours run
+        is_demo:
+          type: boolean
+          description: true for generated demo rows; UI shows a DEMO badge
+      required:
+      - id
+      - name
+      - type
+      - units
+      - max_speed_mpm
+      - web_width_mm
+      - crew_salary_month
+      - other_cost_month
+      - hours_run_month
+      - hour_rate
+      - is_demo
+    Enquiry:
+      type: object
+      properties:
+        id:
+          type: string
+          description: ENQ-####
+        date:
+          type: string
+          format: date
+        client_id:
+          type:
+          - string
+          - 'null'
+        client_name:
+          type: string
+        product:
+          type: string
+        label_size:
+          type: string
+        qty:
+          type: integer
+        material:
+          type: string
+        colours:
+          type: integer
+        finish:
+          type: string
+        source:
+          type: string
+          enum:
+          - phone
+          - email
+          - whatsapp
+          - visit
+          - repeat
+          - website
+        assigned_to:
+          type: string
+        status:
+          type: string
+          enum:
+          - new
+          - quoted
+          - won
+          - lost
+        quote_id:
+          type:
+          - string
+          - 'null'
+        value:
+          type:
+          - number
+          - 'null'
+          description: Rupees, 2 decimals
+        lost_reason:
+          type:
+          - string
+          - 'null'
+        follow_up_on:
+          type:
+          - string
+          - 'null'
+          format: date
+        job_card:
+          type:
+          - string
+          - 'null'
+        is_demo:
+          type: boolean
+          description: true for generated demo rows; UI shows a DEMO badge
+      required:
+      - id
+      - date
+      - client_id
+      - client_name
+      - product
+      - label_size
+      - qty
+      - material
+      - colours
+      - finish
+      - source
+      - assigned_to
+      - status
+      - quote_id
+      - value
+      - lost_reason
+      - follow_up_on
+      - job_card
+      - is_demo
+    EnquiryCreate:
+      type: object
+      properties:
+        client_id:
+          type:
+          - string
+          - 'null'
+        client_name:
+          type: string
+        product:
+          type: string
+        label_size:
+          type: string
+        qty:
+          type: integer
+        material:
+          type: string
+        colours:
+          type: integer
+        finish:
+          type: string
+        source:
+          type: string
+        assigned_to:
+          type: string
+      required:
+      - client_name
+      - product
+      - label_size
+      - qty
+      - material
+      - colours
+    Quote:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Q-####
+        enquiry_id:
+          type: string
+        date:
+          type: string
+          format: date
+        qty:
+          type: integer
+        rate:
+          type: number
+          description: Rupees, 2 decimals
+        value:
+          type: number
+          description: Rupees, 2 decimals
+        cost_estimate:
+          type: number
+          description: Rupees, 2 decimals
+        margin_pct:
+          type: number
+          description: Fraction 0..1 (0.087 = 8.7%), 4 decimals
+        valid_until:
+          type: string
+          format: date
+        notes:
+          type: string
+        status:
+          type: string
+          enum:
+          - sent
+          - accepted
+          - rejected
+          - expired
+        is_demo:
+          type: boolean
+          description: true for generated demo rows; UI shows a DEMO badge
+      required:
+      - id
+      - enquiry_id
+      - date
+      - qty
+      - rate
+      - value
+      - cost_estimate
+      - margin_pct
+      - valid_until
+      - notes
+      - status
+      - is_demo
+    QuoteCreate:
+      type: object
+      properties:
+        rate:
+          type: number
+          description: Rupees, 2 decimals
+        qty:
+          type: integer
+        valid_until:
+          type: string
+          format: date
+        notes:
+          type: string
+      required:
+      - rate
+      - valid_until
+    EnquiryStatusUpdate:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+          - new
+          - quoted
+          - won
+          - lost
+        reason:
+          type: string
+        po_no:
+          type: string
+      required:
+      - status
+    MarketingSummary:
+      type: object
+      properties:
+        month:
+          type: string
+          description: YYYY-MM
+        target:
+          type: number
+          description: Rupees, 2 decimals
+        achieved:
+          type: number
+          description: Rupees, 2 decimals
+        achievement_pct:
+          type: number
+          description: Fraction 0..1 (0.087 = 8.7%), 4 decimals
+        funnel:
+          type: object
+          properties:
+            new:
+              type: integer
+            quoted:
+              type: integer
+            won:
+              type: integer
+            lost:
+              type: integer
+          required:
+          - new
+          - quoted
+          - won
+          - lost
+        win_rate:
+          type: number
+          description: Fraction 0..1 (0.087 = 8.7%), 4 decimals
+        pipeline_value:
+          type: number
+          description: Rupees, 2 decimals
+        by_person:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              target:
+                type: number
+                description: Rupees, 2 decimals
+              achieved:
+                type: number
+                description: Rupees, 2 decimals
+              enquiries:
+                type: integer
+              won:
+                type: integer
+            required:
+            - name
+            - target
+            - achieved
+            - enquiries
+            - won
+        lost_reasons:
+          type: array
+          items:
+            type: object
+            properties:
+              reason:
+                type: string
+              count:
+                type: integer
+            required:
+            - reason
+            - count
+      required:
+      - month
+      - target
+      - achieved
+      - achievement_pct
+      - funnel
+      - win_rate
+      - pipeline_value
+      - by_person
+      - lost_reasons
+    Job:
+      type: object
+      properties:
+        job_card:
+          type: string
+          description: JC-####
+        created_on:
+          type: string
+          format: date
+        client_id:
+          type: string
+        client_name:
+          type: string
+        po_no:
+          type: string
+        po_date:
+          type: string
+          format: date
+        product:
+          type: string
+        label_size:
+          type: string
+        order_qty:
+          type: integer
+        rate:
+          type: number
+          description: Rupees, 2 decimals
+        po_value:
+          type: number
+          description: Rupees, 2 decimals
+        item_id:
+          type: string
+        material:
+          type: string
+        paper_width_mm:
+          type: integer
+        machine_id:
+          type: string
+        machine_name:
+          type: string
+        ups_across:
+          type: integer
+        ups_along:
+          type: integer
+        ups:
+          type: integer
+        repeat_mm:
+          type: number
+        units:
+          type: array
+          items:
+            type: string
+          description: Colour per unit
+        required_m:
+          type: number
+          description: order_qty / ups * repeat_mm / 1000
+        planned_m:
+          type: number
+          description: required_m * (1 + planning_extra)
+        issued_m:
+          type: number
+        printed_qty:
+          type: integer
+          description: Press runs only
+        qc_approved:
+          type: integer
+        dispatched_qty:
+          type: integer
+        invoiced_qty:
+          type: integer
+        status:
+          type: string
+          enum:
+          - planned
+          - design
+          - printing
+          - qc
+          - dispatch
+          - invoiced
+          - closed
+          - hold
+          description: planned = PO accepted, waiting for design/material; design = artwork/proof/plates; printing
+            = on press; qc = printed, inspection open; dispatch = QC approved, dispatch open; invoiced; closed =
+            paid; hold
+        priority:
+          type: string
+          enum:
+          - high
+          - normal
+          - low
+        due_date:
+          type: string
+          format: date
+        enquiry_id:
+          type:
+          - string
+          - 'null'
+        quote_id:
+          type:
+          - string
+          - 'null'
+        flags:
+          type: array
+          items:
+            type: string
+            enum:
+            - wastage_high
+            - material_variance
+            - overprod
+            - material_short
+            - client_locked
+            - qc_hold
+            - late
+        is_demo:
+          type: boolean
+          description: true for generated demo rows; UI shows a DEMO badge
+      required:
+      - job_card
+      - created_on
+      - client_id
+      - client_name
+      - po_no
+      - po_date
+      - product
+      - label_size
+      - order_qty
+      - rate
+      - po_value
+      - item_id
+      - material
+      - paper_width_mm
+      - machine_id
+      - machine_name
+      - ups_across
+      - ups_along
+      - ups
+      - repeat_mm
+      - units
+      - required_m
+      - planned_m
+      - issued_m
+      - printed_qty
+      - qc_approved
+      - dispatched_qty
+      - invoiced_qty
+      - status
+      - priority
+      - due_date
+      - enquiry_id
+      - quote_id
+      - flags
+      - is_demo
+    JobListResponse:
+      type: object
+      properties:
+        total:
+          type: integer
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Job'
+      required:
+      - total
+      - items
+    JobCreate:
+      type: object
+      properties:
+        client_id:
+          type: string
+        po_no:
+          type: string
+        po_date:
+          type: string
+          format: date
+        product:
+          type: string
+        label_size:
+          type: string
+        order_qty:
+          type: integer
+        rate:
+          type: number
+          description: Rupees, 2 decimals
+        item_id:
+          type: string
+        machine_id:
+          type: string
+        ups_across:
+          type: integer
+        ups_along:
+          type: integer
+        repeat_mm:
+          type: number
+        units:
+          type: array
+          items:
+            type: string
+        due_date:
+          type: string
+          format: date
+        enquiry_id:
+          type:
+          - string
+          - 'null'
+        priority:
+          type: string
+          enum:
+          - high
+          - normal
+          - low
+      required:
+      - client_id
+      - po_no
+      - po_date
+      - product
+      - label_size
+      - order_qty
+      - rate
+      - item_id
+      - ups_across
+      - ups_along
+      - repeat_mm
+      - due_date
+    PoDraftField:
+      type: object
+      properties:
+        value:
+          type:
+          - string
+          - number
+          - integer
+          - 'null'
+        confidence:
+          type: number
+          description: 0..1 extraction confidence
+        source_text:
+          type:
+          - string
+          - 'null'
+      required:
+      - value
+      - confidence
+      - source_text
+    PoDraft:
+      type: object
+      properties:
+        saved:
+          type: boolean
+          description: 'Always false: a draft, never saved'
+        file_name:
+          type: string
+        fields:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/PoDraftField'
+          description: Keys are JobCreate field names
+        client_match:
+          type:
+          - object
+          - 'null'
+          properties:
+            client_id:
+              type: string
+            client_name:
+              type: string
+            score:
+              type: number
+              description: Fraction 0..1 (0.087 = 8.7%), 4 decimals
+          required:
+          - client_id
+          - client_name
+          - score
+        warnings:
+          type: array
+          items:
+            type: string
+        draft:
+          $ref: '#/components/schemas/JobCreate'
+      required:
+      - saved
+      - file_name
+      - fields
+      - client_match
+      - warnings
+      - draft
+    MaterialNeed:
+      type: object
+      properties:
+        item_id:
+          type: string
+        material:
+          type: string
+        width_mm:
+          type: integer
+        jobs:
+          type: array
+          items:
+            type: object
+            properties:
+              job_card:
+                type: string
+              client_name:
+                type: string
+              need_m:
+                type: number
+            required:
+            - job_card
+            - client_name
+            - need_m
+        need_m:
+          type: number
+          description: Sum of planned_m - issued_m for open jobs
+        stock_m:
+          type: number
+        shortage_m:
+          type: number
+          description: max(need - stock, 0)
+        status:
+          type: string
+          enum:
+          - ok
+          - short
+      required:
+      - item_id
+      - material
+      - width_mm
+      - jobs
+      - need_m
+      - stock_m
+      - shortage_m
+      - status
+    MaterialSummary:
+      type: object
+      properties:
+        as_of:
+          type: string
+          format: date
+        planning_extra:
+          type: number
+          description: Fraction 0..1 (0.087 = 8.7%), 4 decimals
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/MaterialNeed'
+        shortages:
+          type: integer
+      required:
+      - as_of
+      - planning_extra
+      - items
+      - shortages
+    DesignUnit:
+      type: object
+      properties:
+        unit:
+          type: integer
+        colour:
+          type: string
+        anilox_lpi:
+          type:
+          - integer
+          - 'null'
+        plate_id:
+          type:
+          - string
+          - 'null'
+      required:
+      - unit
+      - colour
+      - anilox_lpi
+      - plate_id
+    Design:
+      type: object
+      properties:
+        job_card:
+          type: string
+        client_name:
+          type: string
+        product:
+          type: string
+        stage:
+          type: string
+          enum:
+          - artwork
+          - proof_sent
+          - approved
+          - plates_ordered
+          - plates_ready
+          - done
+        designer:
+          type: string
+        artwork_version:
+          type: integer
+        proof_sent_on:
+          type:
+          - string
+          - 'null'
+          format: date
+        approved_on:
+          type:
+          - string
+          - 'null'
+          format: date
+        approved_by:
+          type:
+          - string
+          - 'null'
+        repeat_mm:
+          type: number
+        ups_across:
+          type: integer
+        ups_along:
+          type: integer
+        die_id:
+          type:
+          - string
+          - 'null'
+        plate_ids:
+          type: array
+          items:
+            type: string
+        units:
+          type: array
+          items:
+            $ref: '#/components/schemas/DesignUnit'
+        route:
+          type: array
+          items:
+            type: string
+        notes:
+          type: string
+        updated_at:
+          type: string
+          format: date-time
+        is_demo:
+          type: boolean
+          description: true for generated demo rows; UI shows a DEMO badge
+      required:
+      - job_card
+      - client_name
+      - product
+      - stage
+      - designer
+      - artwork_version
+      - proof_sent_on
+      - approved_on
+      - approved_by
+      - repeat_mm
+      - ups_across
+      - ups_along
+      - die_id
+      - plate_ids
+      - units
+      - route
+      - notes
+      - updated_at
+      - is_demo
+    DesignUpdate:
+      type: object
+      description: Any subset of editable Design fields
+      properties:
+        stage:
+          type: string
+          enum:
+          - artwork
+          - proof_sent
+          - approved
+          - plates_ordered
+          - plates_ready
+          - done
+        designer:
+          type: string
+        artwork_version:
+          type: integer
+        proof_sent_on:
+          type:
+          - string
+          - 'null'
+          format: date
+        approved_on:
+          type:
+          - string
+          - 'null'
+          format: date
+        approved_by:
+          type:
+          - string
+          - 'null'
+        die_id:
+          type:
+          - string
+          - 'null'
+        units:
+          type: array
+          items:
+            $ref: '#/components/schemas/DesignUnit'
+        route:
+          type: array
+          items:
+            type: string
+        notes:
+          type: string
+    Plate:
+      type: object
+      properties:
+        id:
+          type: string
+          description: PL-#####
+        job_card:
+          type: string
+        client_name:
+          type: string
+        unit:
+          type: integer
+        colour:
+          type: string
+        made_on:
+          type: string
+          format: date
+        vendor_id:
+          type: string
+        cost:
+          type: number
+          description: Rupees, 2 decimals
+        impressions:
+          type: integer
+        status:
+          type: string
+          enum:
+          - in_use
+          - stored
+          - damaged
+          - scrapped
+        rack:
+          type: string
+        is_demo:
+          type: boolean
+          description: true for generated demo rows; UI shows a DEMO badge
+      required:
+      - id
+      - job_card
+      - client_name
+      - unit
+      - colour
+      - made_on
+      - vendor_id
+      - cost
+      - impressions
+      - status
+      - rack
+      - is_demo
+    Die:
+      type: object
+      properties:
+        id:
+          type: string
+          description: D-###
+        type:
+          type: string
+          enum:
+          - rotary
+          - flatbed
+        label_size:
+          type: string
+        ups_across:
+          type: integer
+        ups_along:
+          type: integer
+        repeat_mm:
+          type: number
+        vendor_id:
+          type: string
+        cost:
+          type: number
+          description: Rupees, 2 decimals
+        made_on:
+          type: string
+          format: date
+        last_job_card:
+          type:
+          - string
+          - 'null'
+        impressions:
+          type: integer
+        status:
+          type: string
+          enum:
+          - ok
+          - worn
+          - damaged
+          - scrapped
+        location:
+          type: string
+        is_demo:
+          type: boolean
+          description: true for generated demo rows; UI shows a DEMO badge
+      required:
+      - id
+      - type
+      - label_size
+      - ups_across
+      - ups_along
+      - repeat_mm
+      - vendor_id
+      - cost
+      - made_on
+      - last_job_card
+      - impressions
+      - status
+      - location
+      - is_demo
+    JobCost:
+      type: object
+      properties:
+        revenue:
+          type: number
+          description: Rupees, 2 decimals
+        revenue_basis:
+          type: string
+          enum:
+          - invoiced
+          - po_value
+        material:
+          type: number
+          description: Rupees, 2 decimals
+        plates:
+          type: number
+          description: Rupees, 2 decimals
+        ink:
+          type: number
+          description: Rupees, 2 decimals
+        salaries:
+          type: number
+          description: Rupees, 2 decimals
+        freight:
+          type: number
+          description: Rupees, 2 decimals
+        admin_share:
+          type: number
+          description: Rupees, 2 decimals
+        direct_overhead:
+          type: number
+          description: Rupees, 2 decimals
+        profit:
+          type: number
+          description: revenue - all costs
+        margin_pct:
+          type: number
+          description: Fraction 0..1 (0.087 = 8.7%), 4 decimals
+      required:
+      - revenue
+      - revenue_basis
+      - material
+      - plates
+      - ink
+      - salaries
+      - freight
+      - admin_share
+      - direct_overhead
+      - profit
+      - margin_pct
+    TimelineEvent:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+        stage:
+          type: string
+          enum:
+          - enquiry
+          - quote
+          - po
+          - design
+          - plates
+          - store
+          - production
+          - qc
+          - dispatch
+          - invoice
+          - receipt
+        text:
+          type: string
+        ref:
+          type:
+          - string
+          - 'null'
+        link:
+          type:
+          - string
+          - 'null'
+      required:
+      - date
+      - stage
+      - text
+      - ref
+      - link
+    Job360:
+      type: object
+      properties:
+        job:
+          $ref: '#/components/schemas/Job'
+        enquiry:
+          oneOf:
+          - $ref: '#/components/schemas/Enquiry'
+          - type: 'null'
+        quote:
+          oneOf:
+          - $ref: '#/components/schemas/Quote'
+          - type: 'null'
+        design:
+          oneOf:
+          - $ref: '#/components/schemas/Design'
+          - type: 'null'
+        plates:
+          type: array
+          items:
+            $ref: '#/components/schemas/Plate'
+        die:
+          oneOf:
+          - $ref: '#/components/schemas/Die'
+          - type: 'null'
+        issues:
+          type: array
+          items:
+            $ref: '#/components/schemas/Issue'
+        rolls:
+          type: array
+          items:
+            $ref: '#/components/schemas/Roll'
+        runs:
+          type: array
+          items:
+            $ref: '#/components/schemas/Run'
+        qc:
+          type: array
+          items:
+            $ref: '#/components/schemas/QcRow'
+        dispatches:
+          type: array
+          items:
+            $ref: '#/components/schemas/Dispatch'
+        invoices:
+          type: array
+          items:
+            $ref: '#/components/schemas/Invoice'
+        cost:
+          $ref: '#/components/schemas/JobCost'
+        timeline:
+          type: array
+          items:
+            $ref: '#/components/schemas/TimelineEvent'
+        checks:
+          type: array
+          items:
+            $ref: '#/components/schemas/RuleCheck'
+      required:
+      - job
+      - enquiry
+      - quote
+      - design
+      - plates
+      - die
+      - issues
+      - rolls
+      - runs
+      - qc
+      - dispatches
+      - invoices
+      - cost
+      - timeline
+      - checks
+    RuleCheck:
+      type: object
+      properties:
+        rule:
+          type: string
+        label:
+          type: string
+        value:
+          type: number
+        limit:
+          type: number
+        ok:
+          type: boolean
+        detail:
+          type: string
+      required:
+      - rule
+      - label
+      - value
+      - limit
+      - ok
+      - detail
+    StoreGroupSummary:
+      type: object
+      properties:
+        group:
+          type: string
+        stock_value:
+          type: number
+          description: Rupees, 2 decimals
+        received_value_month:
+          type: number
+          description: Rupees, 2 decimals
+        issued_value_month:
+          type: number
+          description: Rupees, 2 decimals
+        issued_without_jc_value_month:
+          type: number
+          description: Rupees, 2 decimals
+      required:
+      - group
+      - stock_value
+      - received_value_month
+      - issued_value_month
+      - issued_without_jc_value_month
+    StoreSummary:
+      type: object
+      properties:
+        as_of:
+          type: string
+          format: date
+        stock_from:
+          type: string
+          format: date
+        month:
+          type: string
+        stock_value:
+          type: number
+          description: Rupees, 2 decimals
+        groups:
+          type: array
+          items:
+            $ref: '#/components/schemas/StoreGroupSummary'
+        grns_month:
+          type: integer
+        issues_month:
+          type: integer
+        issue_lines_without_jc_pct:
+          type: number
+          description: Fraction 0..1 (0.087 = 8.7%), 4 decimals
+        below_min:
+          type: integer
+        shortages:
+          type: array
+          items:
+            $ref: '#/components/schemas/MaterialNeed'
+        rate_flags:
+          type: integer
+        non_moving_items:
+          type: integer
+      required:
+      - as_of
+      - stock_from
+      - month
+      - stock_value
+      - groups
+      - grns_month
+      - issues_month
+      - issue_lines_without_jc_pct
+      - below_min
+      - shortages
+      - rate_flags
+      - non_moving_items
+    StockRow:
+      type: object
+      properties:
+        item_id:
+          type: string
+        item_name:
+          type: string
+        group:
+          type: string
+        width_mm:
+          type:
+          - integer
+          - 'null'
+        uom:
+          type: string
+        opening:
+          type: number
+          description: as of stock_from
+        received:
+          type: number
+        issued:
+          type: number
+        stock:
+          type: number
+          description: opening + received - issued
+        stock_sqm:
+          type:
+          - number
+          - 'null'
+          description: stock * width_mm / 1000
+        rate:
+          type: number
+          description: Rupees, 2 decimals
+        value:
+          type: number
+          description: Rupees, 2 decimals
+        min_stock:
+          type: number
+        status:
+          type: string
+          enum:
+          - ok
+          - low
+          - short
+          - non_moving
+        last_movement:
+          type: string
+          format: date
+      required:
+      - item_id
+      - item_name
+      - group
+      - width_mm
+      - uom
+      - opening
+      - received
+      - issued
+      - stock
+      - stock_sqm
+      - rate
+      - value
+      - min_stock
+      - status
+      - last_movement
+    StockResponse:
+      type: object
+      properties:
+        as_of:
+          type: string
+          format: date
+        stock_from:
+          type: string
+          format: date
+        total_value:
+          type: number
+          description: Rupees, 2 decimals
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/StockRow'
+      required:
+      - as_of
+      - stock_from
+      - total_value
+      - items
+    GrnCreate:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+        vendor_id:
+          type: string
+        bill_no:
+          type: string
+        item_id:
+          type: string
+        qty:
+          type: number
+        rate:
+          type: number
+          description: Rupees, 2 decimals
+        roll_lengths_m:
+          type: array
+          items:
+            type: number
+          description: One entry per numbered roll (paper/film)
+      required:
+      - date
+      - vendor_id
+      - bill_no
+      - item_id
+      - qty
+      - rate
+    Grn:
+      type: object
+      properties:
+        id:
+          type: string
+          description: GRN-#####
+        date:
+          type: string
+          format: date
+        vendor_id:
+          type: string
+        vendor_name:
+          type: string
+        bill_no:
+          type: string
+        item_id:
+          type: string
+        item_name:
+          type: string
+        qty:
+          type: number
+        uom:
+          type: string
+        rate:
+          type: number
+          description: Rupees, 2 decimals
+        item_rate:
+          type: number
+          description: Rupees, 2 decimals
+        rate_diff_pct:
+          type: number
+          description: (rate - item_rate) / item_rate
+        rate_flag:
+          type: boolean
+          description: '|diff| > grn_rate_tol'
+        amount:
+          type: number
+          description: Rupees, 2 decimals
+        roll_ids:
+          type: array
+          items:
+            type: string
+        is_demo:
+          type: boolean
+          description: true for generated demo rows; UI shows a DEMO badge
+      required:
+      - id
+      - date
+      - vendor_id
+      - vendor_name
+      - bill_no
+      - item_id
+      - item_name
+      - qty
+      - uom
+      - rate
+      - item_rate
+      - rate_diff_pct
+      - rate_flag
+      - amount
+      - roll_ids
+      - is_demo
+    IssueCreate:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+        job_card:
+          type: string
+          description: Required; 400 if missing/unknown
+        item_id:
+          type: string
+        qty:
+          type: number
+        roll_id:
+          type:
+          - string
+          - 'null'
+        issued_to:
+          type: string
+      required:
+      - date
+      - job_card
+      - item_id
+      - qty
+    Issue:
+      type: object
+      properties:
+        id:
+          type: string
+          description: ISS-#####
+        date:
+          type: string
+          format: date
+        job_card:
+          type:
+          - string
+          - 'null'
+          description: null only on imported ERP lines
+        item_id:
+          type: string
+        item_name:
+          type: string
+        qty:
+          type: number
+        uom:
+          type: string
+        sqm:
+          type:
+          - number
+          - 'null'
+        roll_id:
+          type:
+          - string
+          - 'null'
+        rate:
+          type: number
+          description: Rupees, 2 decimals
+        value:
+          type: number
+          description: Rupees, 2 decimals
+        issued_to:
+          type: string
+        source:
+          type: string
+          enum:
+          - app
+          - erp_import
+        is_demo:
+          type: boolean
+          description: true for generated demo rows; UI shows a DEMO badge
+      required:
+      - id
+      - date
+      - job_card
+      - item_id
+      - item_name
+      - qty
+      - uom
+      - sqm
+      - roll_id
+      - rate
+      - value
+      - issued_to
+      - source
+      - is_demo
+    Roll:
+      type: object
+      properties:
+        id:
+          type: string
+          description: R-YYYY-####
+        item_id:
+          type: string
+        item_name:
+          type: string
+        width_mm:
+          type: integer
+        length_m:
+          type: number
+        balance_m:
+          type: number
+        source:
+          type: string
+          enum:
+          - grn
+          - slit
+          - opening
+        source_ref:
+          type: string
+        received_on:
+          type: string
+          format: date
+        status:
+          type: string
+          enum:
+          - in_stock
+          - partly_issued
+          - consumed
+        issued_to:
+          type: array
+          items:
+            type: string
+          description: Job cards
+        location:
+          type: string
+        is_demo:
+          type: boolean
+          description: true for generated demo rows; UI shows a DEMO badge
+      required:
+      - id
+      - item_id
+      - item_name
+      - width_mm
+      - length_m
+      - balance_m
+      - source
+      - source_ref
+      - received_on
+      - status
+      - issued_to
+      - location
+      - is_demo
+    SlitOutput:
+      type: object
+      properties:
+        width_mm:
+          type: integer
+        count:
+          type: integer
+        roll_ids:
+          type: array
+          items:
+            type: string
+      required:
+      - width_mm
+      - count
+      - roll_ids
+    Slitting:
+      type: object
+      properties:
+        id:
+          type: string
+          description: SLT-####
+        date:
+          type: string
+          format: date
+        jumbo_roll_id:
+          type: string
+        item_name:
+          type: string
+        jumbo_width_mm:
+          type: integer
+        length_m:
+          type: number
+        outputs:
+          type: array
+          items:
+            $ref: '#/components/schemas/SlitOutput'
+        used_width_mm:
+          type: integer
+        trim_mm:
+          type: integer
+        trim_pct:
+          type: number
+          description: trim_mm / jumbo_width_mm
+        trim_flag:
+          type: boolean
+          description: '> slit_tol'
+        trim_value:
+          type: number
+          description: Rupees, 2 decimals
+        operator:
+          type: string
+        is_demo:
+          type: boolean
+          description: true for generated demo rows; UI shows a DEMO badge
+      required:
+      - id
+      - date
+      - jumbo_roll_id
+      - item_name
+      - jumbo_width_mm
+      - length_m
+      - outputs
+      - used_width_mm
+      - trim_mm
+      - trim_pct
+      - trim_flag
+      - trim_value
+      - operator
+      - is_demo
+    PartyLaminateRow:
+      type: object
+      properties:
+        id:
+          type: string
+          description: PLM-####
+        date:
+          type: string
+          format: date
+        client_id:
+          type: string
+        client_name:
+          type: string
+        movement:
+          type: string
+          enum:
+          - in
+          - out
+        laminate:
+          type: string
+        width_mm:
+          type: integer
+        qty_m:
+          type: number
+        job_card:
+          type:
+          - string
+          - 'null'
+        balance_m:
+          type: number
+          description: Party balance after this row
+        is_demo:
+          type: boolean
+          description: true for generated demo rows; UI shows a DEMO badge
+      required:
+      - id
+      - date
+      - client_id
+      - client_name
+      - movement
+      - laminate
+      - width_mm
+      - qty_m
+      - job_card
+      - balance_m
+      - is_demo
+    PartyLaminateResponse:
+      type: object
+      properties:
+        as_of:
+          type: string
+          format: date
+        balances:
+          type: array
+          items:
+            type: object
+            properties:
+              client_id:
+                type: string
+              client_name:
+                type: string
+              laminate:
+                type: string
+              balance_m:
+                type: number
+            required:
+            - client_id
+            - client_name
+            - laminate
+            - balance_m
+        rows:
+          type: array
+          items:
+            $ref: '#/components/schemas/PartyLaminateRow'
+      required:
+      - as_of
+      - balances
+      - rows
+    InkAllocationRow:
+      type: object
+      properties:
+        job_card:
+          type: string
+        client_name:
+          type: string
+        est_ink_kg:
+          type: number
+        share_pct:
+          type: number
+          description: Fraction 0..1 (0.087 = 8.7%), 4 decimals
+        allocated_value:
+          type: number
+          description: Rupees, 2 decimals
+      required:
+      - job_card
+      - client_name
+      - est_ink_kg
+      - share_pct
+      - allocated_value
+    InkAllocation:
+      type: object
+      properties:
+        month:
+          type: string
+        pool_value:
+          type: number
+          description: Ink/varnish issued without job card
+        estimate_value:
+          type: number
+          description: Rupees, 2 decimals
+        variance_pct:
+          type: number
+          description: (pool - estimate) / estimate
+        ink_flag:
+          type: boolean
+          description: '|variance| > ink_tol'
+        rows:
+          type: array
+          items:
+            $ref: '#/components/schemas/InkAllocationRow'
+      required:
+      - month
+      - pool_value
+      - estimate_value
+      - variance_pct
+      - ink_flag
+      - rows
+    DataQualityCheck:
+      type: object
+      properties:
+        key:
+          type: string
+        label:
+          type: string
+        count:
+          type: integer
+        pct:
+          type:
+          - number
+          - 'null'
+          description: Fraction 0..1 (0.087 = 8.7%), 4 decimals
+        value:
+          type:
+          - number
+          - 'null'
+          description: Rupees, 2 decimals
+        severity:
+          type: string
+          enum:
+          - high
+          - medium
+          - low
+        link:
+          type: string
+      required:
+      - key
+      - label
+      - count
+      - pct
+      - value
+      - severity
+      - link
+    DateFix:
+      type: object
+      properties:
+        source_row:
+          type: integer
+        doc_no:
+          type: string
+        raw:
+          type: string
+        excel_read_as:
+          type:
+          - string
+          - 'null'
+          format: date
+        fixed_to:
+          type: string
+          format: date
+      required:
+      - source_row
+      - doc_no
+      - raw
+      - excel_read_as
+      - fixed_to
+    DataQuality:
+      type: object
+      properties:
+        period_from:
+          type: string
+          format: date
+        period_to:
+          type: string
+          format: date
+        source:
+          type: string
+        issue_lines:
+          type: integer
+        issue_lines_without_jc:
+          type: integer
+        pct_without_jc:
+          type: number
+          description: Fraction 0..1 (0.087 = 8.7%), 4 decimals
+        value_without_jc:
+          type: number
+          description: Rupees, 2 decimals
+        date_fixes:
+          type: object
+          properties:
+            count:
+              type: integer
+            examples:
+              type: array
+              items:
+                $ref: '#/components/schemas/DateFix'
+          required:
+          - count
+          - examples
+        checks:
+          type: array
+          items:
+            $ref: '#/components/schemas/DataQualityCheck'
+      required:
+      - period_from
+      - period_to
+      - source
+      - issue_lines
+      - issue_lines_without_jc
+      - pct_without_jc
+      - value_without_jc
+      - date_fixes
+      - checks
+    Stop:
+      type: object
+      properties:
+        reason:
+          type: string
+        minutes:
+          type: integer
+      required:
+      - reason
+      - minutes
+    Run:
+      type: object
+      properties:
+        id:
+          type: string
+          description: RUN-#####
+        job_card:
+          type: string
+        client_name:
+          type: string
+        machine_id:
+          type: string
+        machine_name:
+          type: string
+        machine_type:
+          type: string
+          enum:
+          - press
+          - offline
+        shift:
+          type: string
+          enum:
+          - day
+          - night
+        operator:
+          type: string
+        start:
+          type: string
+          format: date-time
+        end:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        hours:
+          type:
+          - number
+          - 'null'
+        status:
+          type: string
+          enum:
+          - running
+          - ended
+        printed_qty:
+          type: integer
+          description: Live counter while running
+        required_m:
+          type:
+          - number
+          - 'null'
+        used_m:
+          type:
+          - number
+          - 'null'
+        wastage_m:
+          type:
+          - number
+          - 'null'
+          description: used - required
+        wastage_pct:
+          type:
+          - number
+          - 'null'
+          description: Fraction 0..1 (0.087 = 8.7%), 4 decimals
+        wastage_flag:
+          type: boolean
+          description: wastage_pct > wastage_tol
+        overprod_flag:
+          type: boolean
+        hour_rate:
+          type: number
+          description: Rupees, 2 decimals
+        crew_cost:
+          type:
+          - number
+          - 'null'
+          description: hours * hour_rate
+        stops:
+          type: array
+          items:
+            $ref: '#/components/schemas/Stop'
+        is_demo:
+          type: boolean
+          description: true for generated demo rows; UI shows a DEMO badge
+      required:
+      - id
+      - job_card
+      - client_name
+      - machine_id
+      - machine_name
+      - machine_type
+      - shift
+      - operator
+      - start
+      - end
+      - hours
+      - status
+      - printed_qty
+      - required_m
+      - used_m
+      - wastage_m
+      - wastage_pct
+      - wastage_flag
+      - overprod_flag
+      - hour_rate
+      - crew_cost
+      - stops
+      - is_demo
+    RunStart:
+      type: object
+      properties:
+        job_card:
+          type: string
+        machine_id:
+          type: string
+        operator:
+          type: string
+        shift:
+          type: string
+          enum:
+          - day
+          - night
+      required:
+      - job_card
+      - machine_id
+      - operator
+      - shift
+    RunEnd:
+      type: object
+      properties:
+        printed_qty:
+          type: integer
+        used_m:
+          type: number
+        stops:
+          type: array
+          items:
+            $ref: '#/components/schemas/Stop'
+        end:
+          type: string
+          format: date-time
+      required:
+      - printed_qty
+      - used_m
+    PressUnit:
+      type: object
+      properties:
+        unit:
+          type: integer
+        colour:
+          type: string
+        anilox_lpi:
+          type: integer
+        anilox_bcm:
+          type: number
+        plate_id:
+          type:
+          - string
+          - 'null'
+        ink_item_id:
+          type:
+          - string
+          - 'null'
+      required:
+      - unit
+      - colour
+      - anilox_lpi
+      - anilox_bcm
+      - plate_id
+      - ink_item_id
+    PressSetup:
+      type: object
+      properties:
+        job_card:
+          type: string
+        machine_id:
+          type: string
+        machine_name:
+          type: string
+        web_width_mm:
+          type: integer
+        ups_across:
+          type: integer
+        ups_along:
+          type: integer
+        repeat_mm:
+          type: number
+        die_id:
+          type:
+          - string
+          - 'null'
+        units:
+          type: array
+          items:
+            $ref: '#/components/schemas/PressUnit'
+        speed_target_mpm:
+          type: integer
+        est_ink_kg:
+          type: number
+        notes:
+          type: string
+        updated_at:
+          type: string
+          format: date-time
+        updated_by:
+          type: string
+      required:
+      - job_card
+      - machine_id
+      - machine_name
+      - web_width_mm
+      - ups_across
+      - ups_along
+      - repeat_mm
+      - die_id
+      - units
+      - speed_target_mpm
+      - est_ink_kg
+      - notes
+      - updated_at
+      - updated_by
+    PressSetupInput:
+      type: object
+      properties:
+        job_card:
+          type: string
+        machine_id:
+          type: string
+        web_width_mm:
+          type: integer
+        die_id:
+          type:
+          - string
+          - 'null'
+        units:
+          type: array
+          items:
+            $ref: '#/components/schemas/PressUnit'
+        speed_target_mpm:
+          type: integer
+        notes:
+          type: string
+      required:
+      - job_card
+      - machine_id
+      - web_width_mm
+      - units
+    OeeMachine:
+      type: object
+      properties:
+        machine_id:
+          type: string
+        machine_name:
+          type: string
+        planned_hours:
+          type: number
+        run_hours:
+          type: number
+        downtime_hours:
+          type: number
+        availability:
+          type: number
+          description: Fraction 0..1 (0.087 = 8.7%), 4 decimals
+        performance:
+          type: number
+          description: Fraction 0..1 (0.087 = 8.7%), 4 decimals
+        quality:
+          type: number
+          description: Fraction 0..1 (0.087 = 8.7%), 4 decimals
+        oee:
+          type: number
+          description: availability * performance * quality
+        top_loss:
+          type: string
+        hour_rate:
+          type: number
+          description: Rupees, 2 decimals
+      required:
+      - machine_id
+      - machine_name
+      - planned_hours
+      - run_hours
+      - downtime_hours
+      - availability
+      - performance
+      - quality
+      - oee
+      - top_loss
+      - hour_rate
+    Oee:
+      type: object
+      properties:
+        month:
+          type: string
+        from:
+          type: string
+          format: date
+        to:
+          type: string
+          format: date
+        plant_oee:
+          type: number
+          description: Fraction 0..1 (0.087 = 8.7%), 4 decimals
+        machines:
+          type: array
+          items:
+            $ref: '#/components/schemas/OeeMachine'
+      required:
+      - month
+      - from
+      - to
+      - plant_oee
+      - machines
+    MorningMachine:
+      type: object
+      properties:
+        machine_id:
+          type: string
+        machine_name:
+          type: string
+        jobs:
+          type: array
+          items:
+            type: string
+        runs:
+          type: integer
+        printed_qty:
+          type: integer
+        required_m:
+          type: number
+        used_m:
+          type: number
+        wastage_m:
+          type: number
+        wastage_pct:
+          type: number
+          description: Fraction 0..1 (0.087 = 8.7%), 4 decimals
+        run_hours:
+          type: number
+        downtime_min:
+          type: integer
+        mtd_printed_qty:
+          type: integer
+        mtd_wastage_pct:
+          type: number
+          description: Fraction 0..1 (0.087 = 8.7%), 4 decimals
+      required:
+      - machine_id
+      - machine_name
+      - jobs
+      - runs
+      - printed_qty
+      - required_m
+      - used_m
+      - wastage_m
+      - wastage_pct
+      - run_hours
+      - downtime_min
+      - mtd_printed_qty
+      - mtd_wastage_pct
+    MorningReport:
+      type: object
+      properties:
+        date:
+          type: string
+          description: Report date
+          format: date
+        for_date:
+          type: string
+          description: Production day covered (yesterday)
+          format: date
+        machines:
+          type: array
+          items:
+            $ref: '#/components/schemas/MorningMachine'
+        totals:
+          type: object
+          properties:
+            printed_qty:
+              type: integer
+            used_m:
+              type: number
+            wastage_m:
+              type: number
+            wastage_pct:
+              type: number
+              description: Fraction 0..1 (0.087 = 8.7%), 4 decimals
+            run_hours:
+              type: number
+          required:
+          - printed_qty
+          - used_m
+          - wastage_m
+          - wastage_pct
+          - run_hours
+        highlights:
+          type: array
+          items:
+            $ref: '#/components/schemas/BriefItem'
+      required:
+      - date
+      - for_date
+      - machines
+      - totals
+      - highlights
+    CounterTick:
+      type: object
+      properties:
+        run_id:
+          type: string
+        ts:
+          type: string
+          format: date-time
+        count:
+          type: integer
+        metres:
+          type: number
+        speed_mpm:
+          type: number
+        status:
+          type: string
+          enum:
+          - running
+          - stopped
+          - ended
+      required:
+      - run_id
+      - ts
+      - count
+      - metres
+      - speed_mpm
+      - status
+      description: One SSE `data:` payload
+    Defect:
+      type: object
+      properties:
+        type:
+          type: string
+        qty:
+          type: integer
+      required:
+      - type
+      - qty
+    QcRow:
+      type: object
+      properties:
+        id:
+          type: string
+          description: QC-#####
+        date:
+          type: string
+          format: date
+        job_card:
+          type: string
+        client_name:
+          type: string
+        run_id:
+          type:
+          - string
+          - 'null'
+        checked:
+          type: integer
+        approved:
+          type: integer
+        rejected:
+          type: integer
+        rejection_pct:
+          type: number
+          description: Fraction 0..1 (0.087 = 8.7%), 4 decimals
+        decision:
+          type: string
+          enum:
+          - Approved
+          - Approved with Deviation
+          - Hold
+          - Rework
+          - Rejected
+        counts_as_approved:
+          type: boolean
+          description: false for Hold/Rework/Rejected
+        defects:
+          type: array
+          items:
+            $ref: '#/components/schemas/Defect'
+        inspector:
+          type: string
+        notes:
+          type: string
+        is_demo:
+          type: boolean
+          description: true for generated demo rows; UI shows a DEMO badge
+      required:
+      - id
+      - date
+      - job_card
+      - client_name
+      - run_id
+      - checked
+      - approved
+      - rejected
+      - rejection_pct
+      - decision
+      - counts_as_approved
+      - defects
+      - inspector
+      - notes
+      - is_demo
+    QcCreate:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+        job_card:
+          type: string
+        run_id:
+          type:
+          - string
+          - 'null'
+        checked:
+          type: integer
+        approved:
+          type: integer
+        rejected:
+          type: integer
+        decision:
+          type: string
+          enum:
+          - Approved
+          - Approved with Deviation
+          - Hold
+          - Rework
+          - Rejected
+        defects:
+          type: array
+          items:
+            $ref: '#/components/schemas/Defect'
+        inspector:
+          type: string
+        notes:
+          type: string
+      required:
+      - date
+      - job_card
+      - checked
+      - approved
+      - rejected
+      - decision
+      - inspector
+    Dispatch:
+      type: object
+      properties:
+        id:
+          type: string
+          description: DC-####
+        date:
+          type: string
+          format: date
+        job_card:
+          type: string
+        client_id:
+          type: string
+        client_name:
+          type: string
+        qty:
+          type: integer
+        boxes:
+          type: integer
+        vehicle_no:
+          type: string
+        transporter:
+          type: string
+        freight:
+          type: number
+          description: Rupees, 2 decimals
+        lr_no:
+          type: string
+        qc_approved:
+          type: integer
+        dispatched_before:
+          type: integer
+        balance_after:
+          type: integer
+          description: qc_approved - cumulative
+        status:
+          type: string
+          enum:
+          - dispatched
+          - invoiced
+        invoice_id:
+          type:
+          - string
+          - 'null'
+        is_demo:
+          type: boolean
+          description: true for generated demo rows; UI shows a DEMO badge
+      required:
+      - id
+      - date
+      - job_card
+      - client_id
+      - client_name
+      - qty
+      - boxes
+      - vehicle_no
+      - transporter
+      - freight
+      - lr_no
+      - qc_approved
+      - dispatched_before
+      - balance_after
+      - status
+      - invoice_id
+      - is_demo
+    DispatchCreate:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+        job_card:
+          type: string
+        qty:
+          type: integer
+        boxes:
+          type: integer
+        vehicle_no:
+          type: string
+        transporter:
+          type: string
+        freight:
+          type: number
+          description: Rupees, 2 decimals
+        lr_no:
+          type: string
+      required:
+      - date
+      - job_card
+      - qty
+      - vehicle_no
+      - transporter
+      - freight
+    Invoice:
+      type: object
+      properties:
+        id:
+          type: string
+          description: INV-####
+        date:
+          type: string
+          format: date
+        client_id:
+          type: string
+        client_name:
+          type: string
+        job_card:
+          type: string
+        dispatch_id:
+          type:
+          - string
+          - 'null'
+        qty:
+          type: integer
+        rate:
+          type: number
+          description: Rupees, 2 decimals
+        taxable:
+          type: number
+          description: qty * rate
+        gst_rate:
+          type: number
+          description: Fraction 0..1 (0.087 = 8.7%), 4 decimals
+        gst:
+          type: number
+          description: Rupees, 2 decimals
+        total:
+          type: number
+          description: Rupees, 2 decimals
+        received:
+          type: number
+          description: Rupees, 2 decimals
+        outstanding:
+          type: number
+          description: Rupees, 2 decimals
+        due_date:
+          type: string
+          description: date + client credit days
+          format: date
+        days_past_due:
+          type: integer
+        bucket:
+          type: string
+          enum:
+          - not_due
+          - '1_30'
+          - '31_60'
+          - '61_90'
+          - 90_plus
+        status:
+          type: string
+          enum:
+          - draft
+          - open
+          - part_paid
+          - paid
+        is_demo:
+          type: boolean
+          description: true for generated demo rows; UI shows a DEMO badge
+      required:
+      - id
+      - date
+      - client_id
+      - client_name
+      - job_card
+      - dispatch_id
+      - qty
+      - rate
+      - taxable
+      - gst_rate
+      - gst
+      - total
+      - received
+      - outstanding
+      - due_date
+      - days_past_due
+      - bucket
+      - status
+      - is_demo
+    InvoiceListResponse:
+      type: object
+      properties:
+        total_outstanding:
+          type: number
+          description: Rupees, 2 decimals
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Invoice'
+      required:
+      - total_outstanding
+      - items
+    DebtorRow:
+      type: object
+      properties:
+        client_id:
+          type: string
+        client_name:
+          type: string
+        credit_days:
+          type: integer
+        outstanding:
+          type: number
+          description: Rupees, 2 decimals
+        buckets:
+          type: object
+          properties:
+            not_due:
+              type: number
+              description: Rupees, 2 decimals
+            '1_30':
+              type: number
+              description: Rupees, 2 decimals
+            '31_60':
+              type: number
+              description: Rupees, 2 decimals
+            '61_90':
+              type: number
+              description: Rupees, 2 decimals
+            90_plus:
+              type: number
+              description: Rupees, 2 decimals
+          required:
+          - not_due
+          - '1_30'
+          - '31_60'
+          - '61_90'
+          - 90_plus
+          description: Outstanding by days past due
+        oldest_due_date:
+          type:
+          - string
+          - 'null'
+          format: date
+        max_days_past_due:
+          type: integer
+        lock_status:
+          type: string
+          enum:
+          - ok
+          - at_risk
+          - locked
+        locks_on:
+          type:
+          - string
+          - 'null'
+          format: date
+        locked_since:
+          type:
+          - string
+          - 'null'
+          format: date
+        last_receipt_date:
+          type:
+          - string
+          - 'null'
+          format: date
+        promise:
+          type:
+          - object
+          - 'null'
+          properties:
+            date:
+              type: string
+              format: date
+            amount:
+              type: number
+              description: Rupees, 2 decimals
+          required:
+          - date
+          - amount
+      required:
+      - client_id
+      - client_name
+      - credit_days
+      - outstanding
+      - buckets
+      - oldest_due_date
+      - max_days_past_due
+      - lock_status
+      - locks_on
+      - locked_since
+      - last_receipt_date
+      - promise
+    Debtors:
+      type: object
+      properties:
+        as_of:
+          type: string
+          format: date
+        grace_days:
+          type: integer
+        totals:
+          type: object
+          properties:
+            outstanding:
+              type: number
+              description: Rupees, 2 decimals
+            overdue:
+              type: number
+              description: Rupees, 2 decimals
+            at_risk:
+              type: number
+              description: Rupees, 2 decimals
+            locked:
+              type: number
+              description: Rupees, 2 decimals
+            buckets:
+              type: object
+              properties:
+                not_due:
+                  type: number
+                  description: Rupees, 2 decimals
+                '1_30':
+                  type: number
+                  description: Rupees, 2 decimals
+                '31_60':
+                  type: number
+                  description: Rupees, 2 decimals
+                '61_90':
+                  type: number
+                  description: Rupees, 2 decimals
+                90_plus:
+                  type: number
+                  description: Rupees, 2 decimals
+              required:
+              - not_due
+              - '1_30'
+              - '31_60'
+              - '61_90'
+              - 90_plus
+              description: Outstanding by days past due
+          required:
+          - outstanding
+          - overdue
+          - at_risk
+          - locked
+          - buckets
+        clients:
+          type: array
+          items:
+            $ref: '#/components/schemas/DebtorRow'
+      required:
+      - as_of
+      - grace_days
+      - totals
+      - clients
+    ReleaseLockRequest:
+      type: object
+      properties:
+        reason:
+          type: string
+      required:
+      - reason
+    ReleaseLockResult:
+      type: object
+      properties:
+        client_id:
+          type: string
+        lock_status:
+          type: string
+          enum:
+          - ok
+          - at_risk
+          - locked
+        released_by:
+          type: string
+          enum:
+          - owner
+        released_at:
+          type: string
+          format: date-time
+        reason:
+          type: string
+        valid_until:
+          type: string
+          description: Lock re-applies after this date if still unpaid
+          format: date
+        audit_id:
+          type: string
+      required:
+      - client_id
+      - lock_status
+      - released_by
+      - released_at
+      - reason
+      - valid_until
+      - audit_id
+    Collection:
+      type: object
+      properties:
+        id:
+          type: string
+          description: COL-####
+        date:
+          type: string
+          format: date
+        client_id:
+          type: string
+        client_name:
+          type: string
+        invoice_ids:
+          type: array
+          items:
+            type: string
+        mode:
+          type: string
+          enum:
+          - call
+          - whatsapp
+          - email
+          - visit
+        contact:
+          type: string
+        note:
+          type: string
+        promise_date:
+          type:
+          - string
+          - 'null'
+          format: date
+        promise_amount:
+          type:
+          - number
+          - 'null'
+          description: Rupees, 2 decimals
+        status:
+          type: string
+          enum:
+          - open
+          - kept
+          - broken
+        next_follow_up:
+          type:
+          - string
+          - 'null'
+          format: date
+        by:
+          type: string
+        is_demo:
+          type: boolean
+          description: true for generated demo rows; UI shows a DEMO badge
+      required:
+      - id
+      - date
+      - client_id
+      - client_name
+      - invoice_ids
+      - mode
+      - contact
+      - note
+      - promise_date
+      - promise_amount
+      - status
+      - next_follow_up
+      - by
+      - is_demo
+    CollectionCreate:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+        client_id:
+          type: string
+        invoice_ids:
+          type: array
+          items:
+            type: string
+        mode:
+          type: string
+        contact:
+          type: string
+        note:
+          type: string
+        promise_date:
+          type:
+          - string
+          - 'null'
+          format: date
+        promise_amount:
+          type:
+          - number
+          - 'null'
+          description: Rupees, 2 decimals
+        next_follow_up:
+          type:
+          - string
+          - 'null'
+          format: date
+      required:
+      - date
+      - client_id
+      - mode
+      - note
+    SupplierBill:
+      type: object
+      properties:
+        id:
+          type: string
+          description: SB-####
+        bill_no:
+          type: string
+        date:
+          type: string
+          format: date
+        amount:
+          type: number
+          description: Rupees, 2 decimals
+        paid:
+          type: number
+          description: Rupees, 2 decimals
+        balance:
+          type: number
+          description: Rupees, 2 decimals
+        due_date:
+          type: string
+          format: date
+        days_to_due:
+          type: integer
+          description: negative = overdue
+        status:
+          type: string
+          enum:
+          - open
+          - part_paid
+          - paid
+          - overdue
+        grn_ids:
+          type: array
+          items:
+            type: string
+      required:
+      - id
+      - bill_no
+      - date
+      - amount
+      - paid
+      - balance
+      - due_date
+      - days_to_due
+      - status
+      - grn_ids
+    CreditorRow:
+      type: object
+      properties:
+        vendor_id:
+          type: string
+        vendor_name:
+          type: string
+        msme:
+          type: boolean
+        credit_days:
+          type: integer
+        effective_credit_days:
+          type: integer
+        outstanding:
+          type: number
+          description: Rupees, 2 decimals
+        next_due_date:
+          type:
+          - string
+          - 'null'
+          format: date
+        bills:
+          type: array
+          items:
+            $ref: '#/components/schemas/SupplierBill'
+      required:
+      - vendor_id
+      - vendor_name
+      - msme
+      - credit_days
+      - effective_credit_days
+      - outstanding
+      - next_due_date
+      - bills
+    Creditors:
+      type: object
+      properties:
+        as_of:
+          type: string
+          format: date
+        totals:
+          type: object
+          properties:
+            outstanding:
+              type: number
+              description: Rupees, 2 decimals
+            overdue:
+              type: number
+              description: Rupees, 2 decimals
+            due_7d:
+              type: number
+              description: Rupees, 2 decimals
+            msme_due_7d:
+              type: number
+              description: Rupees, 2 decimals
+          required:
+          - outstanding
+          - overdue
+          - due_7d
+          - msme_due_7d
+        vendors:
+          type: array
+          items:
+            $ref: '#/components/schemas/CreditorRow'
+      required:
+      - as_of
+      - totals
+      - vendors
+    PaymentCreate:
+      type: object
+      properties:
+        vendor_id:
+          type: string
+        date:
+          type: string
+          format: date
+        amount:
+          type: number
+          description: Rupees, 2 decimals
+        mode:
+          type: string
+          enum:
+          - neft
+          - rtgs
+          - cheque
+          - upi
+        ref:
+          type: string
+      required:
+      - vendor_id
+      - date
+      - amount
+      - mode
+    Payment:
+      type: object
+      properties:
+        id:
+          type: string
+          description: PAY-####
+        vendor_id:
+          type: string
+        vendor_name:
+          type: string
+        date:
+          type: string
+          format: date
+        amount:
+          type: number
+          description: Rupees, 2 decimals
+        mode:
+          type: string
+        ref:
+          type: string
+        allocations:
+          type: array
+          items:
+            type: object
+            properties:
+              bill_id:
+                type: string
+              bill_no:
+                type: string
+              applied:
+                type: number
+                description: Rupees, 2 decimals
+              balance_after:
+                type: number
+                description: Rupees, 2 decimals
+            required:
+            - bill_id
+            - bill_no
+            - applied
+            - balance_after
+          description: 'FIFO: oldest bill first'
+        unallocated:
+          type: number
+          description: Rupees, 2 decimals
+        is_demo:
+          type: boolean
+          description: true for generated demo rows; UI shows a DEMO badge
+      required:
+      - id
+      - vendor_id
+      - vendor_name
+      - date
+      - amount
+      - mode
+      - ref
+      - allocations
+      - unallocated
+      - is_demo
+    CashMonth:
+      type: object
+      properties:
+        month:
+          type: string
+        opening:
+          type: number
+          description: Rupees, 2 decimals
+        inflow_collections:
+          type: number
+          description: Rupees, 2 decimals
+        outflow_suppliers:
+          type: number
+          description: Rupees, 2 decimals
+        outflow_salaries:
+          type: number
+          description: Rupees, 2 decimals
+        outflow_overheads:
+          type: number
+          description: Rupees, 2 decimals
+        outflow_gst:
+          type: number
+          description: Rupees, 2 decimals
+        outflow_other:
+          type: number
+          description: Rupees, 2 decimals
+        closing:
+          type: number
+          description: opening + inflow - outflows
+        low_cash:
+          type: boolean
+      required:
+      - month
+      - opening
+      - inflow_collections
+      - outflow_suppliers
+      - outflow_salaries
+      - outflow_overheads
+      - outflow_gst
+      - outflow_other
+      - closing
+      - low_cash
+    CashPlan:
+      type: object
+      properties:
+        as_of:
+          type: string
+          format: date
+        min_cash:
+          type: number
+          description: Rupees, 2 decimals
+        months:
+          type: array
+          items:
+            $ref: '#/components/schemas/CashMonth'
+      required:
+      - as_of
+      - min_cash
+      - months
+    PnlLine:
+      type: object
+      properties:
+        key:
+          type: string
+          enum:
+          - revenue
+          - material
+          - plates
+          - ink
+          - salaries
+          - freight
+          - admin
+          - overheads
+          - profit
+        label:
+          type: string
+        system:
+          type: number
+          description: Rupees, 2 decimals
+        tally:
+          type: number
+          description: Rupees, 2 decimals
+        diff:
+          type: number
+          description: system - tally
+        note:
+          type: string
+      required:
+      - key
+      - label
+      - system
+      - tally
+      - diff
+      - note
+    Pnl:
+      type: object
+      properties:
+        month:
+          type: string
+        lines:
+          type: array
+          items:
+            $ref: '#/components/schemas/PnlLine'
+        system_profit:
+          type: number
+          description: Rupees, 2 decimals
+        tally_profit:
+          type: number
+          description: Rupees, 2 decimals
+        difference:
+          type: number
+          description: Rupees, 2 decimals
+        matched:
+          type: boolean
+        tally_imported_at:
+          type:
+          - string
+          - 'null'
+          format: date-time
+      required:
+      - month
+      - lines
+      - system_profit
+      - tally_profit
+      - difference
+      - matched
+      - tally_imported_at
+    Agent:
+      type: object
+      properties:
+        name:
+          type: string
+          enum:
+          - import_checker
+          - store_watchdog
+          - wastage_watchdog
+          - planning
+          - collections
+          - payables
+          - month_end
+          - owner_brief
+        label:
+          type: string
+        description:
+          type: string
+        schedule:
+          type: string
+        enabled:
+          type: boolean
+        last_run_at:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        last_status:
+          type:
+          - string
+          - 'null'
+          enum:
+          - ok
+          - failed
+          - null
+        open_findings:
+          type: integer
+      required:
+      - name
+      - label
+      - description
+      - schedule
+      - enabled
+      - last_run_at
+      - last_status
+      - open_findings
+    AgentsResponse:
+      type: object
+      properties:
+        agents:
+          type: array
+          items:
+            $ref: '#/components/schemas/Agent'
+        recent_runs:
+          type: array
+          items:
+            $ref: '#/components/schemas/AgentRun'
+      required:
+      - agents
+      - recent_runs
+    AgentRun:
+      type: object
+      properties:
+        id:
+          type: string
+          description: AR-####
+        agent:
+          type: string
+        started_at:
+          type: string
+          format: date-time
+        finished_at:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        status:
+          type: string
+          enum:
+          - running
+          - ok
+          - failed
+        findings_created:
+          type: integer
+        finding_ids:
+          type: array
+          items:
+            type: string
+        model:
+          type: string
+          description: '''rules'' or LLM provider used for wording'
+        note:
+          type: string
+      required:
+      - id
+      - agent
+      - started_at
+      - finished_at
+      - status
+      - findings_created
+      - finding_ids
+      - model
+      - note
+    AgentRunRequest:
+      type: object
+      properties:
+        agent:
+          type: string
+          description: Agent name or 'all'
+      required:
+      - agent
+    AgentRunResponse:
+      type: object
+      properties:
+        runs:
+          type: array
+          items:
+            $ref: '#/components/schemas/AgentRun'
+      required:
+      - runs
+    Evidence:
+      type: object
+      properties:
+        label:
+          type: string
+        link:
+          type: string
+      required:
+      - label
+      - link
+    SuggestedAction:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+          - draft_messages
+          - draft_purchase_request
+          - schedule_payment
+          - apply_fixes
+          - create_task
+          - draft_journal
+          - notify
+          - none
+        payload:
+          type: object
+          description: Action-specific; editable via /edit
+      required:
+      - type
+      - payload
+    Finding:
+      type: object
+      properties:
+        id:
+          type: string
+          description: F-####
+        agent:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        severity:
+          type: string
+          enum:
+          - high
+          - medium
+          - low
+        title:
+          type: string
+        detail:
+          type: string
+        evidence:
+          type: array
+          items:
+            $ref: '#/components/schemas/Evidence'
+        suggested_action:
+          $ref: '#/components/schemas/SuggestedAction'
+        status:
+          type: string
+          enum:
+          - open
+          - done
+          - rejected
+        decided_by:
+          type:
+          - string
+          - 'null'
+        decided_at:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        reason:
+          type:
+          - string
+          - 'null'
+      required:
+      - id
+      - agent
+      - created_at
+      - severity
+      - title
+      - detail
+      - evidence
+      - suggested_action
+      - status
+      - decided_by
+      - decided_at
+      - reason
+    FindingsResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+          - open
+          - done
+          - rejected
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Finding'
+      required:
+      - status
+      - items
+    RejectRequest:
+      type: object
+      properties:
+        reason:
+          type: string
+      required:
+      - reason
+    EditRequest:
+      type: object
+      properties:
+        payload:
+          type: object
+      required:
+      - payload
+    ApproveResult:
+      type: object
+      properties:
+        finding:
+          $ref: '#/components/schemas/Finding'
+        outbox:
+          type: array
+          items:
+            $ref: '#/components/schemas/OutboxItem'
+        effects:
+          type: array
+          items:
+            type: string
+            description: Human-readable list of data changes made
+      required:
+      - finding
+      - outbox
+      - effects
+    OutboxItem:
+      type: object
+      properties:
+        id:
+          type: string
+          description: OB-####
+        created_at:
+          type: string
+          format: date-time
+        agent:
+          type: string
+        finding_id:
+          type:
+          - string
+          - 'null'
+        channel:
+          type: string
+          enum:
+          - whatsapp
+          - email
+          - task
+        to:
+          type: string
+        subject:
+          type: string
+        body:
+          type: string
+        status:
+          type: string
+          enum:
+          - draft
+          - approved
+          - sent
+          - failed
+        approved_by:
+          type:
+          - string
+          - 'null'
+        sent_at:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        simulated:
+          type: boolean
+          description: 'Demo: nothing leaves the laptop'
+      required:
+      - id
+      - created_at
+      - agent
+      - finding_id
+      - channel
+      - to
+      - subject
+      - body
+      - status
+      - approved_by
+      - sent_at
+      - simulated
+    OutboxResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/OutboxItem'
+      required:
+      - items
+    FloorMachine:
+      type: object
+      properties:
+        machine_id:
+          type: string
+        machine_name:
+          type: string
+        status:
+          type: string
+          enum:
+          - running
+          - setup
+          - stopped
+          - idle
+        stop_reason:
+          type:
+          - string
+          - 'null'
+        run_id:
+          type:
+          - string
+          - 'null'
+        job_card:
+          type:
+          - string
+          - 'null'
+        client_name:
+          type:
+          - string
+          - 'null'
+        product:
+          type:
+          - string
+          - 'null'
+        counter:
+          type: integer
+        target:
+          type: integer
+        progress_pct:
+          type: number
+          description: Fraction 0..1 (0.087 = 8.7%), 4 decimals
+        speed_mpm:
+          type: number
+        metres_run:
+          type: number
+        operator:
+          type:
+          - string
+          - 'null'
+        shift:
+          type: string
+          enum:
+          - day
+          - night
+        started_at:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        eta:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        next_job_card:
+          type:
+          - string
+          - 'null'
+        alert:
+          type:
+          - string
+          - 'null'
+      required:
+      - machine_id
+      - machine_name
+      - status
+      - stop_reason
+      - run_id
+      - job_card
+      - client_name
+      - product
+      - counter
+      - target
+      - progress_pct
+      - speed_mpm
+      - metres_run
+      - operator
+      - shift
+      - started_at
+      - eta
+      - next_job_card
+      - alert
+    FloorBoard:
+      type: object
+      properties:
+        as_of:
+          type: string
+          format: date-time
+        shift:
+          type: string
+          enum:
+          - day
+          - night
+        machines:
+          type: array
+          items:
+            $ref: '#/components/schemas/FloorMachine'
+        today:
+          type: object
+          properties:
+            printed_qty:
+              type: integer
+            jobs_done:
+              type: integer
+            wastage_pct:
+              type: number
+              description: Fraction 0..1 (0.087 = 8.7%), 4 decimals
+          required:
+          - printed_qty
+          - jobs_done
+          - wastage_pct
+        ticker:
+          type: array
+          items:
+            type: string
+      required:
+      - as_of
+      - shift
+      - machines
+      - today
+      - ticker
+    ChatMessage:
+      type: object
+      properties:
+        role:
+          type: string
+          enum:
+          - user
+          - assistant
+        content:
+          type: string
+      required:
+      - role
+      - content
+    ChatRequest:
+      type: object
+      properties:
+        message:
+          type: string
+        history:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChatMessage'
+        role:
+          type: string
+          enum:
+          - owner
+          - ppic
+          - design
+          - store
+          - production
+          - qc
+          - dispatch
+          - accounts
+          - marketing
+      required:
+      - message
+    ChatAction:
+      oneOf:
+      - type: object
+        properties:
+          type:
+            type: string
+            enum:
+            - navigate
+          to:
+            type: string
+            description: Frontend route
+        required:
+        - type
+        - to
+      - type: object
+        properties:
+          type:
+            type: string
+            enum:
+            - draft
+          entity:
+            type: string
+            description: e.g. collection, issue, enquiry
+          endpoint:
+            type: string
+          payload:
+            type: object
+          summary:
+            type: string
+        required:
+        - type
+        - entity
+        - endpoint
+        - payload
+        - summary
+    ChatSource:
+      type: object
+      properties:
+        label:
+          type: string
+        link:
+          type:
+          - string
+          - 'null'
+      required:
+      - label
+      - link
+    ChatResponse:
+      type: object
+      properties:
+        reply:
+          type: string
+        actions:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChatAction'
+        sources:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChatSource'
+      required:
+      - reply
+      - actions
+      - sources
+    ChatSuggestions:
+      type: object
+      properties:
+        role:
+          type: string
+          enum:
+          - owner
+          - ppic
+          - design
+          - store
+          - production
+          - qc
+          - dispatch
+          - accounts
+          - marketing
+        suggestions:
+          type: array
+          items:
+            type: object
+            properties:
+              text:
+                type: string
+              lang:
+                type: string
+                enum:
+                - en
+                - hi
+            required:
+            - text
+            - lang
+      required:
+      - role
+      - suggestions

@@ -1,0 +1,96 @@
+{
+  "period": "today",
+  "from": "2026-11-20",
+  "to": "2026-11-20",
+  "revenue": 44000.0,
+  "invoices_count": 1,
+  "orders_booked_value": 0.0,
+  "orders_booked_count": 0,
+  "printed_qty": 188300,
+  "wastage_pct": 0.18,
+  "gross_profit": 8800.0,
+  "margin_pct": 0.2,
+  "cash_in": 0.0,
+  "cash_out": 64900.0,
+  "oee": 0.5912,
+  "trend": [
+    {
+      "label": "14 Nov",
+      "revenue": 212000.0,
+      "profit": 41800.0
+    },
+    {
+      "label": "15 Nov",
+      "revenue": 188500.0,
+      "profit": 35100.0
+    },
+    {
+      "label": "16 Nov",
+      "revenue": 236000.0,
+      "profit": 49200.0
+    },
+    {
+      "label": "17 Nov",
+      "revenue": 154000.0,
+      "profit": 28900.0
+    },
+    {
+      "label": "18 Nov",
+      "revenue": 262500.0,
+      "profit": 55400.0
+    },
+    {
+      "label": "19 Nov",
+      "revenue": 198000.0,
+      "profit": 37600.0
+    },
+    {
+      "label": "20 Nov",
+      "revenue": 44000.0,
+      "profit": 8800.0
+    }
+  ],
+  "receivables": 4943642.0,
+  "overdue": 4502912.0,
+  "at_risk_value": 4260272.0,
+  "at_risk_clients": 5,
+  "locked_clients": 1,
+  "payables_due_7d": 534800.0,
+  "stock_value": 378773.26,
+  "jobs_by_status": {
+    "qc": 2,
+    "invoiced": 2,
+    "dispatch": 1,
+    "printing": 4,
+    "planned": 2,
+    "design": 2,
+    "hold": 1
+  },
+  "top_clients": [
+    {
+      "client_id": "CL-002",
+      "client_name": "Sunrise Pharma Ltd",
+      "revenue": 842000.0
+    },
+    {
+      "client_id": "CL-006",
+      "client_name": "Royal Spices Pvt Ltd",
+      "revenue": 611500.0
+    },
+    {
+      "client_id": "CL-004",
+      "client_name": "Green Valley Dairy",
+      "revenue": 534000.0
+    },
+    {
+      "client_id": "CL-005",
+      "client_name": "Neelgiri Aqua Pvt Ltd",
+      "revenue": 468000.0
+    },
+    {
+      "client_id": "CL-003",
+      "client_name": "Lotus Cosmetics Pvt Ltd",
+      "revenue": 392500.0
+    }
+  ]
+}

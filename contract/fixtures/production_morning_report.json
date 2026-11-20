@@ -1,0 +1,97 @@
+{
+  "date": "2026-11-20",
+  "for_date": "2026-11-19",
+  "machines": [
+    {
+      "machine_id": "M-01",
+      "machine_name": "Gallus EM 280",
+      "jobs": [
+        "JC-1240"
+      ],
+      "runs": 1,
+      "printed_qty": 121500,
+      "required_m": 2540.0,
+      "used_m": 2997.2,
+      "wastage_m": 457.2,
+      "wastage_pct": 0.18,
+      "run_hours": 8.0,
+      "downtime_min": 60,
+      "mtd_printed_qty": 412300,
+      "mtd_wastage_pct": 0.1124
+    },
+    {
+      "machine_id": "M-02",
+      "machine_name": "Hontec CI",
+      "jobs": [],
+      "runs": 0,
+      "printed_qty": 0,
+      "required_m": 0.0,
+      "used_m": 0.0,
+      "wastage_m": 0.0,
+      "wastage_pct": 0.0,
+      "run_hours": 0.0,
+      "downtime_min": 480,
+      "mtd_printed_qty": 604000,
+      "mtd_wastage_pct": 0.0912
+    },
+    {
+      "machine_id": "M-03",
+      "machine_name": "Focus",
+      "jobs": [],
+      "runs": 0,
+      "printed_qty": 0,
+      "required_m": 0.0,
+      "used_m": 0.0,
+      "wastage_m": 0.0,
+      "wastage_pct": 0.0,
+      "run_hours": 0.0,
+      "downtime_min": 180,
+      "mtd_printed_qty": 286500,
+      "mtd_wastage_pct": 0.0865
+    },
+    {
+      "machine_id": "M-04",
+      "machine_name": "Taiyo 10",
+      "jobs": [],
+      "runs": 0,
+      "printed_qty": 0,
+      "required_m": 0.0,
+      "used_m": 0.0,
+      "wastage_m": 0.0,
+      "wastage_pct": 0.0,
+      "run_hours": 0.0,
+      "downtime_min": 300,
+      "mtd_printed_qty": 98200,
+      "mtd_wastage_pct": 0.079
+    }
+  ],
+  "totals": {
+    "printed_qty": 121500,
+    "used_m": 2997.2,
+    "wastage_m": 457.2,
+    "wastage_pct": 0.18,
+    "run_hours": 8.0
+  },
+  "highlights": [
+    {
+      "text": "JC-1240 (Sunrise Pharma) on Gallus night shift: wastage 457.2 m = 18.0% vs 15% limit; 2 plate-damage stops (35 + 25 min).",
+      "severity": "high",
+      "link": "/jobs/JC-1240"
+    },
+    {
+      "text": "Hontec CI: 8 h planned maintenance (anilox change); JC-1304 started 07:00 today.",
+      "severity": "low",
+      "link": "/production?machine=M-02"
+    },
+    {
+      "text": "Focus: 3 h make-ready for JC-1306; no counts booked.",
+      "severity": "medium",
+      "link": "/production?machine=M-03"
+    },
+    {
+      "text": "Taiyo 10 idle 5 h waiting for gold foil (JC-1317).",
+      "severity": "medium",
+      "link": "/production?machine=M-04"
+    }
+  ]
+}

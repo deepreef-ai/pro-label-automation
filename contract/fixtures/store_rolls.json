@@ -1,0 +1,160 @@
+[
+  {
+    "id": "R-2026-0912",
+    "item_id": "IT-0101",
+    "item_name": "PP White 250 mm",
+    "width_mm": 250,
+    "length_m": 1000.0,
+    "balance_m": 425.0,
+    "source": "grn",
+    "source_ref": "GRN-00412",
+    "received_on": "2026-11-04",
+    "status": "partly_issued",
+    "issued_to": [
+      "JC-1301"
+    ],
+    "location": "Bay 2 / Rack 4",
+    "is_demo": true
+  },
+  {
+    "id": "R-2026-0913",
+    "item_id": "IT-0101",
+    "item_name": "PP White 250 mm",
+    "width_mm": 250,
+    "length_m": 1000.0,
+    "balance_m": 425.0,
+    "source": "grn",
+    "source_ref": "GRN-00412",
+    "received_on": "2026-11-04",
+    "status": "partly_issued",
+    "issued_to": [
+      "JC-1301"
+    ],
+    "location": "Bay 2 / Rack 4",
+    "is_demo": true
+  },
+  {
+    "id": "R-2026-0914",
+    "item_id": "IT-0101",
+    "item_name": "PP White 250 mm",
+    "width_mm": 250,
+    "length_m": 1200.0,
+    "balance_m": 35.0,
+    "source": "grn",
+    "source_ref": "GRN-00425",
+    "received_on": "2026-11-08",
+    "status": "partly_issued",
+    "issued_to": [
+      "JC-1316"
+    ],
+    "location": "Bay 2 / Rack 5",
+    "is_demo": true
+  },
+  {
+    "id": "R-2026-0915",
+    "item_id": "IT-0101",
+    "item_name": "PP White 250 mm",
+    "width_mm": 250,
+    "length_m": 800.0,
+    "balance_m": 800.0,
+    "source": "grn",
+    "source_ref": "GRN-00425",
+    "received_on": "2026-11-08",
+    "status": "in_stock",
+    "issued_to": [],
+    "location": "Bay 2 / Rack 5",
+    "is_demo": true
+  },
+  {
+    "id": "R-2026-0916",
+    "item_id": "IT-0106",
+    "item_name": "Chromo Paper 330 mm",
+    "width_mm": 330,
+    "length_m": 1000.0,
+    "balance_m": 1000.0,
+    "source": "grn",
+    "source_ref": "GRN-00418",
+    "received_on": "2026-11-06",
+    "status": "in_stock",
+    "issued_to": [],
+    "location": "Bay 1 / Rack 2",
+    "is_demo": true
+  },
+  {
+    "id": "R-2026-0921",
+    "item_id": "IT-0108",
+    "item_name": "BOPP Transparent 200 mm",
+    "width_mm": 200,
+    "length_m": 1000.0,
+    "balance_m": 0.0,
+    "source": "grn",
+    "source_ref": "GRN-00431",
+    "received_on": "2026-11-12",
+    "status": "consumed",
+    "issued_to": [
+      "JC-1304"
+    ],
+    "location": "-",
+    "is_demo": true
+  },
+  {
+    "id": "R-2026-0931",
+    "item_id": "IT-0103",
+    "item_name": "PP Silver 200 mm",
+    "width_mm": 200,
+    "length_m": 1000.0,
+    "balance_m": 1000.0,
+    "source": "grn",
+    "source_ref": "GRN-00436",
+    "received_on": "2026-11-14",
+    "status": "in_stock",
+    "issued_to": [],
+    "location": "Bay 3 / Rack 1",
+    "is_demo": true
+  },
+  {
+    "id": "R-2026-0932",
+    "item_id": "IT-0101",
+    "item_name": "PP White 250 mm",
+    "width_mm": 250,
+    "length_m": 1500.0,
+    "balance_m": 1500.0,
+    "source": "slit",
+    "source_ref": "SLT-0077",
+    "received_on": "2026-11-13",
+    "status": "in_stock",
+    "issued_to": [],
+    "location": "Bay 2 / Rack 6",
+    "is_demo": true
+  },
+  {
+    "id": "R-2026-0933",
+    "item_id": "IT-0101",
+    "item_name": "PP White 250 mm",
+    "width_mm": 250,
+    "length_m": 1500.0,
+    "balance_m": 1500.0,
+    "source": "slit",
+    "source_ref": "SLT-0077",
+    "received_on": "2026-11-13",
+    "status": "in_stock",
+    "issued_to": [],
+    "location": "Bay 2 / Rack 6",
+    "is_demo": true
+  },
+  {
+    "id": "R-2026-0801",
+    "item_id": "IT-0103",
+    "item_name": "PP Silver 200 mm",
+    "width_mm": 200,
+    "length_m": 884.45,
+    "balance_m": 884.45,
+    "source": "opening",
+    "source_ref": "Opening 2026-10-01",
+    "received_on": "2026-10-01",
+    "status": "in_stock",
+    "issued_to": [],
+    "location": "Bay 3 / Rack 1",
+    "is_demo": true
+  }
+]

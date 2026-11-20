@@ -1,0 +1,40 @@
+# Root tooling config (lint, tests, coverage). LOCKED path: change only in a [ci] PR.
+# The coverage threshold is NOT set here; CI enforces it per job on apps/api/core/rules.
+
+[tool.ruff]
+line-length = 110
+target-version = "py310"
+extend-exclude = [".venv", "node_modules", "data", "apps/web"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+# E501: long docstrings/tables are fine (formatter not enforced); UP007: Union aliases kept for py3.10 readability.
+ignore = ["E501", "UP007"]
+
+[tool.ruff.lint.per-file-ignores]
+# The date-repair scorer is a closure called immediately inside its loop iteration.
+"apps/api/core/etl/extract.py" = ["B023"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["core", "app", "agents", "chat"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["apps/api"]
+addopts = "-ra --strict-markers"
+markers = [
+    "integration: tests that exercise the API/app through FastAPI (no network)",
+]
+
+[tool.coverage.run]
+branch = true
+omit = ["tests/*", "*/__init__.py"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = false
+exclude_also = [
+    "if TYPE_CHECKING:",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+]

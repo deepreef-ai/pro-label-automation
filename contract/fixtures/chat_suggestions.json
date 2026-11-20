@@ -1,0 +1,29 @@
+{
+  "role": "owner",
+  "suggestions": [
+    {
+      "text": "Which clients will lock this week?",
+      "lang": "en"
+    },
+    {
+      "text": "Why was JC-1240 wastage high?",
+      "lang": "en"
+    },
+    {
+      "text": "Show profit of JC-1301",
+      "lang": "en"
+    },
+    {
+      "text": "Is there enough PP Silver for next week's jobs?",
+      "lang": "en"
+    },
+    {
+      "text": "Aaj kaunse MSME bill due hain?",
+      "lang": "hi"
+    },
+    {
+      "text": "Is mahine ka profit kitna hai?",
+      "lang": "hi"
+    }
+  ]
+}

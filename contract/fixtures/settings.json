@@ -1,0 +1,19 @@
+{
+  "wastage_tol": 0.15,
+  "overprod_tol": 0.1,
+  "material_tol": 0.03,
+  "ink_tol": 0.2,
+  "slit_tol": 0.05,
+  "grn_rate_tol": 0.05,
+  "grace_days": 15,
+  "msme_days": 45,
+  "gst_rate": 0.18,
+  "planning_extra": 0.1,
+  "admin_pct": 0.05,
+  "ai_mode": "cloud",
+  "stock_from": "2026-10-01",
+  "fy_start": "2026-04-01",
+  "company_name": "Demo Label Plant",
+  "updated_at": "2026-11-01T10:00:00+05:30",
+  "updated_by": "owner"
+}

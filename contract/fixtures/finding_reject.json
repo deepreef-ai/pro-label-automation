@@ -1,0 +1,35 @@
+{
+  "id": "F-0232",
+  "agent": "store_watchdog",
+  "created_at": "2026-11-20T07:00:00+05:30",
+  "severity": "medium",
+  "title": "GRN-00436: PP Silver 200 mm rate 9.5% above item master",
+  "detail": "Polyfilm Industries billed Rs 48.20/sq m against master rate Rs 44.00 (tolerance 5%). Extra cost Rs 840 on 1,000 m. Last 3 GRNs were at Rs 44.00.",
+  "evidence": [
+    {
+      "label": "GRN-00436",
+      "link": "/store?tab=grns&id=GRN-00436"
+    },
+    {
+      "label": "Bill PFI/2417",
+      "link": "/money?tab=creditors&vendor=VN-002"
+    }
+  ],
+  "suggested_action": {
+    "type": "draft_messages",
+    "payload": {
+      "messages": [
+        {
+          "channel": "email",
+          "to": "Polyfilm Industries",
+          "subject": "Rate difference on bill PFI/2417",
+          "body": "Please issue a credit note for Rs 840 (rate Rs 48.20 vs agreed Rs 44.00 per sq m)."
+        }
+      ]
+    }
+  },
+  "status": "rejected",
+  "decided_by": "owner",
+  "decided_at": "2026-11-20T11:36:00+05:30",
+  "reason": "Rate agreed by phone for urgent supply"
+}

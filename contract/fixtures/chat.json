@@ -1,0 +1,30 @@
+{
+  "reply": "JC-1240 used 2,997.2 m against 2,540 m required, so wastage was 457.2 m (18.0%, limit 15%). It ran on the Gallus EM 280 night shift on 19-Nov with two plate-damage stops (35 and 25 minutes) on the magenta plate PL-00803, and die D-097 is marked worn. Day-shift runs of similar labels average about 8.7%. The wastage watchdog has suggested a task to replace the plate before the next repeat.",
+  "actions": [
+    {
+      "type": "navigate",
+      "to": "/jobs/JC-1240"
+    },
+    {
+      "type": "draft",
+      "entity": "finding_approval",
+      "endpoint": "/api/agents/findings/F-0233/approve",
+      "payload": {},
+      "summary": "Approve task: replace magenta plate PL-00803 and check die D-097"
+    }
+  ],
+  "sources": [
+    {
+      "label": "Run RUN-05570",
+      "link": "/production?run=RUN-05570"
+    },
+    {
+      "label": "Rule: wastage % > wastage_tol (0.15)",
+      "link": "/settings"
+    },
+    {
+      "label": "Finding F-0233",
+      "link": "/agents"
+    }
+  ]
+}

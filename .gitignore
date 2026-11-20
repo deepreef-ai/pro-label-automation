@@ -1,0 +1,41 @@
+# ---- Client data & secrets: NEVER commit (public repo) ----
+data/
+*.db
+*.sqlite
+*.sqlite3
+.env
+.env.*
+!.env.example
+chroma/
+*.xlsx
+*.xls
+*.z0*
+/models/
+data/models/
+
+# ---- Python ----
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+.hypothesis/
+.coverage
+coverage.xml
+htmlcov/
+
+# ---- Node / web ----
+node_modules/
+dist/
+apps/web/test-results/
+apps/web/playwright-report/
+*.tsbuildinfo
+
+# ---- OS / editors ----
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+.taste-skill/
+
+CLAUDE.local.md

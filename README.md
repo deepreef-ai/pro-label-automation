@@ -131,18 +131,22 @@ A single `run-demo` command will start everything once issue #19 (G2) is merged.
 ### Branches and pull requests
 
 ```
-main (protected)
- ├── feat/web-*   ── PR ──► reviewed by Ravi  ──► squash merge
- └── feat/api-*   ── PR ──► reviewed by Vinay ──► squash merge
+main   ← stable, demo-ready; updated only by "[release] …" PRs from dev at milestones
+ └── dev   ← integration branch; every feature PR targets dev
+      ├── feat/web-*   ── PR ──► dev, reviewed by Ravi
+      └── feat/api-*   ── PR ──► dev, reviewed by Vinay
 ```
 
-1. `git checkout main && git pull`
+1. `git checkout dev && git pull`
 2. `git checkout -b feat/<task>` (the branch name is given in each issue)
 3. Work **only in your folders**; keep one task per PR.
-4. `git pull --rebase origin main`, run the tests locally, push, then open a PR that links the issue (`Closes #<n>`).
+4. `git pull --rebase origin dev`, run the tests locally, push, then open a PR **into `dev`** that links the issue (`Closes #<n>`).
 5. CI must be green → the other person reviews and approves → squash-merge → delete the branch.
+6. **Merge reviewed PRs quickly** and always branch from the latest `dev`, so nothing drifts and conflicts stay rare.
 
-**Merge order:** Task 0 → A1 → W1–W5 (any time, mock mode) → A2 → A3 → C1 → G1 → G2 → W6 → tag `v0.1-demo`
+Both developers' Claude sessions follow [`CLAUDE.md`](CLAUDE.md) (folder ownership, branch flow, hard rules).
+
+**Merge order:** Task 0 → A1 → W1–W5 (any time, mock mode) → A2 → A3 → C1 → G1 → G2 → W6 → release PR dev → main → tag `v0.1-demo`
 
 ### Task assignments
 

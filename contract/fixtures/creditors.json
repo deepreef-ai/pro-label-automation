@@ -1,0 +1,177 @@
+{
+  "as_of": "2026-11-20",
+  "totals": {
+    "outstanding": 782995.2,
+    "overdue": 120000.0,
+    "due_7d": 534800.0,
+    "msme_due_7d": 186400.0
+  },
+  "vendors": [
+    {
+      "vendor_id": "VN-001",
+      "vendor_name": "Shree Ganesh Films",
+      "msme": true,
+      "credit_days": 60,
+      "effective_credit_days": 45,
+      "outstanding": 208820.0,
+      "next_due_date": "2026-11-23",
+      "bills": [
+        {
+          "id": "SB-0187",
+          "bill_no": "SGF/1093",
+          "date": "2026-10-09",
+          "amount": 186400.0,
+          "paid": 0.0,
+          "balance": 186400.0,
+          "due_date": "2026-11-23",
+          "days_to_due": 3,
+          "status": "open",
+          "grn_ids": []
+        },
+        {
+          "id": "SB-0203",
+          "bill_no": "SGF/1121",
+          "date": "2026-11-04",
+          "amount": 22420.0,
+          "paid": 0.0,
+          "balance": 22420.0,
+          "due_date": "2026-12-19",
+          "days_to_due": 29,
+          "status": "open",
+          "grn_ids": [
+            "GRN-00412"
+          ]
+        }
+      ]
+    },
+    {
+      "vendor_id": "VN-002",
+      "vendor_name": "Polyfilm Industries",
+      "msme": false,
+      "credit_days": 60,
+      "effective_credit_days": 60,
+      "outstanding": 351375.2,
+      "next_due_date": "2026-11-27",
+      "bills": [
+        {
+          "id": "SB-0164",
+          "bill_no": "PFI/2290",
+          "date": "2026-09-28",
+          "amount": 340000.0,
+          "paid": 0.0,
+          "balance": 340000.0,
+          "due_date": "2026-11-27",
+          "days_to_due": 7,
+          "status": "open",
+          "grn_ids": []
+        },
+        {
+          "id": "SB-0214",
+          "bill_no": "PFI/2417",
+          "date": "2026-11-14",
+          "amount": 11375.2,
+          "paid": 0.0,
+          "balance": 11375.2,
+          "due_date": "2027-01-13",
+          "days_to_due": 54,
+          "status": "open",
+          "grn_ids": [
+            "GRN-00436"
+          ]
+        }
+      ]
+    },
+    {
+      "vendor_id": "VN-003",
+      "vendor_name": "Colorplus Inks",
+      "msme": true,
+      "credit_days": 30,
+      "effective_credit_days": 30,
+      "outstanding": 64900.0,
+      "next_due_date": "2026-11-29",
+      "bills": [
+        {
+          "id": "SB-0195",
+          "bill_no": "CPI/771",
+          "date": "2026-10-30",
+          "amount": 64900.0,
+          "paid": 0.0,
+          "balance": 64900.0,
+          "due_date": "2026-11-29",
+          "days_to_due": 9,
+          "status": "open",
+          "grn_ids": []
+        }
+      ]
+    },
+    {
+      "vendor_id": "VN-004",
+      "vendor_name": "Precision Plates & Dies",
+      "msme": true,
+      "credit_days": 30,
+      "effective_credit_days": 30,
+      "outstanding": 29500.0,
+      "next_due_date": "2026-12-06",
+      "bills": [
+        {
+          "id": "SB-0206",
+          "bill_no": "PPD/309",
+          "date": "2026-11-06",
+          "amount": 29500.0,
+          "paid": 0.0,
+          "balance": 29500.0,
+          "due_date": "2026-12-06",
+          "days_to_due": 16,
+          "status": "open",
+          "grn_ids": []
+        }
+      ]
+    },
+    {
+      "vendor_id": "VN-005",
+      "vendor_name": "Metro Freight Carriers",
+      "msme": false,
+      "credit_days": 15,
+      "effective_credit_days": 15,
+      "outstanding": 8400.0,
+      "next_due_date": "2026-11-27",
+      "bills": [
+        {
+          "id": "SB-0210",
+          "bill_no": "MFC/B-1182",
+          "date": "2026-11-12",
+          "amount": 8400.0,
+          "paid": 0.0,
+          "balance": 8400.0,
+          "due_date": "2026-11-27",
+          "days_to_due": 7,
+          "status": "open",
+          "grn_ids": []
+        }
+      ]
+    },
+    {
+      "vendor_id": "VN-006",
+      "vendor_name": "Lamitech Laminates",
+      "msme": false,
+      "credit_days": 45,
+      "effective_credit_days": 45,
+      "outstanding": 120000.0,
+      "next_due_date": "2026-11-15",
+      "bills": [
+        {
+          "id": "SB-0168",
+          "bill_no": "LT/5521",
+          "date": "2026-10-01",
+          "amount": 120000.0,
+          "paid": 0.0,
+          "balance": 120000.0,
+          "due_date": "2026-11-15",
+          "days_to_due": -5,
+          "status": "overdue",
+          "grn_ids": []
+        }
+      ]
+    }
+  ]
+}

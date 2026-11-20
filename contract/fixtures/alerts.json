@@ -1,0 +1,86 @@
+{
+  "as_of": "2026-11-20T11:30:00+05:30",
+  "alerts": [
+    {
+      "id": "AL-0501",
+      "severity": "high",
+      "area": "money",
+      "title": "Coastal Seafoods Exports is LOCKED",
+      "detail": "Rs 2,42,640 unpaid; oldest invoice INV-2201 is 65 days past due. Dispatch and new jobs blocked.",
+      "link": "/money?tab=debtors&client=CL-011",
+      "created_at": "2026-10-02T00:05:00+05:30"
+    },
+    {
+      "id": "AL-0512",
+      "severity": "high",
+      "area": "money",
+      "title": "5 clients lock within 10 days (Rs 42.6 lakh)",
+      "detail": "Sunrise Pharma locks 22-Nov, Royal Spices 23-Nov, Green Valley Dairy 25-Nov, Neelgiri Aqua 27-Nov, Bharat Home Care 30-Nov.",
+      "link": "/money?tab=debtors&filter=at_risk",
+      "created_at": "2026-11-20T07:00:00+05:30"
+    },
+    {
+      "id": "AL-0513",
+      "severity": "high",
+      "area": "production",
+      "title": "JC-1240 wastage 18.0% (limit 15%)",
+      "detail": "Gallus EM 280 night shift 19-Nov: 457.2 m wasted of 2,540 m required; 2 plate-damage stops.",
+      "link": "/jobs/JC-1240",
+      "created_at": "2026-11-20T06:05:00+05:30"
+    },
+    {
+      "id": "AL-0514",
+      "severity": "medium",
+      "area": "planning",
+      "title": "PP Silver 200 mm short by 700 m",
+      "detail": "JC-1310 and JC-1315 need 2,584.45 m; stock 1,884.45 m.",
+      "link": "/jobs?flag=material_short",
+      "created_at": "2026-11-20T07:00:00+05:30"
+    },
+    {
+      "id": "AL-0515",
+      "severity": "medium",
+      "area": "money",
+      "title": "MSME bill due in 3 days",
+      "detail": "Shree Ganesh Films SGF/1093 Rs 1,86,400 due 23-Nov (MSME 45-day limit).",
+      "link": "/money?tab=creditors&vendor=VN-001",
+      "created_at": "2026-11-20T07:00:00+05:30"
+    },
+    {
+      "id": "AL-0516",
+      "severity": "medium",
+      "area": "store",
+      "title": "GRN-00436 rate 9.5% above master",
+      "detail": "PP Silver 200 mm billed at Rs 48.20/sq m vs Rs 44.00 (Polyfilm Industries).",
+      "link": "/store?tab=grns&id=GRN-00436",
+      "created_at": "2026-11-14T15:20:00+05:30"
+    },
+    {
+      "id": "AL-0517",
+      "severity": "medium",
+      "area": "qc",
+      "title": "JC-1308: 20,000 labels on QC Hold",
+      "detail": "Magenta shift on 2 rolls; waiting for client OK. Not available for dispatch.",
+      "link": "/qc?job=JC-1308",
+      "created_at": "2026-11-17T17:40:00+05:30"
+    },
+    {
+      "id": "AL-0518",
+      "severity": "medium",
+      "area": "money",
+      "title": "Lamitech bill overdue 5 days",
+      "detail": "LT/5521 Rs 1,20,000 was due 15-Nov.",
+      "link": "/money?tab=creditors&vendor=VN-006",
+      "created_at": "2026-11-16T07:00:00+05:30"
+    },
+    {
+      "id": "AL-0519",
+      "severity": "low",
+      "area": "store",
+      "title": "28% of imported issue lines have no job card",
+      "detail": "514 of 1,834 ERP issue lines (Aug-Oct) worth Rs 1,86,240.",
+      "link": "/store?tab=data-quality",
+      "created_at": "2026-11-19T07:00:00+05:30"
+    }
+  ]
+}

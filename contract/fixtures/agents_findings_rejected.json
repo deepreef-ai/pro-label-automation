@@ -1,0 +1,29 @@
+{
+  "status": "rejected",
+  "items": [
+    {
+      "id": "F-0227",
+      "agent": "store_watchdog",
+      "created_at": "2026-11-07T07:00:00+05:30",
+      "severity": "medium",
+      "title": "GRN-00418 Chromo 330 mm rate 2.3% above master",
+      "detail": "Below 5% tolerance but rising trend.",
+      "evidence": [
+        {
+          "label": "GRN-00418",
+          "link": "/store?tab=grns&id=GRN-00418"
+        }
+      ],
+      "suggested_action": {
+        "type": "notify",
+        "payload": {
+          "to": "store"
+        }
+      },
+      "status": "rejected",
+      "decided_by": "store",
+      "decided_at": "2026-11-07T11:30:00+05:30",
+      "reason": "Vendor revised rate in PO; not an error"
+    }
+  ]
+}

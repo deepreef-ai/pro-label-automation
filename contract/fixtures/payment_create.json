@@ -1,0 +1,25 @@
+{
+  "id": "PAY-0058",
+  "vendor_id": "VN-001",
+  "vendor_name": "Shree Ganesh Films",
+  "date": "2026-11-20",
+  "amount": 200000.0,
+  "mode": "neft",
+  "ref": "UTR N3241120056",
+  "allocations": [
+    {
+      "bill_id": "SB-0187",
+      "bill_no": "SGF/1093",
+      "applied": 186400.0,
+      "balance_after": 0.0
+    },
+    {
+      "bill_id": "SB-0203",
+      "bill_no": "SGF/1121",
+      "applied": 13600.0,
+      "balance_after": 8820.0
+    }
+  ],
+  "unallocated": 0.0,
+  "is_demo": true
+}

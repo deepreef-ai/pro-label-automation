@@ -1,0 +1,57 @@
+{
+  "job_card": "JC-1316",
+  "machine_id": "M-01",
+  "machine_name": "Gallus EM 280",
+  "web_width_mm": 250,
+  "ups_across": 4,
+  "ups_along": 3,
+  "repeat_mm": 254.0,
+  "die_id": "D-114",
+  "units": [
+    {
+      "unit": 1,
+      "colour": "Cyan",
+      "anilox_lpi": 800,
+      "anilox_bcm": 3.5,
+      "plate_id": "PL-00871",
+      "ink_item_id": "IT-0201"
+    },
+    {
+      "unit": 2,
+      "colour": "Magenta",
+      "anilox_lpi": 800,
+      "anilox_bcm": 3.5,
+      "plate_id": "PL-00872",
+      "ink_item_id": "IT-0202"
+    },
+    {
+      "unit": 3,
+      "colour": "Yellow",
+      "anilox_lpi": 700,
+      "anilox_bcm": 4.0,
+      "plate_id": "PL-00873",
+      "ink_item_id": "IT-0203"
+    },
+    {
+      "unit": 4,
+      "colour": "Black",
+      "anilox_lpi": 900,
+      "anilox_bcm": 3.0,
+      "plate_id": "PL-00874",
+      "ink_item_id": "IT-0204"
+    },
+    {
+      "unit": 5,
+      "colour": "Gloss varnish",
+      "anilox_lpi": 400,
+      "anilox_bcm": 8.0,
+      "plate_id": "PL-00875",
+      "ink_item_id": "IT-0205"
+    }
+  ],
+  "speed_target_mpm": 60,
+  "est_ink_kg": 1.0,
+  "notes": "Repeat of JC-1301; same plates and die",
+  "updated_at": "2026-11-20T08:05:00+05:30",
+  "updated_by": "Suresh Patil"
+}

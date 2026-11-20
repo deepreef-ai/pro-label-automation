@@ -1,0 +1,80 @@
+[
+  {
+    "id": "M-01",
+    "name": "Gallus EM 280",
+    "type": "press",
+    "units": 8,
+    "max_speed_mpm": 120,
+    "web_width_mm": 280,
+    "crew_salary_month": 120000.0,
+    "other_cost_month": 56000.0,
+    "hours_run_month": 220.0,
+    "hour_rate": 800.0,
+    "is_demo": true
+  },
+  {
+    "id": "M-02",
+    "name": "Hontec CI",
+    "type": "press",
+    "units": 6,
+    "max_speed_mpm": 150,
+    "web_width_mm": 330,
+    "crew_salary_month": 110000.0,
+    "other_cost_month": 70000.0,
+    "hours_run_month": 200.0,
+    "hour_rate": 900.0,
+    "is_demo": true
+  },
+  {
+    "id": "M-03",
+    "name": "Focus",
+    "type": "press",
+    "units": 6,
+    "max_speed_mpm": 100,
+    "web_width_mm": 330,
+    "crew_salary_month": 90000.0,
+    "other_cost_month": 40000.0,
+    "hours_run_month": 200.0,
+    "hour_rate": 650.0,
+    "is_demo": true
+  },
+  {
+    "id": "M-04",
+    "name": "Taiyo 10",
+    "type": "press",
+    "units": 5,
+    "max_speed_mpm": 60,
+    "web_width_mm": 250,
+    "crew_salary_month": 80000.0,
+    "other_cost_month": 28000.0,
+    "hours_run_month": 180.0,
+    "hour_rate": 600.0,
+    "is_demo": true
+  },
+  {
+    "id": "M-05",
+    "name": "Slitter SL-1",
+    "type": "offline",
+    "units": 0,
+    "max_speed_mpm": 250,
+    "web_width_mm": 1020,
+    "crew_salary_month": 30000.0,
+    "other_cost_month": 9000.0,
+    "hours_run_month": 150.0,
+    "hour_rate": 260.0,
+    "is_demo": true
+  },
+  {
+    "id": "M-06",
+    "name": "Inspection Rewinder RW-1",
+    "type": "offline",
+    "units": 0,
+    "max_speed_mpm": 200,
+    "web_width_mm": 330,
+    "crew_salary_month": 25000.0,
+    "other_cost_month": 5000.0,
+    "hours_run_month": 150.0,
+    "hour_rate": 200.0,
+    "is_demo": true
+  }
+]

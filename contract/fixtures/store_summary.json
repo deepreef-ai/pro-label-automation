@@ -1,0 +1,72 @@
+{
+  "as_of": "2026-11-20",
+  "stock_from": "2026-10-01",
+  "month": "2026-11",
+  "stock_value": 378773.26,
+  "groups": [
+    {
+      "group": "Paper & Film",
+      "stock_value": 168005.76,
+      "received_value_month": 1188000.0,
+      "issued_value_month": 1342500.0,
+      "issued_without_jc_value_month": 0.0
+    },
+    {
+      "group": "Ink",
+      "stock_value": 156625.0,
+      "received_value_month": 35000.0,
+      "issued_value_month": 96250.0,
+      "issued_without_jc_value_month": 14700.0
+    },
+    {
+      "group": "Varnish",
+      "stock_value": 33600.0,
+      "received_value_month": 36000.0,
+      "issued_value_month": 50400.0,
+      "issued_without_jc_value_month": 4800.0
+    },
+    {
+      "group": "Foil",
+      "stock_value": 9292.5,
+      "received_value_month": 0.0,
+      "issued_value_month": 4207.5,
+      "issued_without_jc_value_month": 0.0
+    },
+    {
+      "group": "Lamination",
+      "stock_value": 11250.0,
+      "received_value_month": 0.0,
+      "issued_value_month": 0.0,
+      "issued_without_jc_value_month": 0.0
+    }
+  ],
+  "grns_month": 31,
+  "issues_month": 214,
+  "issue_lines_without_jc_pct": 0.0654,
+  "below_min": 1,
+  "shortages": [
+    {
+      "item_id": "IT-0103",
+      "material": "PP Silver 200 mm",
+      "width_mm": 200,
+      "jobs": [
+        {
+          "job_card": "JC-1310",
+          "client_name": "Kaveri Agro Foods",
+          "need_m": 838.2
+        },
+        {
+          "job_card": "JC-1315",
+          "client_name": "Orchid Wellness",
+          "need_m": 1746.25
+        }
+      ],
+      "need_m": 2584.45,
+      "stock_m": 1884.45,
+      "shortage_m": 700.0,
+      "status": "short"
+    }
+  ],
+  "rate_flags": 1,
+  "non_moving_items": 1
+}

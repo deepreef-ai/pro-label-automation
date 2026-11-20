@@ -1,0 +1,21 @@
+{
+  "id": "INV-2396",
+  "date": "2026-11-20",
+  "client_id": "CL-004",
+  "client_name": "Green Valley Dairy",
+  "job_card": "JC-1295",
+  "dispatch_id": "DC-1391",
+  "qty": 100000,
+  "rate": 0.38,
+  "taxable": 38000.0,
+  "gst_rate": 0.18,
+  "gst": 6840.0,
+  "total": 44840.0,
+  "received": 0.0,
+  "outstanding": 44840.0,
+  "due_date": "2026-12-20",
+  "days_past_due": 0,
+  "bucket": "not_due",
+  "status": "draft",
+  "is_demo": true
+}
