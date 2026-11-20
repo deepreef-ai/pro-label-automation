@@ -5,9 +5,9 @@ with regexes, then the client is matched by name against the ``clients`` table. 
 PDF does not say is filled from the client's latest repeat job, with a warning and a low
 confidence, so the draft is always a schema-valid ``JobCreate`` for PPIC to review.
 
-Issue #18 adds the LLM path: implement :func:`llm_extract` (through ``core.llm.get_gateway()``);
-its fields are merged in only where they beat the regex confidence. Money/metres are never
-computed here.
+Issue #18 adds the LLM path: :func:`llm_extract` (``agents.po_reader`` through
+``core.llm.get_gateway()``) fills only fields the regexes missed and never overrides them.
+Money/metres are never computed here.
 """
 from __future__ import annotations
 
@@ -39,12 +39,16 @@ RE_DUE = re.compile(r"\b(?:Delivery(?:\s+date)?|Deliver\s+by|Due(?:\s+date)?|Req
                     + DATE, re.I)
 RE_QTY = re.compile(r"\b(?:Qty|Quantity|Order\s+qty)\s*[:\-]?\s*([\d,]{2,})", re.I)
 RE_QTY_NOS = re.compile(r"\b(\d{1,3}(?:,\d{2,3})+|\d{3,})\s*(?:nos|pcs|labels)\b", re.I)
-RE_RATE = re.compile(r"(?:\bRate\b|@)\s*[:\-]?\s*(?:Rs\.?|INR|₹)?\s*(\d+(?:\.\d+)?)", re.I)
+# Same line only ([ \t], not \s): a table header "Rate" must not grab the next row's "1".
+RE_RATE = re.compile(r"(?:\bRate\b|@)[ \t]*[:\-]?[ \t]*(?:Rs\.?|INR|₹)?[ \t]*(\d+(?:\.\d+)?)", re.I)
 RE_SIZE = re.compile(r"(\d+(?:\.\d+)?)\s*[x×*]\s*(\d+(?:\.\d+)?)\s*mm", re.I)
 RE_JOB_CARD = re.compile(r"\bJC-\d{4,}\b")
 RE_CLIENT_LINE = re.compile(r"^\s*(?:To|Buyer|Bill\s+to|Ship\s+to|Customer|Party|M/s\.?)\s*[:\-]?\s*(.+)$",
                             re.I | re.M)
-RE_PRODUCT = re.compile(r"^\s*(?:Item|Product|Description)?\s*[:\-]?\s*(.*?\blabel\b)", re.I | re.M)
+RE_PRODUCT = re.compile(r"^[ \t]*(?:Item|Product|Description)?[ \t]*[:\-]?[ \t]*(.*?\blabel\b)", re.I | re.M)
+# Lines that mention "label" but are not the product: our own name ("Demo Label Plant"),
+# address/header lines, and qty/rate lines ("Rate: Rs 0.60 per label").
+RE_NOT_PRODUCT = re.compile(r"\b(?:plant|po\s*no|to\s*:|m/s|rate|qty|quantity|per\s+label)\b", re.I)
 
 
 # ---------------------------------------------------------------- text extraction
@@ -74,13 +78,36 @@ def pdf_text(data: bytes) -> str:
 
 # ---------------------------------------------------------------- LLM hook (issue #18)
 
-def llm_extract(text: str, file_name: str) -> dict[str, dict] | None:
-    """Hook for issue #18: return ``{field: {value, confidence, source_text}}`` or None.
+def llm_extract(text: str, file_name: str, db: Session | None = None) -> dict[str, dict] | None:
+    """LLM path (issue #18): ``{field: {value, confidence, source_text}}`` or None.
 
-    Must go through ``core.llm.get_gateway()`` and return None when the LLM is unavailable,
-    so the deterministic draft below always works. Not wired to any model in this PR.
+    Goes through ``agents.po_reader.extract_po`` (``core.llm.get_gateway()``); returns None when
+    the LLM is unavailable or answers nothing usable, so the deterministic draft always works.
+    The model's ``material`` text is matched to an ``items`` row here (``item_id``).
     """
-    return None
+    from agents.po_reader import extract_po  # local import: agents import app services
+
+    clients: list[dict] = []
+    if db is not None:
+        cl = T("clients")
+        clients = [{"id": r.id, "name": r.name} for r in db.execute(select(cl.c.id, cl.c.name)).all()]
+    found = extract_po(text, clients=clients)
+    if not found:
+        return None
+    material = found.pop("material", None)
+    if material and db is not None:
+        raw = str(material["value"]).lower()
+        items = T("items")
+        best: tuple[float, Any] = (0.0, None)
+        for r in db.execute(select(items.c.id, items.c.name)).all():
+            if not r.name:
+                continue
+            score = 1.0 if r.name.lower() in raw else SequenceMatcher(None, r.name.lower(), raw).ratio()
+            if score > best[0]:
+                best = (score, r.id)
+        if best[1] is not None and best[0] >= CLIENT_MIN_SCORE:
+            found["item_id"] = _field(best[1], min(material["confidence"], 0.6), material["source_text"])
+    return found or None
 
 
 # ---------------------------------------------------------------- field extraction
@@ -196,18 +223,34 @@ def extract(db: Session, text: str, file_name: str) -> dict:
         size = f"{_num(m.group(1))} x {_num(m.group(2))} mm"
         fields["label_size"] = _field(size, 0.85, m.group(0).strip())
 
-    m = RE_PRODUCT.search(text)
-    if m and m.group(1).strip():
-        product = re.sub(r"\s+", " ", m.group(1)).strip(" -:")
-        fields["product"] = _field(product, 0.8, m.group(0).strip())
+    for m in RE_PRODUCT.finditer(text):
+        if RE_NOT_PRODUCT.search(m.group(0)) or not m.group(1).strip():
+            continue
+        # drop a leading table row number ("1 Mango juice ... label")
+        product = re.sub(r"^\d+[.)]?\s+", "", re.sub(r"\s+", " ", m.group(1)))
+        # "Repeat of your job JC-1315 (Ashwagandha ... label" -> the product only
+        product = re.sub(r"^.*?\bJC-\d{4,}\b\s*[(:\-]?\s*", "", product).strip(" -:()")
+        if product:
+            fields["product"] = _field(product, 0.8, m.group(0).strip())
+            break
 
     item_id, item_src = _match_item(db, text)
     if item_id:
         fields["item_id"] = _field(item_id, 0.7, item_src)
 
-    for key, f in (llm_extract(text, file_name) or {}).items():
-        if f and f.get("value") is not None and f.get("confidence", 0) > fields.get(key, {}).get("confidence", 0):
+    # LLM fills only what the regex reader missed; it never overrides a regex value.
+    missing = {"client_id", "po_no", "po_date", "due_date", "order_qty", "rate", "label_size", "product",
+               "item_id"} - fields.keys()
+    llm = llm_extract(text, file_name, db) if missing else None
+    for key, f in (llm or {}).items():
+        if key in missing and f and f.get("value") is not None:
             fields[key] = _field(f["value"], f.get("confidence", 0), f.get("source_text"))
+            warnings.append(f"{key} read by AI from the PO text: please check")
+            if key == "client_id" and client_match is None:
+                cl_row = db.execute(select(T("clients").c.name).where(T("clients").c.id == f["value"])).first()
+                if cl_row is not None:
+                    client_match = {"client_id": f["value"], "client_name": cl_row.name,
+                                    "score": round(float(f.get("confidence", 0)), 4)}
 
     # ---- fill the rest from the client's repeat job, so PPIC only reviews
     jc = RE_JOB_CARD.search(text)

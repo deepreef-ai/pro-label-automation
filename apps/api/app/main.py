@@ -11,6 +11,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
+from agents import router as agents_router
 from app.routers import (
     dashboard,
     design,
@@ -54,6 +55,9 @@ async def _validation_as_400(_request: Request, exc: RequestValidationError) -> 
 for _module in (shell, masters, marketing, dashboard, jobs, design, store, production, qc, dispatch,
                 money_ar, money_ap):
     app.include_router(_module.router, prefix="/api")
+
+# Agents, findings, owner brief and outbox (apps/api/agents, issue #18).
+app.include_router(agents_router.router, prefix="/api")
 
 # The chatbot router (apps/api/chat, owned by Vinay) already carries the /api prefix.
 app.include_router(chat_router.router)
