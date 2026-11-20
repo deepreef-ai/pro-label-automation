@@ -9,7 +9,7 @@ One small httpx client talks to every provider (all are OpenAI-compatible); no S
 
 | Provider | Base URL | Key env | Model (env override) |
 |---|---|---|---|
-| gemini | `https://generativelanguage.googleapis.com/v1beta/openai` | `GEMINI_API_KEY` | `gemini-2.0-flash` (`GEMINI_MODEL`) |
+| gemini | `https://generativelanguage.googleapis.com/v1beta/openai` | `GEMINI_API_KEY` | `gemini-flash-latest` (`GEMINI_MODEL`; Google retired `gemini-2.0-flash`) |
 | groq | `https://api.groq.com/openai/v1` | `GROQ_API_KEY` | `llama-3.3-70b-versatile` (`GROQ_MODEL`) |
 | openrouter | `https://openrouter.ai/api/v1` | `OPENROUTER_API_KEY` | `meta-llama/llama-3.3-70b-instruct:free` (`OPENROUTER_MODEL`) |
 | huggingface | `https://router.huggingface.co/v1` | `HF_TOKEN` | `meta-llama/Llama-3.1-8B-Instruct` (`HF_MODEL`) |
