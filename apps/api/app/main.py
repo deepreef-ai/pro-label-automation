@@ -11,7 +11,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from app.routers import design, jobs, marketing, masters, shell
+from app.routers import design, dispatch, jobs, marketing, masters, production, qc, shell, store
 
 VERSION = "0.1.0"
 
@@ -36,5 +36,5 @@ async def _validation_as_400(_request: Request, exc: RequestValidationError) -> 
     return JSONResponse(status_code=400, content={"detail": "; ".join(parts) or "invalid request"})
 
 
-for _module in (shell, masters, marketing, jobs, design):
+for _module in (shell, masters, marketing, jobs, design, store, production, qc, dispatch):
     app.include_router(_module.router, prefix="/api")
