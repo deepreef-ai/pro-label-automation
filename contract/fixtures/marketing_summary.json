@@ -1,0 +1,44 @@
+{
+  "month": "2026-11",
+  "target": 6000000.0,
+  "achieved": 3862500.0,
+  "achievement_pct": 0.6438,
+  "funnel": {
+    "new": 2,
+    "quoted": 2,
+    "won": 4,
+    "lost": 1
+  },
+  "win_rate": 0.8,
+  "pipeline_value": 87200.0,
+  "by_person": [
+    {
+      "name": "Rohit Mehra",
+      "target": 3200000.0,
+      "achieved": 2118000.0,
+      "enquiries": 4,
+      "won": 3
+    },
+    {
+      "name": "Pooja Iyer",
+      "target": 2800000.0,
+      "achieved": 1744500.0,
+      "enquiries": 4,
+      "won": 1
+    }
+  ],
+  "lost_reasons": [
+    {
+      "reason": "Price",
+      "count": 3
+    },
+    {
+      "reason": "Client on credit hold",
+      "count": 1
+    },
+    {
+      "reason": "Delivery date",
+      "count": 1
+    }
+  ]
+}

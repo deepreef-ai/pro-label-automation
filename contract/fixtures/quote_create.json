@@ -1,0 +1,14 @@
+{
+  "id": "Q-0058",
+  "enquiry_id": "ENQ-0058",
+  "date": "2026-11-20",
+  "qty": 100000,
+  "rate": 0.42,
+  "value": 42000.0,
+  "cost_estimate": 30660.0,
+  "margin_pct": 0.27,
+  "valid_until": "2026-12-05",
+  "notes": "Gloss varnish incl.; plates charged once Rs 2,500",
+  "status": "sent",
+  "is_demo": true
+}

@@ -1,0 +1,68 @@
+[
+  {
+    "id": "VN-001",
+    "name": "Shree Ganesh Films",
+    "city": "Daman",
+    "msme": true,
+    "credit_days": 60,
+    "effective_credit_days": 45,
+    "supplies": "PP / BOPP films",
+    "outstanding": 208820.0,
+    "is_demo": true
+  },
+  {
+    "id": "VN-002",
+    "name": "Polyfilm Industries",
+    "city": "Silvassa",
+    "msme": false,
+    "credit_days": 60,
+    "effective_credit_days": 60,
+    "supplies": "Metallised and PET films",
+    "outstanding": 351375.2,
+    "is_demo": true
+  },
+  {
+    "id": "VN-003",
+    "name": "Colorplus Inks",
+    "city": "Vadodara",
+    "msme": true,
+    "credit_days": 30,
+    "effective_credit_days": 30,
+    "supplies": "UV flexo inks and varnish",
+    "outstanding": 64900.0,
+    "is_demo": true
+  },
+  {
+    "id": "VN-004",
+    "name": "Precision Plates & Dies",
+    "city": "Pune",
+    "msme": true,
+    "credit_days": 30,
+    "effective_credit_days": 30,
+    "supplies": "Photopolymer plates, rotary dies",
+    "outstanding": 29500.0,
+    "is_demo": true
+  },
+  {
+    "id": "VN-005",
+    "name": "Metro Freight Carriers",
+    "city": "Pune",
+    "msme": false,
+    "credit_days": 15,
+    "effective_credit_days": 15,
+    "supplies": "Road freight",
+    "outstanding": 8400.0,
+    "is_demo": true
+  },
+  {
+    "id": "VN-006",
+    "name": "Lamitech Laminates",
+    "city": "Ahmedabad",
+    "msme": false,
+    "credit_days": 45,
+    "effective_credit_days": 45,
+    "supplies": "Lamination films, foils",
+    "outstanding": 120000.0,
+    "is_demo": true
+  }
+]

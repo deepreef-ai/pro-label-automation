@@ -1,0 +1,111 @@
+[
+  {
+    "id": "COL-0141",
+    "date": "2026-11-10",
+    "client_id": "CL-011",
+    "client_name": "Coastal Seafoods Exports",
+    "invoice_ids": [
+      "INV-2201",
+      "INV-2244"
+    ],
+    "mode": "call",
+    "contact": "Thomas Varghese",
+    "note": "Promised part payment by 10-Nov; not received",
+    "promise_date": "2026-11-10",
+    "promise_amount": 100000.0,
+    "status": "broken",
+    "next_follow_up": "2026-11-21",
+    "by": "Accounts",
+    "is_demo": true
+  },
+  {
+    "id": "COL-0152",
+    "date": "2026-11-18",
+    "client_id": "CL-002",
+    "client_name": "Sunrise Pharma Ltd",
+    "invoice_ids": [
+      "INV-2311"
+    ],
+    "mode": "call",
+    "contact": "Kiran Shah",
+    "note": "Cheque for INV-2311 being signed; INV-2318 next week",
+    "promise_date": "2026-11-21",
+    "promise_amount": 826000.0,
+    "status": "open",
+    "next_follow_up": "2026-11-21",
+    "by": "Accounts",
+    "is_demo": true
+  },
+  {
+    "id": "COL-0153",
+    "date": "2026-11-19",
+    "client_id": "CL-006",
+    "client_name": "Royal Spices Pvt Ltd",
+    "invoice_ids": [
+      "INV-2314"
+    ],
+    "mode": "whatsapp",
+    "contact": "Manish Jain",
+    "note": "Asked for copy of LR; promised after 25-Nov (after lock date 23-Nov)",
+    "promise_date": "2026-11-25",
+    "promise_amount": 985300.0,
+    "status": "open",
+    "next_follow_up": "2026-11-22",
+    "by": "Accounts",
+    "is_demo": true
+  },
+  {
+    "id": "COL-0154",
+    "date": "2026-11-19",
+    "client_id": "CL-004",
+    "client_name": "Green Valley Dairy",
+    "invoice_ids": [
+      "INV-2320"
+    ],
+    "mode": "email",
+    "contact": "Sunil Pawar",
+    "note": "Reminder 2 sent with ledger",
+    "promise_date": null,
+    "promise_amount": null,
+    "status": "open",
+    "next_follow_up": "2026-11-21",
+    "by": "Accounts",
+    "is_demo": true
+  },
+  {
+    "id": "COL-0155",
+    "date": "2026-11-20",
+    "client_id": "CL-005",
+    "client_name": "Neelgiri Aqua Pvt Ltd",
+    "invoice_ids": [
+      "INV-2322"
+    ],
+    "mode": "visit",
+    "contact": "R. Senthil",
+    "note": "Marketing visit planned; RTGS promised 24-Nov",
+    "promise_date": "2026-11-24",
+    "promise_amount": 630120.0,
+    "status": "open",
+    "next_follow_up": "2026-11-24",
+    "by": "Rohit Mehra",
+    "is_demo": true
+  },
+  {
+    "id": "COL-0156",
+    "date": "2026-11-20",
+    "client_id": "CL-008",
+    "client_name": "Bharat Home Care Ltd",
+    "invoice_ids": [
+      "INV-2325"
+    ],
+    "mode": "call",
+    "contact": "Dinesh Patel",
+    "note": "No answer; try again tomorrow",
+    "promise_date": null,
+    "promise_amount": null,
+    "status": "open",
+    "next_follow_up": "2026-11-21",
+    "by": "Accounts",
+    "is_demo": true
+  }
+]

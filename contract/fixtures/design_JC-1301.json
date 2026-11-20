@@ -1,0 +1,63 @@
+{
+  "job_card": "JC-1301",
+  "client_name": "Fresh Juice Co.",
+  "product": "Mango juice 200 ml bottle label",
+  "stage": "done",
+  "designer": "Kavya Nair",
+  "artwork_version": 1,
+  "proof_sent_on": "2026-11-05",
+  "approved_on": "2026-11-06",
+  "approved_by": "Anil Deshmukh (client)",
+  "repeat_mm": 254.0,
+  "ups_across": 4,
+  "ups_along": 3,
+  "die_id": "D-114",
+  "plate_ids": [
+    "PL-00871",
+    "PL-00872",
+    "PL-00873",
+    "PL-00874",
+    "PL-00875"
+  ],
+  "units": [
+    {
+      "unit": 1,
+      "colour": "Cyan",
+      "anilox_lpi": 800,
+      "plate_id": "PL-00871"
+    },
+    {
+      "unit": 2,
+      "colour": "Magenta",
+      "anilox_lpi": 800,
+      "plate_id": "PL-00872"
+    },
+    {
+      "unit": 3,
+      "colour": "Yellow",
+      "anilox_lpi": 700,
+      "plate_id": "PL-00873"
+    },
+    {
+      "unit": 4,
+      "colour": "Black",
+      "anilox_lpi": 900,
+      "plate_id": "PL-00874"
+    },
+    {
+      "unit": 5,
+      "colour": "Gloss varnish",
+      "anilox_lpi": 400,
+      "plate_id": "PL-00875"
+    }
+  ],
+  "route": [
+    "Print Gallus EM 280",
+    "Inspection RW-1",
+    "Slitting / rewinding",
+    "Pack"
+  ],
+  "notes": "Varnish spot-free on barcode area",
+  "updated_at": "2026-11-07T17:30:00+05:30",
+  "is_demo": true
+}

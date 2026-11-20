@@ -1,0 +1,20 @@
+{
+  "id": "GRN-00441",
+  "date": "2026-11-20",
+  "vendor_id": "VN-002",
+  "vendor_name": "Polyfilm Industries",
+  "bill_no": "PFI/2433",
+  "item_id": "IT-0103",
+  "item_name": "PP Silver 200 mm",
+  "qty": 1000.0,
+  "uom": "m",
+  "rate": 44.0,
+  "item_rate": 44.0,
+  "rate_diff_pct": 0.0,
+  "rate_flag": false,
+  "amount": 8800.0,
+  "roll_ids": [
+    "R-2026-0940"
+  ],
+  "is_demo": true
+}

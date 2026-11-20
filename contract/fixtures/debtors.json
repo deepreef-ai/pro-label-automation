@@ -1,0 +1,248 @@
+{
+  "as_of": "2026-11-20",
+  "grace_days": 15,
+  "totals": {
+    "outstanding": 4943642.0,
+    "overdue": 4502912.0,
+    "at_risk": 4260272.0,
+    "locked": 242640.0,
+    "buckets": {
+      "not_due": 440730.0,
+      "1_30": 4260272.0,
+      "31_60": 115640.0,
+      "61_90": 127000.0,
+      "90_plus": 0.0
+    }
+  },
+  "clients": [
+    {
+      "client_id": "CL-002",
+      "client_name": "Sunrise Pharma Ltd",
+      "credit_days": 30,
+      "outstanding": 1533292.0,
+      "buckets": {
+        "not_due": 113280.0,
+        "1_30": 1420012.0,
+        "31_60": 0.0,
+        "61_90": 0.0,
+        "90_plus": 0.0
+      },
+      "oldest_due_date": "2026-11-06",
+      "max_days_past_due": 14,
+      "lock_status": "at_risk",
+      "locks_on": "2026-11-22",
+      "locked_since": null,
+      "last_receipt_date": null,
+      "promise": {
+        "date": "2026-11-21",
+        "amount": 826000.0
+      }
+    },
+    {
+      "client_id": "CL-006",
+      "client_name": "Royal Spices Pvt Ltd",
+      "credit_days": 30,
+      "outstanding": 985300.0,
+      "buckets": {
+        "not_due": 0.0,
+        "1_30": 985300.0,
+        "31_60": 0.0,
+        "61_90": 0.0,
+        "90_plus": 0.0
+      },
+      "oldest_due_date": "2026-11-07",
+      "max_days_past_due": 13,
+      "lock_status": "at_risk",
+      "locks_on": "2026-11-23",
+      "locked_since": null,
+      "last_receipt_date": null,
+      "promise": {
+        "date": "2026-11-25",
+        "amount": 985300.0
+      }
+    },
+    {
+      "client_id": "CL-004",
+      "client_name": "Green Valley Dairy",
+      "credit_days": 30,
+      "outstanding": 795910.0,
+      "buckets": {
+        "not_due": 56050.0,
+        "1_30": 739860.0,
+        "31_60": 0.0,
+        "61_90": 0.0,
+        "90_plus": 0.0
+      },
+      "oldest_due_date": "2026-11-09",
+      "max_days_past_due": 11,
+      "lock_status": "at_risk",
+      "locks_on": "2026-11-25",
+      "locked_since": null,
+      "last_receipt_date": null,
+      "promise": null
+    },
+    {
+      "client_id": "CL-005",
+      "client_name": "Neelgiri Aqua Pvt Ltd",
+      "credit_days": 30,
+      "outstanding": 630120.0,
+      "buckets": {
+        "not_due": 0.0,
+        "1_30": 630120.0,
+        "31_60": 0.0,
+        "61_90": 0.0,
+        "90_plus": 0.0
+      },
+      "oldest_due_date": "2026-11-11",
+      "max_days_past_due": 9,
+      "lock_status": "at_risk",
+      "locks_on": "2026-11-27",
+      "locked_since": null,
+      "last_receipt_date": null,
+      "promise": {
+        "date": "2026-11-24",
+        "amount": 630120.0
+      }
+    },
+    {
+      "client_id": "CL-008",
+      "client_name": "Bharat Home Care Ltd",
+      "credit_days": 30,
+      "outstanding": 484980.0,
+      "buckets": {
+        "not_due": 0.0,
+        "1_30": 484980.0,
+        "31_60": 0.0,
+        "61_90": 0.0,
+        "90_plus": 0.0
+      },
+      "oldest_due_date": "2026-11-14",
+      "max_days_past_due": 6,
+      "lock_status": "at_risk",
+      "locks_on": "2026-11-30",
+      "locked_since": null,
+      "last_receipt_date": null,
+      "promise": null
+    },
+    {
+      "client_id": "CL-011",
+      "client_name": "Coastal Seafoods Exports",
+      "credit_days": 30,
+      "outstanding": 242640.0,
+      "buckets": {
+        "not_due": 0.0,
+        "1_30": 0.0,
+        "31_60": 115640.0,
+        "61_90": 127000.0,
+        "90_plus": 0.0
+      },
+      "oldest_due_date": "2026-09-16",
+      "max_days_past_due": 65,
+      "lock_status": "locked",
+      "locks_on": null,
+      "locked_since": "2026-10-02",
+      "last_receipt_date": "2026-09-30",
+      "promise": null
+    },
+    {
+      "client_id": "CL-003",
+      "client_name": "Lotus Cosmetics Pvt Ltd",
+      "credit_days": 45,
+      "outstanding": 80240.0,
+      "buckets": {
+        "not_due": 80240.0,
+        "1_30": 0.0,
+        "31_60": 0.0,
+        "61_90": 0.0,
+        "90_plus": 0.0
+      },
+      "oldest_due_date": "2026-12-20",
+      "max_days_past_due": 0,
+      "lock_status": "ok",
+      "locks_on": null,
+      "locked_since": null,
+      "last_receipt_date": "2026-11-14",
+      "promise": null
+    },
+    {
+      "client_id": "CL-007",
+      "client_name": "Kaveri Agro Foods",
+      "credit_days": 30,
+      "outstanding": 61360.0,
+      "buckets": {
+        "not_due": 61360.0,
+        "1_30": 0.0,
+        "31_60": 0.0,
+        "61_90": 0.0,
+        "90_plus": 0.0
+      },
+      "oldest_due_date": "2026-12-10",
+      "max_days_past_due": 0,
+      "lock_status": "ok",
+      "locks_on": null,
+      "locked_since": null,
+      "last_receipt_date": null,
+      "promise": null
+    },
+    {
+      "client_id": "CL-009",
+      "client_name": "Orchid Wellness",
+      "credit_days": 45,
+      "outstanding": 51920.0,
+      "buckets": {
+        "not_due": 51920.0,
+        "1_30": 0.0,
+        "31_60": 0.0,
+        "61_90": 0.0,
+        "90_plus": 0.0
+      },
+      "oldest_due_date": "2027-01-04",
+      "max_days_past_due": 0,
+      "lock_status": "ok",
+      "locks_on": null,
+      "locked_since": null,
+      "last_receipt_date": null,
+      "promise": null
+    },
+    {
+      "client_id": "CL-010",
+      "client_name": "Saffron Sweets & Snacks",
+      "credit_days": 30,
+      "outstanding": 42480.0,
+      "buckets": {
+        "not_due": 42480.0,
+        "1_30": 0.0,
+        "31_60": 0.0,
+        "61_90": 0.0,
+        "90_plus": 0.0
+      },
+      "oldest_due_date": "2026-12-16",
+      "max_days_past_due": 0,
+      "lock_status": "ok",
+      "locks_on": null,
+      "locked_since": null,
+      "last_receipt_date": null,
+      "promise": null
+    },
+    {
+      "client_id": "CL-001",
+      "client_name": "Fresh Juice Co.",
+      "credit_days": 30,
+      "outstanding": 35400.0,
+      "buckets": {
+        "not_due": 35400.0,
+        "1_30": 0.0,
+        "31_60": 0.0,
+        "61_90": 0.0,
+        "90_plus": 0.0
+      },
+      "oldest_due_date": "2026-12-12",
+      "max_days_past_due": 0,
+      "lock_status": "ok",
+      "locks_on": null,
+      "locked_since": null,
+      "last_receipt_date": "2026-10-22",
+      "promise": null
+    }
+  ]
+}

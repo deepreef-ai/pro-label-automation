@@ -1,0 +1,84 @@
+{
+  "saved": false,
+  "file_name": "FJ_PO_2026_140.pdf",
+  "fields": {
+    "client_id": {
+      "value": "CL-001",
+      "confidence": 0.97,
+      "source_text": "Fresh Juice Co., Pune"
+    },
+    "po_no": {
+      "value": "FJ/2026/140",
+      "confidence": 0.99,
+      "source_text": "PO No: FJ/2026/140"
+    },
+    "po_date": {
+      "value": "2026-11-19",
+      "confidence": 0.95,
+      "source_text": "Date: 19-11-26"
+    },
+    "product": {
+      "value": "Guava juice 200 ml bottle label",
+      "confidence": 0.9,
+      "source_text": "Guava 200ml label"
+    },
+    "label_size": {
+      "value": "60 x 80 mm",
+      "confidence": 0.88,
+      "source_text": "Size 60x80"
+    },
+    "order_qty": {
+      "value": 60000,
+      "confidence": 0.98,
+      "source_text": "Qty 60,000 nos"
+    },
+    "rate": {
+      "value": 0.6,
+      "confidence": 0.96,
+      "source_text": "@ 0.60 per label"
+    },
+    "item_id": {
+      "value": "IT-0101",
+      "confidence": 0.7,
+      "source_text": "PP white glossy"
+    },
+    "due_date": {
+      "value": "2026-12-01",
+      "confidence": 0.8,
+      "source_text": "Delivery by 1st Dec"
+    }
+  },
+  "client_match": {
+    "client_id": "CL-001",
+    "client_name": "Fresh Juice Co.",
+    "score": 0.97
+  },
+  "warnings": [
+    "Paper width not on PO: assumed 250 mm from repeat job JC-1316",
+    "Date 19-11-26 parsed day-first as 2026-11-19"
+  ],
+  "draft": {
+    "client_id": "CL-001",
+    "po_no": "FJ/2026/140",
+    "po_date": "2026-11-19",
+    "product": "Guava juice 200 ml bottle label",
+    "label_size": "60 x 80 mm",
+    "order_qty": 60000,
+    "rate": 0.6,
+    "item_id": "IT-0101",
+    "machine_id": "M-01",
+    "ups_across": 4,
+    "ups_along": 3,
+    "repeat_mm": 254.0,
+    "units": [
+      "Cyan",
+      "Magenta",
+      "Yellow",
+      "Black",
+      "Gloss varnish"
+    ],
+    "due_date": "2026-12-01",
+    "enquiry_id": null,
+    "priority": "normal"
+  }
+}

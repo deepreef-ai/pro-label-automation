@@ -1,0 +1,19 @@
+{
+  "id": "DC-1394",
+  "date": "2026-11-20",
+  "job_card": "JC-1308",
+  "client_id": "CL-002",
+  "client_name": "Sunrise Pharma Ltd",
+  "qty": 25000,
+  "boxes": 5,
+  "vehicle_no": "GJ01 DX 9902",
+  "transporter": "Metro Freight Carriers",
+  "freight": 700.0,
+  "lr_no": "MFC/55420",
+  "qc_approved": 29500,
+  "dispatched_before": 0,
+  "balance_after": 4500,
+  "status": "dispatched",
+  "invoice_id": null,
+  "is_demo": true
+}

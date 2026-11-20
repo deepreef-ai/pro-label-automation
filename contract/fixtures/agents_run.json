@@ -1,0 +1,92 @@
+{
+  "runs": [
+    {
+      "id": "AR-0420",
+      "agent": "import_checker",
+      "started_at": "2026-11-20T11:31:00+05:30",
+      "finished_at": "2026-11-20T11:31:08+05:30",
+      "status": "ok",
+      "findings_created": 0,
+      "finding_ids": [],
+      "model": "rules",
+      "note": "No new findings; existing open findings refreshed"
+    },
+    {
+      "id": "AR-0421",
+      "agent": "store_watchdog",
+      "started_at": "2026-11-20T11:31:00+05:30",
+      "finished_at": "2026-11-20T11:31:08+05:30",
+      "status": "ok",
+      "findings_created": 0,
+      "finding_ids": [],
+      "model": "rules",
+      "note": "No new findings; existing open findings refreshed"
+    },
+    {
+      "id": "AR-0422",
+      "agent": "wastage_watchdog",
+      "started_at": "2026-11-20T11:31:00+05:30",
+      "finished_at": "2026-11-20T11:31:08+05:30",
+      "status": "ok",
+      "findings_created": 0,
+      "finding_ids": [],
+      "model": "rules",
+      "note": "No new findings; existing open findings refreshed"
+    },
+    {
+      "id": "AR-0423",
+      "agent": "planning",
+      "started_at": "2026-11-20T11:31:00+05:30",
+      "finished_at": "2026-11-20T11:31:08+05:30",
+      "status": "ok",
+      "findings_created": 0,
+      "finding_ids": [],
+      "model": "rules",
+      "note": "No new findings; existing open findings refreshed"
+    },
+    {
+      "id": "AR-0424",
+      "agent": "collections",
+      "started_at": "2026-11-20T11:31:00+05:30",
+      "finished_at": "2026-11-20T11:31:08+05:30",
+      "status": "ok",
+      "findings_created": 0,
+      "finding_ids": [],
+      "model": "rules + gemini-free",
+      "note": "No new findings; existing open findings refreshed"
+    },
+    {
+      "id": "AR-0425",
+      "agent": "payables",
+      "started_at": "2026-11-20T11:31:00+05:30",
+      "finished_at": "2026-11-20T11:31:08+05:30",
+      "status": "ok",
+      "findings_created": 0,
+      "finding_ids": [],
+      "model": "rules",
+      "note": "No new findings; existing open findings refreshed"
+    },
+    {
+      "id": "AR-0426",
+      "agent": "month_end",
+      "started_at": "2026-11-20T11:31:00+05:30",
+      "finished_at": "2026-11-20T11:31:08+05:30",
+      "status": "ok",
+      "findings_created": 0,
+      "finding_ids": [],
+      "model": "rules",
+      "note": "No new findings; existing open findings refreshed"
+    },
+    {
+      "id": "AR-0427",
+      "agent": "owner_brief",
+      "started_at": "2026-11-20T11:31:00+05:30",
+      "finished_at": "2026-11-20T11:31:08+05:30",
+      "status": "ok",
+      "findings_created": 0,
+      "finding_ids": [],
+      "model": "rules + gemini-free",
+      "note": "No new findings; existing open findings refreshed"
+    }
+  ]
+}

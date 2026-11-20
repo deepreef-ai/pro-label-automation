@@ -1,0 +1,270 @@
+{
+  "status": "open",
+  "items": [
+    {
+      "id": "F-0231",
+      "agent": "import_checker",
+      "created_at": "2026-11-20T06:30:00+05:30",
+      "severity": "medium",
+      "title": "212 ERP dates were read month-first; fixed to day-first",
+      "detail": "In the Aug-Oct ERP issue/GRN export, 212 dates such as 03-11-26 were read by Excel as 11-Mar-2026. Re-parsed day-first (3-Nov-2026). 4 examples attached; no quantities changed.",
+      "evidence": [
+        {
+          "label": "Data quality: date fixes",
+          "link": "/store?tab=data-quality#dates"
+        }
+      ],
+      "suggested_action": {
+        "type": "apply_fixes",
+        "payload": {
+          "kind": "date_day_first",
+          "count": 212,
+          "batch": "ERP-2026-08-10"
+        }
+      },
+      "status": "open",
+      "decided_by": null,
+      "decided_at": null,
+      "reason": null
+    },
+    {
+      "id": "F-0232",
+      "agent": "store_watchdog",
+      "created_at": "2026-11-20T07:00:00+05:30",
+      "severity": "medium",
+      "title": "GRN-00436: PP Silver 200 mm rate 9.5% above item master",
+      "detail": "Polyfilm Industries billed Rs 48.20/sq m against master rate Rs 44.00 (tolerance 5%). Extra cost Rs 840 on 1,000 m. Last 3 GRNs were at Rs 44.00.",
+      "evidence": [
+        {
+          "label": "GRN-00436",
+          "link": "/store?tab=grns&id=GRN-00436"
+        },
+        {
+          "label": "Bill PFI/2417",
+          "link": "/money?tab=creditors&vendor=VN-002"
+        }
+      ],
+      "suggested_action": {
+        "type": "draft_messages",
+        "payload": {
+          "messages": [
+            {
+              "channel": "email",
+              "to": "Polyfilm Industries",
+              "subject": "Rate difference on bill PFI/2417",
+              "body": "Please issue a credit note for Rs 840 (rate Rs 48.20 vs agreed Rs 44.00 per sq m)."
+            }
+          ]
+        }
+      },
+      "status": "open",
+      "decided_by": null,
+      "decided_at": null,
+      "reason": null
+    },
+    {
+      "id": "F-0233",
+      "agent": "wastage_watchdog",
+      "created_at": "2026-11-20T07:00:00+05:30",
+      "severity": "high",
+      "title": "JC-1240 wastage 18.0% on Gallus night shift",
+      "detail": "RUN-05570 (19-Nov night, operator Ajay Kamble) used 2,997.2 m against 2,540 m required: 457.2 m wasted (18.0%, limit 15%), about Rs 4,343 of PP White. Two plate-damage stops (35 + 25 min) on magenta plate PL-00803; die D-097 is marked worn. Day-shift runs of the same label average 8.7%.",
+      "evidence": [
+        {
+          "label": "JC-1240",
+          "link": "/jobs/JC-1240"
+        },
+        {
+          "label": "RUN-05570",
+          "link": "/production?run=RUN-05570"
+        },
+        {
+          "label": "Plate PL-00803",
+          "link": "/design?tab=plates"
+        }
+      ],
+      "suggested_action": {
+        "type": "create_task",
+        "payload": {
+          "assign_to": "production",
+          "title": "Replace magenta plate PL-00803 and check die D-097 before next JC-1240 repeat",
+          "due": "2026-11-21"
+        }
+      },
+      "status": "open",
+      "decided_by": null,
+      "decided_at": null,
+      "reason": null
+    },
+    {
+      "id": "F-0234",
+      "agent": "planning",
+      "created_at": "2026-11-20T07:00:00+05:30",
+      "severity": "high",
+      "title": "PP Silver 200 mm short by 700 m for JC-1310 and JC-1315",
+      "detail": "Open jobs need 2,584.45 m (JC-1310: 838.20 m, JC-1315: 1,746.25 m incl. 10% planning extra). Stock is 1,884.45 m. JC-1310 is due 28-Nov. Suggest one 1,000 m roll from Polyfilm Industries (7-day lead time).",
+      "evidence": [
+        {
+          "label": "Material summary",
+          "link": "/jobs?tab=material"
+        },
+        {
+          "label": "Stock PP Silver 200 mm",
+          "link": "/store?tab=stock&item=IT-0103"
+        }
+      ],
+      "suggested_action": {
+        "type": "draft_purchase_request",
+        "payload": {
+          "item_id": "IT-0103",
+          "qty_m": 700,
+          "suggested_qty_m": 1000,
+          "vendor_id": "VN-002",
+          "needed_by": "2026-11-25"
+        }
+      },
+      "status": "open",
+      "decided_by": null,
+      "decided_at": null,
+      "reason": null
+    },
+    {
+      "id": "F-0235",
+      "agent": "collections",
+      "created_at": "2026-11-20T07:00:00+05:30",
+      "severity": "high",
+      "title": "5 clients lock within 10 days: Rs 42.6 lakh at risk",
+      "detail": "Sunrise Pharma (Rs 14,20,012, locks 22-Nov), Royal Spices (Rs 9,85,300, 23-Nov), Green Valley Dairy (Rs 7,39,860, 25-Nov), Neelgiri Aqua (Rs 6,30,120, 27-Nov), Bharat Home Care (Rs 4,84,980, 30-Nov). Royal Spices promised payment on 25-Nov, which is after its lock date.",
+      "evidence": [
+        {
+          "label": "Debtors (at risk)",
+          "link": "/money?tab=debtors&filter=at_risk"
+        },
+        {
+          "label": "Collections log",
+          "link": "/money?tab=collections"
+        }
+      ],
+      "suggested_action": {
+        "type": "draft_messages",
+        "payload": {
+          "messages": [
+            {
+              "channel": "whatsapp",
+              "to": "Sunrise Pharma Ltd",
+              "body": "Dear Kiran Shah, Rs 1,420,012 is overdue. Your account will be put on hold on 2026-11-22. Kindly arrange payment. - Accounts"
+            },
+            {
+              "channel": "whatsapp",
+              "to": "Green Valley Dairy",
+              "body": "Dear Sunil Pawar, Rs 739,860 is overdue. Your account will be put on hold on 2026-11-25. Kindly arrange payment. - Accounts"
+            },
+            {
+              "channel": "whatsapp",
+              "to": "Neelgiri Aqua Pvt Ltd",
+              "body": "Dear R. Senthil, Rs 630,120 is overdue. Your account will be put on hold on 2026-11-27. Kindly arrange payment. - Accounts"
+            },
+            {
+              "channel": "whatsapp",
+              "to": "Royal Spices Pvt Ltd",
+              "body": "Dear Manish Jain, Rs 985,300 is overdue. Your account will be put on hold on 2026-11-23. Kindly arrange payment. - Accounts"
+            },
+            {
+              "channel": "whatsapp",
+              "to": "Bharat Home Care Ltd",
+              "body": "Dear Dinesh Patel, Rs 484,980 is overdue. Your account will be put on hold on 2026-11-30. Kindly arrange payment. - Accounts"
+            }
+          ]
+        }
+      },
+      "status": "open",
+      "decided_by": null,
+      "decided_at": null,
+      "reason": null
+    },
+    {
+      "id": "F-0236",
+      "agent": "payables",
+      "created_at": "2026-11-20T07:00:00+05:30",
+      "severity": "high",
+      "title": "MSME bill SGF/1093 (Rs 1,86,400) due in 3 days",
+      "detail": "Shree Ganesh Films is MSME; 45-day limit makes bill SGF/1093 dated 9-Oct due on 23-Nov. Paying Rs 2,00,000 clears it and Rs 13,600 of SGF/1121 (FIFO). Bank balance after payment stays above Rs 15 lakh.",
+      "evidence": [
+        {
+          "label": "Creditors: Shree Ganesh Films",
+          "link": "/money?tab=creditors&vendor=VN-001"
+        },
+        {
+          "label": "Cash plan",
+          "link": "/money?tab=cashplan"
+        }
+      ],
+      "suggested_action": {
+        "type": "schedule_payment",
+        "payload": {
+          "vendor_id": "VN-001",
+          "amount": 200000.0,
+          "pay_on": "2026-11-21",
+          "mode": "neft"
+        }
+      },
+      "status": "open",
+      "decided_by": null,
+      "decided_at": null,
+      "reason": null
+    },
+    {
+      "id": "F-0237",
+      "agent": "month_end",
+      "created_at": "2026-11-20T07:00:00+05:30",
+      "severity": "medium",
+      "title": "October profit: system Rs 11,59,200 vs Tally Rs 11,03,000",
+      "detail": "Gap Rs 56,200: GRN-00398 material Rs 42,500 booked in Tally in October but used in November, and 3 Metro Freight bills Rs 13,700 not linked to challans.",
+      "evidence": [
+        {
+          "label": "P&L Oct 2026",
+          "link": "/money?tab=pnl&month=2026-10"
+        }
+      ],
+      "suggested_action": {
+        "type": "draft_journal",
+        "payload": {
+          "month": "2026-10",
+          "entries": [
+            {
+              "account": "Freight",
+              "amount": 13700.0,
+              "note": "Link MFC bills to DC-1331, DC-1336, DC-1342"
+            }
+          ]
+        }
+      },
+      "status": "open",
+      "decided_by": null,
+      "decided_at": null,
+      "reason": null
+    },
+    {
+      "id": "F-0238",
+      "agent": "owner_brief",
+      "created_at": "2026-11-20T07:15:00+05:30",
+      "severity": "low",
+      "title": "Morning brief for 20-Nov is ready",
+      "detail": "Rs 42.6 lakh at lock risk, JC-1240 wastage 18%, PP Silver short 700 m, MSME payment due Monday.",
+      "evidence": [
+        {
+          "label": "Owner dashboard",
+          "link": "/"
+        }
+      ],
+      "suggested_action": {
+        "type": "none",
+        "payload": {}
+      },
+      "status": "open",
+      "decided_by": null,
+      "decided_at": null,
+      "reason": null
+    }
+  ]
+}

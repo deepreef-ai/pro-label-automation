@@ -1,0 +1,78 @@
+{
+  "as_of": "2026-11-20",
+  "min_cash": 1500000.0,
+  "months": [
+    {
+      "month": "2026-11",
+      "opening": 1840000.0,
+      "inflow_collections": 5200000.0,
+      "outflow_suppliers": 3150000.0,
+      "outflow_salaries": 980000.0,
+      "outflow_overheads": 420000.0,
+      "outflow_gst": 360000.0,
+      "outflow_other": 120000.0,
+      "closing": 2010000.0,
+      "low_cash": false
+    },
+    {
+      "month": "2026-12",
+      "opening": 2010000.0,
+      "inflow_collections": 4600000.0,
+      "outflow_suppliers": 3080000.0,
+      "outflow_salaries": 980000.0,
+      "outflow_overheads": 420000.0,
+      "outflow_gst": 390000.0,
+      "outflow_other": 120000.0,
+      "closing": 1620000.0,
+      "low_cash": false
+    },
+    {
+      "month": "2027-01",
+      "opening": 1620000.0,
+      "inflow_collections": 4450000.0,
+      "outflow_suppliers": 2900000.0,
+      "outflow_salaries": 980000.0,
+      "outflow_overheads": 430000.0,
+      "outflow_gst": 370000.0,
+      "outflow_other": 120000.0,
+      "closing": 1270000.0,
+      "low_cash": true
+    },
+    {
+      "month": "2027-02",
+      "opening": 1270000.0,
+      "inflow_collections": 5000000.0,
+      "outflow_suppliers": 3050000.0,
+      "outflow_salaries": 980000.0,
+      "outflow_overheads": 430000.0,
+      "outflow_gst": 340000.0,
+      "outflow_other": 120000.0,
+      "closing": 1350000.0,
+      "low_cash": true
+    },
+    {
+      "month": "2027-03",
+      "opening": 1350000.0,
+      "inflow_collections": 5800000.0,
+      "outflow_suppliers": 3300000.0,
+      "outflow_salaries": 1020000.0,
+      "outflow_overheads": 440000.0,
+      "outflow_gst": 360000.0,
+      "outflow_other": 120000.0,
+      "closing": 1910000.0,
+      "low_cash": false
+    },
+    {
+      "month": "2027-04",
+      "opening": 1910000.0,
+      "inflow_collections": 4900000.0,
+      "outflow_suppliers": 3100000.0,
+      "outflow_salaries": 1020000.0,
+      "outflow_overheads": 440000.0,
+      "outflow_gst": 420000.0,
+      "outflow_other": 120000.0,
+      "closing": 1710000.0,
+      "low_cash": false
+    }
+  ]
+}

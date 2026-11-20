@@ -1,0 +1,33 @@
+{
+  "q": "1301",
+  "results": [
+    {
+      "type": "job",
+      "id": "JC-1301",
+      "title": "JC-1301 Fresh Juice Co.",
+      "subtitle": "Mango juice 200 ml - invoiced",
+      "link": "/jobs/JC-1301"
+    },
+    {
+      "type": "dispatch",
+      "id": "DC-1388",
+      "title": "DC-1388",
+      "subtitle": "JC-1301 - 50,000 labels - 12 Nov",
+      "link": "/dispatch?id=DC-1388"
+    },
+    {
+      "type": "invoice",
+      "id": "INV-2390",
+      "title": "INV-2390",
+      "subtitle": "Fresh Juice Co. - Rs 35,400 - due 12 Dec",
+      "link": "/money?tab=invoices&id=INV-2390"
+    },
+    {
+      "type": "job",
+      "id": "JC-1316",
+      "title": "JC-1316 Fresh Juice Co.",
+      "subtitle": "Repeat of JC-1301 - printing",
+      "link": "/jobs/JC-1316"
+    }
+  ]
+}
