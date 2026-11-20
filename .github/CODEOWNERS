@@ -8,11 +8,8 @@
 # ---- Areas ----
 /apps/web/              @Vinay-deepreef
 /apps/api/chat/         @Vinay-deepreef
-#                       @Vinay-deepreef @Ravi-deepreef
 /apps/api/app/          @Ravi-deepreef
-#                       @Vinay-deepreef @Ravi-deepreef
 /apps/api/agents/       @Ravi-deepreef
-#                       @Vinay-deepreef @Ravi-deepreef
 /infra/                 @Ravi-deepreef
 
 # ---- Locked (need the other developer's approval) ----
