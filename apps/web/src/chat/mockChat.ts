@@ -15,7 +15,7 @@ export const DEMO_QUESTIONS: Suggestion[] = [
   { text: 'Profit from Fresh Juice this month?', lang: 'en' },
   { text: 'How do I release a lock?', lang: 'en' },
   { text: 'Fresh Juice ko Hindi mein reminder likho', lang: 'hi' },
-  { text: 'Record: 10 rolls PP Silver received from Vendor X', lang: 'en' },
+  { text: 'Record: 10 rolls PP Silver received from Polyfilm Industries', lang: 'en' },
 ]
 
 const SCREENS: [RegExp, string, string][] = [

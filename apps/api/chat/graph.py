@@ -50,6 +50,9 @@ Rules:
 - You cannot change data. For changes use a draft tool; say the user must press Confirm.
 - Only the owner may release a client lock.
 - Answer in the user's language: if they write Hindi or Hinglish, answer in Hindi (Devanagari).
+- Copy client, vendor and job names/IDs exactly as they appear in tool results (e.g. `Client-017`,
+  `JC-1240`). Never invent, rename or generalise them (no "Client A"), and never list items the tools
+  did not return.
 - Keep answers short (2-6 sentences or a short list). Amounts in Indian format (Rs 12,34,567).
 """
 
