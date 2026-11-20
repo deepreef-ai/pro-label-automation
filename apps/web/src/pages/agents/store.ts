@@ -1,7 +1,8 @@
 /**
  * Agents Center state. Findings + outbox are held in a module-level store so
  * decisions survive tab switches and navigation. In mock mode every decision is
- * applied in memory (fixtures never change); in live mode the server reply wins.
+ * applied in memory (fixtures never change); in live mode the server reply wins. Live mode against a
+ * backend without the agents endpoints yet serves fixture "sample data", handled like mock mode.
  */
 import { useSyncExternalStore } from 'react'
 import type {
@@ -13,7 +14,7 @@ import type {
   OutboxItem,
   OutboxResponse,
 } from '@contract/types'
-import { api, isNoData } from '@/lib/api'
+import { api, isNoData, isSampleData } from '@/lib/api'
 import { getRole } from '@/lib/role'
 
 export interface AgentsState {
@@ -25,6 +26,8 @@ export interface AgentsState {
   lastRunAt: string | null
   /** ids approved in this session (for the "moved to Done" highlight) */
   recentlyDone: string[]
+  /** Live mode, but the backend has no agents endpoints yet: showing fixture sample data. */
+  sample: boolean
 }
 
 let state: AgentsState = {
@@ -35,6 +38,7 @@ let state: AgentsState = {
   agents: null,
   lastRunAt: null,
   recentlyDone: [],
+  sample: false,
 }
 const listeners = new Set<() => void>()
 
@@ -59,6 +63,11 @@ export function useAgentsState(): AgentsState {
 }
 
 export const isMock = api.mode === 'mock'
+
+/** Decisions are simulated in memory when the data is fixtures (mock mode or live sample data). */
+function simulated(): boolean {
+  return isMock || state.sample
+}
 
 async function safeGet<T>(path: string, fallback: T): Promise<T> {
   try {
@@ -177,7 +186,7 @@ export function describeActionText(f: Finding): string {
 export const agentsStore = {
   async load(force = false) {
     if (state.status === 'loading') return
-    if (!force && state.status === 'ready' && isMock) return
+    if (!force && state.status === 'ready' && simulated()) return
     set({ status: state.status === 'ready' ? 'ready' : 'loading', error: null })
     try {
       const [open, done, rejected, outbox, agents] = await Promise.all([
@@ -198,6 +207,7 @@ export const agentsStore = {
         findings,
         outbox: [...outbox.items].sort((a, b) => b.created_at.localeCompare(a.created_at)),
         agents,
+        sample: [open, done, rejected, outbox, agents].some(isSampleData),
         lastRunAt: state.lastRunAt ?? maxIso(agents?.agents.map((a) => a.last_run_at) ?? []),
       })
     } catch (e) {
@@ -207,15 +217,16 @@ export const agentsStore = {
 
   async runAll(): Promise<AgentRunResponse> {
     const res = await api.post<AgentRunResponse>('/api/agents/run', { agent: 'all' })
-    const last = isMock ? nowIso() : maxIso(res.runs.map((r) => r.finished_at ?? r.started_at))
+    const sim = simulated() || isSampleData(res)
+    const last = sim ? nowIso() : maxIso(res.runs.map((r) => r.finished_at ?? r.started_at))
     set({ lastRunAt: last ?? state.lastRunAt })
-    if (!isMock) await agentsStore.load(true)
+    if (!sim) await agentsStore.load(true)
     return res
   },
 
   async approve(f: Finding) {
     const res = await api.post<ApproveResult>(`/api/agents/findings/${f.id}/approve`)
-    if (isMock) {
+    if (simulated()) {
       const updated: Finding = { ...f, status: 'done', decided_by: getRole(), decided_at: nowIso(), reason: null }
       mergeOutbox(simulateOutbox(f))
       upsertFinding(updated)
@@ -229,15 +240,15 @@ export const agentsStore = {
   async reject(f: Finding, reason: string) {
     const res = await api.post<Finding>(`/api/agents/findings/${f.id}/reject`, { reason })
     upsertFinding(
-      isMock ? { ...f, status: 'rejected', decided_by: getRole(), decided_at: nowIso(), reason } : res,
+      simulated() ? { ...f, status: 'rejected', decided_by: getRole(), decided_at: nowIso(), reason } : res,
     )
   },
 
   async edit(f: Finding, payload: Record<string, unknown>) {
     const res = await api.post<Finding>(`/api/agents/findings/${f.id}/edit`, { payload })
-    const updated = isMock ? { ...f, suggested_action: { ...f.suggested_action, payload } } : res
+    const updated = simulated() ? { ...f, suggested_action: { ...f.suggested_action, payload } } : res
     upsertFinding(updated)
-    if (isMock && updated.suggested_action.type === 'draft_messages') {
+    if (simulated() && updated.suggested_action.type === 'draft_messages') {
       // Keep pending outbox drafts in sync with the edited text.
       const msgs = messagesOf(updated)
       set({
