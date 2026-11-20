@@ -24,7 +24,7 @@ import {
   toast,
   type Tone,
 } from '@/components/ui'
-import { describeError, InlineAlert, todayIso } from '@/pages/store/common'
+import { describeError, InlineAlert, todayIso, withAdded } from '@/pages/store/common'
 
 type Decision = QcCreate['decision']
 const DECISIONS: { value: Decision; tone: Tone }[] = [
@@ -92,7 +92,12 @@ export default function QcPage() {
       <PageHeader title="QC" subtitle="Inspect printed labels: checked, approved and rejected quantities. Only approved quantity can be dispatched." />
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-5">
         <div className="xl:col-span-3">
-          <InspectionForm onSaved={(r) => setAdded((a) => [r, ...a])} />
+          <InspectionForm
+            onSaved={(r) => {
+              setAdded((a) => [r, ...a])
+              if (api.mode === 'live') q.refetch()
+            }}
+          />
         </div>
         <div className="xl:col-span-2">
           <CameraDemoCard />
@@ -101,7 +106,7 @@ export default function QcPage() {
       <section>
         <SectionHeader title="QC log" description="Hold, Rework and Rejected rows do not count as approved." />
         <QueryState query={q} loading={<TableSkeleton />}>
-          {(rows) => <DataTable rows={[...added, ...rows]} columns={columns} defaultSort={{ key: 'date', dir: 'desc' }} />}
+          {(rows) => <DataTable rows={withAdded(added, rows)} columns={columns} defaultSort={{ key: 'date', dir: 'desc' }} />}
         </QueryState>
       </section>
     </div>
@@ -175,6 +180,11 @@ function InspectionForm({ onSaved }: { onSaved: (r: QcRow) => void }) {
             }
           : res
       onSaved(row)
+      if (api.mode === 'live') {
+        // The API now counts this inspection: refresh "already checked" and the printed/approved totals.
+        qcQ.refetch()
+        jobsQ.refetch()
+      }
       toast.success(`${row.id} saved`, {
         description: row.counts_as_approved ? `${formatNumber(row.approved)} labels can now be dispatched.` : 'Held back from dispatch.',
       })

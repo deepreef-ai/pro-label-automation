@@ -25,7 +25,7 @@ import {
   TableSkeleton,
   toast,
 } from '@/components/ui'
-import { describeError, InlineAlert, todayIso } from '@/pages/store/common'
+import { describeError, InlineAlert, todayIso, withAdded } from '@/pages/store/common'
 
 const TRANSPORTERS = ['Metro Freight Carriers', 'Shree Logistics', 'VRL Logistics', 'Own vehicle', 'Client pickup']
 
@@ -36,7 +36,7 @@ export default function DispatchPage() {
   const [open, setOpen] = useState(false)
   const [preview, setPreview] = useState<Dispatch | null>(null)
 
-  const rows = useMemo(() => [...added, ...(q.data ?? [])], [added, q.data])
+  const rows = useMemo(() => withAdded(added, q.data ?? []), [added, q.data])
 
   const openChallan = (d: Dispatch) => {
     if (api.mode === 'mock') setPreview(d)
@@ -150,9 +150,14 @@ export default function DispatchPage() {
         open={open}
         onOpenChange={setOpen}
         jobs={jobsQ.data?.items ?? []}
-        localDispatched={added}
+        // Live mode refetches the jobs after a save, so their dispatched_qty already counts it.
+        localDispatched={api.mode === 'mock' ? added : []}
         onSaved={(d) => {
           setAdded((a) => [d, ...a])
+          if (api.mode === 'live') {
+            q.refetch()
+            jobsQ.refetch()
+          }
           setOpen(false)
         }}
         onChallan={openChallan}

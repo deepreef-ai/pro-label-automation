@@ -22,7 +22,7 @@ import {
   TableSkeleton,
   toast,
 } from '@/components/ui'
-import { describeError, InlineAlert, todayIso } from './common'
+import { describeError, InlineAlert, todayIso, withAdded } from './common'
 
 export function ReceiptsTab() {
   const q = useApi<Grn[]>('/api/store/grns')
@@ -88,9 +88,16 @@ export function ReceiptsTab() {
         </Button>
       </div>
       <QueryState query={q} loading={<TableSkeleton />}>
-        {(rows) => <DataTable rows={[...added, ...rows]} columns={columns} defaultSort={{ key: 'date', dir: 'desc' }} />}
+        {(rows) => <DataTable rows={withAdded(added, rows)} columns={columns} defaultSort={{ key: 'date', dir: 'desc' }} />}
       </QueryState>
-      <GrnDialog open={open} onOpenChange={setOpen} onSaved={(g) => setAdded((a) => [g, ...a])} />
+      <GrnDialog
+        open={open}
+        onOpenChange={setOpen}
+        onSaved={(g) => {
+          setAdded((a) => [g, ...a])
+          if (api.mode === 'live') q.refetch()
+        }}
+      />
     </div>
   )
 }
@@ -127,8 +134,11 @@ function GrnDialog({
         .filter((n) => Number.isFinite(n) && n > 0),
     [form.rolls],
   )
-  const isRollItem = item?.group === 'Paper & Film'
-  const amount = qty > 0 && rate > 0 ? qty * rate * (item?.rate_unit === 'per_sqm' && item.width_mm ? item.width_mm / 1000 : 1) : 0
+  // Same rule as the API: only items kept in metres get numbered rolls (an sqm item rejects roll_lengths_m).
+  const isRollItem = item?.uom === 'm'
+  // Preview only (the API computes the saved amount): a per-sqm rate on a metre item is charged on width.
+  const perSqmOnMetres = item?.rate_unit === 'per_sqm' && item.uom === 'm' && !!item.width_mm
+  const amount = qty > 0 && rate > 0 ? qty * rate * (perSqmOnMetres && item.width_mm ? item.width_mm / 1000 : 1) : 0
 
   const missing = !form.vendor_id || !form.item_id || !form.bill_no.trim() || !(qty > 0) || !(rate > 0)
 

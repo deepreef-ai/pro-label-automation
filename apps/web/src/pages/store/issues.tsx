@@ -24,7 +24,7 @@ import {
   TableSkeleton,
   toast,
 } from '@/components/ui'
-import { describeError, InlineAlert, todayIso } from './common'
+import { describeError, InlineAlert, todayIso, withAdded } from './common'
 
 type Filter = 'all' | 'missing'
 
@@ -103,7 +103,7 @@ export function IssuesTab({ initialFilter = 'all' }: { initialFilter?: Filter })
       </div>
       <QueryState query={q} loading={<TableSkeleton />}>
         {(rows) => {
-          const all = [...added, ...rows]
+          const all = withAdded(added, rows)
           const shown = filter === 'missing' ? all.filter((r) => !r.job_card) : all
           const noJc = all.filter((r) => !r.job_card)
           return (
@@ -119,7 +119,14 @@ export function IssuesTab({ initialFilter = 'all' }: { initialFilter?: Filter })
           )
         }}
       </QueryState>
-      <IssueDialog open={open} onOpenChange={setOpen} onSaved={(i) => setAdded((a) => [i, ...a])} />
+      <IssueDialog
+        open={open}
+        onOpenChange={setOpen}
+        onSaved={(i) => {
+          setAdded((a) => [i, ...a])
+          if (api.mode === 'live') q.refetch()
+        }}
+      />
     </div>
   )
 }
@@ -145,6 +152,8 @@ function IssueDialog({
     setForm((f) => ({ ...f, [k]: v }))
     if (k === 'job_card') setError(null)
   }
+  // A 400 about the job card (missing or unknown) marks the job card field; other errors only show below.
+  const jcError = error?.status === 400 && /job.?card/i.test(error.message)
 
   const item = items.data?.find((i) => i.id === form.item_id)
   const itemRolls = (rolls.data ?? []).filter((r) => r.item_id === form.item_id && r.balance_m > 0)
@@ -216,7 +225,7 @@ function IssueDialog({
             }
             htmlFor="iss-jc"
             hint={job ? `${job.client_name} · ${job.product} · ${job.machine_name}` : 'Required. e.g. JC-1316'}
-            error={error?.status === 400 ? 'Required: enter a valid job card' : undefined}
+            error={jcError ? 'Required: enter a valid job card' : undefined}
           >
             <Input
               id="iss-jc"
@@ -225,8 +234,8 @@ function IssueDialog({
               onChange={(e) => set('job_card', e.target.value)}
               placeholder="JC-####"
               aria-required
-              aria-invalid={error?.status === 400 || undefined}
-              className={error?.status === 400 ? 'border-danger' : undefined}
+              aria-invalid={jcError || undefined}
+              className={jcError ? 'border-danger' : undefined}
             />
             <datalist id="iss-jobs">
               {(jobs.data?.items ?? [])
