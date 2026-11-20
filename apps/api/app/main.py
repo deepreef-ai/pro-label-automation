@@ -11,13 +11,27 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from app.routers import design, dispatch, jobs, marketing, masters, production, qc, shell, store
+from app.routers import (
+    dashboard,
+    design,
+    dispatch,
+    jobs,
+    marketing,
+    masters,
+    money_ap,
+    money_ar,
+    production,
+    qc,
+    shell,
+    store,
+)
+from chat import router as chat_router
 
 VERSION = "0.1.0"
 
 app = FastAPI(title="Pro Labels API (demo)", version=VERSION)
 
-_origins = os.environ.get("CORS_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173")
+_origins = os.environ.get("CORS_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173,http://localhost:4173,http://127.0.0.1:4173")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[o.strip() for o in _origins.split(",") if o.strip()],
@@ -36,5 +50,10 @@ async def _validation_as_400(_request: Request, exc: RequestValidationError) -> 
     return JSONResponse(status_code=400, content={"detail": "; ".join(parts) or "invalid request"})
 
 
-for _module in (shell, masters, marketing, jobs, design, store, production, qc, dispatch):
+# dashboard first: its /jobs/{job_card}/360 sits beside jobs' /jobs/{job_card}
+for _module in (shell, masters, marketing, dashboard, jobs, design, store, production, qc, dispatch,
+                money_ar, money_ap):
     app.include_router(_module.router, prefix="/api")
+
+# The chatbot router (apps/api/chat, owned by Vinay) already carries the /api prefix.
+app.include_router(chat_router.router)
