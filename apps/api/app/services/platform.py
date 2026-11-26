@@ -70,12 +70,15 @@ def _active_users(db: Session) -> dict[str, int]:
 
 
 def _otp_sms(db: Session, month: str) -> dict[str, int]:
-    """SMS OTPs sent per company this month (``otp_codes`` is a platform table)."""
-    otp = T("otp_codes")
+    """SMS OTPs per company this month: one per sign-in by mobile number (``sessions`` + ``users``,
+    both platform tables). ``otp_codes`` rows are deleted once used, so they can't be counted."""
+    sessions, users = T("sessions"), T("users")
     start, end = _month_range(month)
     out: dict[str, int] = {}
-    rows = db.execute(select(otp.c.company_id, otp.c.login).where(otp.c.company_id.is_not(None),
-                                                                  otp.c.created_at >= start, otp.c.created_at < end))
+    rows = db.execute(select(sessions.c.company_id, users.c.login)
+                      .join(users, users.c.id == sessions.c.user_id)
+                      .where(sessions.c.company_id.is_not(None),
+                             sessions.c.issued_at >= start, sessions.c.issued_at < end))
     for cid, login in rows:
         if "@" not in (login or ""):
             out[cid] = out.get(cid, 0) + 1
