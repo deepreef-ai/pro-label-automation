@@ -181,11 +181,38 @@ def _scope_before_execute(conn, clauseelement, multiparams, params, execution_op
 
 # ---- 3. PostgreSQL row-level security (product database) ---------------------------------------
 
+#: Run at the start of every transaction on PostgreSQL (B3 #55). ``false`` = for the session, but
+#: PostgreSQL undoes it on rollback, so it is set again at every BEGIN (pooled connections switch
+#: company safely). An unscoped connection sets ``''``: under forced RLS it sees no company rows.
+SET_COMPANY_SQL = "SELECT set_config('app.company_id', %s, false)"
+
+
+def set_company_sql(company_id: str | None) -> tuple[str, tuple[str]]:
+    """The statement and parameters that tell PostgreSQL RLS which company is current."""
+    return SET_COMPANY_SQL, (company_id or "",)
+
+
+@event.listens_for(Engine, "begin")
+def _pg_set_company(conn) -> None:
+    """On PostgreSQL, ``set_config('app.company_id', <scoped company>)`` before any statement.
+
+    SQLite (the demo) is untouched: isolation there is the statement filter above.
+    """
+    if conn.dialect.name != "postgresql":
+        return
+    sql, params = set_company_sql(conn.get_execution_options().get(COMPANY_OPTION))
+    cur = conn.connection.dbapi_connection.cursor()
+    try:
+        cur.execute(sql, params)
+    finally:
+        cur.close()
+
+
 def rls_statements(metadata) -> list[str]:
     """SQL that turns on row-level security for every company table (PostgreSQL only).
 
-    The app sets ``SET app.company_id = '<id>'`` per connection; a query that forgets the filter
-    still sees only that company's rows.
+    The app sets ``app.company_id`` at every transaction start (``_pg_set_company``); a query that
+    forgets the filter still sees only that company's rows.
     """
     out = []
     for table in metadata.sorted_tables:

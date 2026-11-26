@@ -1,6 +1,6 @@
 # infra
 
-Demo scripts, Dockerfiles and compose now; AWS later after client approval (owner: Ravi).
+Demo scripts, Dockerfiles and compose now; AWS later after client approval (owner: Yash).
 
 ## One-command demo (Windows laptop)
 
@@ -38,3 +38,38 @@ docker compose -f infra/docker-compose.yml up --build
 - `web.Dockerfile`: Node build (`npm run build:live`, build arg `VITE_API_URL`, default `http://localhost:8080`) then nginx with `nginx.conf`.
 - `docker-compose.yml`: `env_file: ../.env`, `../data` bind-mounted to `/app/data`; `OLLAMA_URL` points at the Docker host (`OLLAMA_URL_DOCKER` overrides it); `WEB_PUBLIC_URL` sets the web build's API URL.
 - The root `.dockerignore` keeps `data/`, `.env`, `*.db`, `.venv` and `node_modules` out of every image.
+
+## Agents scheduler (per company)
+
+```bash
+PYTHONPATH=apps/api python -m agents.scheduler            # loop: import_checker every 15 min, all agents 08:00, owner brief 09:00 (IST)
+PYTHONPATH=apps/api python -m agents.scheduler --once     # run all agents for every company now, then exit
+PYTHONPATH=apps/api python -m agents.scheduler --once --company CO-002
+```
+
+- Companies with status `paused` are skipped. Each company runs in its own scoped session
+  (`core.tenancy.scoped`), so runs (`AR-`), findings (`F-`), outbox (`OB-`) and audit rows get that
+  company's `company_id` and ids are numbered per company (CO-001 and CO-002 can both have `AR-0420`).
+- Log lines are prefixed with the company: `[CO-002] AR-5420 import_checker: ok, 1 new (...)`.
+  `--once` exits 1 if any run failed. Uses `DATABASE_URL` like the API (SQLite by default).
+
+## PostgreSQL + row-level security (optional)
+
+```bash
+docker compose -f infra/docker-compose.postgres.yml up --build
+# API http://localhost:8000 on Postgres; reset: docker compose -f infra/docker-compose.postgres.yml down -v
+```
+
+| Service | What it does |
+|---|---|
+| `db` | `postgres:16`, database `labels`, owner `labels` (`PG_OWNER_PASSWORD`, default `labels`), volume `pgdata`. |
+| `init` | One shot, as the owner: `infra/postgres/init_rls.py` builds the synthetic demo data (first run only; `--rebuild` to start over), applies `core.tenancy.rls_statements` (ENABLE + FORCE RLS, policy `company_isolation` on `current_setting('app.company_id', true)`), creates the API role `label_app` (`PG_APP_PASSWORD`; `NOSUPERUSER NOBYPASSRLS`, DML grants only) and self-checks as that role: no company set = no rows, each company sees only its own rows. Non-zero exit = RLS does not bite, and the API does not start. |
+| `api` | `DATABASE_URL=postgresql+psycopg://label_app:...@db:5432/labels`. Never connect the API as the owner/superuser: superusers bypass RLS. |
+| `scheduler` | `python -m agents.scheduler --company all` against the same database. |
+
+How the company reaches Postgres: on PostgreSQL every transaction of a scoped engine starts with
+`SELECT set_config('app.company_id', '<CO-xxx>', false)` (hook in `core/tenancy.py`; an unscoped
+connection sets `''` and so sees no company rows). The SQL filter from `scoped()` still runs too,
+so RLS is a second wall, not the only one. SQLite (the laptop demo) is unchanged.
+Platform tables (`companies`, `users`) have no RLS; platform-wide reports over company tables must
+loop over companies with a scoped connection each.
