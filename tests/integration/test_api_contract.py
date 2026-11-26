@@ -52,6 +52,8 @@ ID_BY_PREFIX = {
     "/api/dispatch/": "DC-1388",
     "/api/production/runs/": "RUN-05531",
     "/api/agents/findings/": "F-0231",
+    "/api/platform/companies/": "CO-003",  # v0.2 (SPEC 6)
+    "/api/company/users/": "U-0010",
 }
 ID_BY_NAME = {"job_card": "JC-1301", "dispatch_id": "DC-1388"}
 REQUIRED_QUERY = {
@@ -63,6 +65,11 @@ BODY_OVERRIDES = {
     ("POST", "/api/agents/run"): {"agent": "all"},
     ("POST", "/api/agents/findings/{id}/edit"): {"payload": {}},
 }
+
+
+def caller(path: str, op: dict) -> str:
+    """Role that may call the operation: owner for every company endpoint, platform_admin for /api/platform/*."""
+    return "owner" if "owner" in op["x-roles"] else op["x-roles"][0]
 
 
 def fill(path: str) -> str:
@@ -231,7 +238,7 @@ def test_get_matches_openapi_schema(api, url, template):
         assert r.headers["content-type"].startswith("application/pdf")
         assert r.content.startswith(b"%PDF")
     else:
-        r = api.get(url)
+        r = api.get(url, role=caller(template, SPEC["paths"][template]["get"]))
         assert r.status_code == 200, r.text
         assert_valid(r.json(), ok["application/json"]["schema"])
 
@@ -241,7 +248,7 @@ def test_get_matches_openapi_schema(api, url, template):
 @pytest.mark.parametrize("method, path, role", _role_cases())
 def test_role_not_in_x_roles_gets_403(api, method, path, role):
     op = SPEC["paths"][path][method.lower()]
-    assert "owner" in op["x-roles"], "owner may call everything"
+    assert "owner" in op["x-roles"] or path.startswith("/api/platform/"), "owner may call every company endpoint"
     url = url_for(path, op)
     if "text/event-stream" in op["responses"].get("200", {}).get("content", {}):
         status, _, _ = sse_request(api, url, role=role)
