@@ -3,6 +3,7 @@ import { createBrowserRouter, Outlet, useLocation, type RouteObject } from 'reac
 import { AppLayout } from './AppLayout'
 import { RouteError } from './ErrorBoundary'
 import { titleForPath } from './nav'
+import { currentCompany, useSession } from '@/lib/session'
 
 /*
  * Every route from SPEC §5. Each page lives in src/pages/<area>/ and is loaded lazily,
@@ -22,15 +23,21 @@ const AgentsPage = lazy(() => import('@/pages/agents/index'))
 const FloorBoardPage = lazy(() => import('@/pages/floor/index'))
 const SettingsPage = lazy(() => import('@/pages/settings/index'))
 const NotFound = lazy(() => import('./NotFound'))
+const LoginPage = lazy(() => import('@/pages/login/index'))
 
 /** Root: keeps document.title in sync with the current screen. */
 function Root() {
   const { pathname } = useLocation()
+  const session = useSession()
   useEffect(() => {
+    if (pathname === '/login') {
+      document.title = 'Sign in · Label AI Ops'
+      return
+    }
     const jc = /^\/jobs\/([^/]+)/.exec(pathname)?.[1]
     const title = jc ? `${decodeURIComponent(jc)} · Job 360` : titleForPath(pathname)
-    document.title = `${title} · Pro Labels`
-  }, [pathname])
+    document.title = `${title} · ${currentCompany().name}`
+  }, [pathname, session])
   return <Outlet />
 }
 
@@ -61,6 +68,15 @@ export const routes: RouteObject[] = [
           { path: 'settings', element: <SettingsPage /> },
           { path: '*', element: <NotFound /> },
         ],
+      },
+      {
+        // Screen 16: company sign-in, full screen (demo v0.2, W1)
+        path: 'login',
+        element: (
+          <Suspense fallback={<FullScreenFallback />}>
+            <LoginPage />
+          </Suspense>
+        ),
       },
       {
         // Floor Board: full screen, no sidebar / top bar
