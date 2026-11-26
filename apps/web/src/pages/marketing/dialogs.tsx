@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import type { Client, Enquiry, EnquiryCreate, EnquiryStatusUpdate, Quote, QuoteCreate } from '@contract/types'
 import {
   Button,
@@ -47,6 +47,10 @@ export function NewEnquiryDialog({
   const [finish, setFinish] = useState('')
   const [source, setSource] = useState<string>('phone')
   const [assigned, setAssigned] = useState(people[0] ?? '')
+  // the people list loads after the dialog mounts: pick the first salesperson once it arrives
+  useEffect(() => {
+    if (!assigned && people.length) setAssigned(people[0])
+  }, [assigned, people])
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
