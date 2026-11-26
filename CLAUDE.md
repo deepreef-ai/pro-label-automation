@@ -8,6 +8,7 @@ A demo of an AI-powered operations system for a label-printing plant: one web ap
 ## Current status (update this when it changes)
 - **Team change (2026-11-24):** Yash replaced Ravi and owns backend, agents and infra. Senior reviewer: Udit.
 - **Now building demo v0.2: multi-tenant from day 1** (Udit). One app, many label companies; every row carries a `company_id`; the company comes **only from the login token**; each company has its own users, settings and AI budget; extra demo companies use **synthetic** data (never copies of client data). Plan: milestone *Demo v0.2 (multi-tenant)*, pinned Task Board #64, tasks #47-#63 in this order: H1 -> H2 -> K1 `[contract]` -> K2 `[tests]` -> F1 -> F2 -> B1 -> (B2, B3, C1) -> W1-W3 (mock mode from K1) -> W4 -> G1 -> D1 -> R1.
+- **v0.2 progress (2026-11-26):** merged H2 (#65, #66), K1 (#67), K2 (#69), F1 (#71), F2 (#72), W1 (#68), W2 (#70), W3 (#73). Open: B1 #53, B2 #54, B3 #55, C1 #59, W4 #60, G1 #61, D1 #62 (demo script v0.2 in `docs/DEMO_SCRIPT.md`), R1 #63.
 - **Demo v0.1 is feature-complete on `dev`** (2026-11-20): Task 0 (#1-#7), web W1-W6 (#8-#14), chatbot C1 (#13), API A1-A3 (#15-#17), agents G1 (#18), run scripts G2 (#19). All issues closed; Task Board is #20.
 - `dev` CI is fully green; all 4 checks (`integrity`, `backend`, `integration`, `web`) are **required** on `dev` and `main`. Integration: 143/143.
 - Every screen runs **live** against the API with no "Sample data" badge; mock mode still works (`npm run dev`).
