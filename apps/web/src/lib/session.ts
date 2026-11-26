@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from 'react'
-import { ROLES, setRole, type Role } from './role'
+import { ROLES, ROLE_LABELS, setRole, type Role } from './role'
 import { safeStorage } from './utils'
 
 /*
@@ -55,6 +55,9 @@ export const DEFAULT_COMPANY: Company = {
 /* Demo directory: synthetic companies and logins (no real people)     */
 /* ------------------------------------------------------------------ */
 
+/** Platform staff sign in at `platform.ourapp.in`; they have no company (contract: `company: null`). */
+export const PLATFORM_COMPANY: Company = { id: 'PLATFORM', name: 'Label AI Ops', slug: 'platform' }
+
 export const DEMO_COMPANIES: Company[] = [
   DEFAULT_COMPANY,
   { id: 'CO-002', name: 'Sunrise Flexo Prints', slug: 'sunriseflexo' },
@@ -70,21 +73,30 @@ const DEMO_ROLES: Record<string, Role[]> = {
 export interface DemoLogin {
   company: Company
   login: string
-  role: Role
+  role: SessionRole
 }
 
-/** Every demo login, e.g. `store@prolabels.demo`. OTP is always DEMO_OTP. */
-export const DEMO_LOGINS: DemoLogin[] = DEMO_COMPANIES.flatMap((company) =>
-  (DEMO_ROLES[company.slug] ?? []).map((role) => ({
-    company,
-    login: `${role}@${company.slug}.demo`,
-    role,
-  })),
-)
+/** Every demo login, e.g. `store@prolabels.demo`, plus the platform admin. OTP is always DEMO_OTP. */
+export const DEMO_LOGINS: DemoLogin[] = [
+  ...DEMO_COMPANIES.flatMap((company) =>
+    (DEMO_ROLES[company.slug] ?? []).map(
+      (role): DemoLogin => ({
+        company,
+        login: `${role}@${company.slug}.demo`,
+        role,
+      }),
+    ),
+  ),
+  { company: PLATFORM_COMPANY, login: 'admin@platform.demo', role: 'platform_admin' },
+]
 
 export function companyBySlug(slug: string): Company | undefined {
   const s = normaliseSlug(slug)
-  return DEMO_COMPANIES.find((c) => c.slug === s)
+  return [...DEMO_COMPANIES, PLATFORM_COMPANY].find((c) => c.slug === s)
+}
+
+export function roleLabel(role: SessionRole): string {
+  return roleTitle(role)
 }
 
 /** Accepts `sunrise`, `sunrise.ourapp.in` or `https://sunrise.ourapp.in/`. */
@@ -131,7 +143,7 @@ export function demoSignIn(companySlug: string, login: string, otp: string): Ses
 }
 
 function roleTitle(role: SessionRole): string {
-  return role === 'platform_admin' ? 'Platform admin' : role.charAt(0).toUpperCase() + role.slice(1)
+  return role === 'platform_admin' ? 'Platform admin' : ROLE_LABELS[role]
 }
 
 /** Turns a backend login response into a session; null when it is not a real login answer (mock echo). */

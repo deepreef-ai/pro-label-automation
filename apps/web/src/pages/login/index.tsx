@@ -2,7 +2,6 @@ import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Building2, ChevronDown, Globe, KeyRound, Lock, ShieldCheck } from 'lucide-react'
 import { api } from '@/lib/api'
-import { ROLE_LABELS, type Role } from '@/lib/role'
 import {
   APP_DOMAIN,
   DEMO_LOGINS,
@@ -14,6 +13,7 @@ import {
   initials,
   lastCompanySlug,
   normaliseSlug,
+  roleLabel,
   sessionFromResponse,
   signIn,
   type LoginResponse,
@@ -107,9 +107,9 @@ export default function LoginPage() {
     try {
       const s = await signInRequest(company, login, otp)
       signIn(s)
-      const role = s.role === 'platform_admin' ? 'Platform admin' : ROLE_LABELS[s.role as Role]
+      const role = roleLabel(s.role)
       toast.success(`Signed in to ${s.company.name} as ${role}`)
-      navigate(params.get('next') || '/', { replace: true })
+      navigate(params.get('next') || (s.role === 'platform_admin' ? '/platform' : '/'), { replace: true })
     } catch (ex) {
       const le = ex instanceof LoginError ? ex : new LoginError('Sign-in failed. Please try again.', 'otp')
       setErr({ field: le.field, message: le.message })
@@ -327,7 +327,7 @@ function DemoLogins({ onPick }: { onPick: (slug: string, login: string) => void 
                     className="rounded-full border border-border px-2.5 py-1 text-xs hover:border-accent hover:text-accent"
                     title={d.login}
                   >
-                    {ROLE_LABELS[d.role]}
+                    {roleLabel(d.role)}
                   </button>
                 ))}
               </div>

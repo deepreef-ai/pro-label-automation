@@ -170,7 +170,7 @@ export function Topbar({ onOpenSearch, onOpenMobileNav }: { onOpenSearch: () => 
 
       <div className="ml-auto flex items-center gap-2">
         <SampleDataPill />
-        <AiModePill />
+        {session?.role !== 'platform_admin' && <AiModePill />}
         <FeedbackDialog />
         <Tooltip content={theme === 'dark' ? 'Light mode' : 'Dark mode'}>
           <Button variant="ghost" size="icon" onClick={toggle} aria-label="Toggle dark mode">
