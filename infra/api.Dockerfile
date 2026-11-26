@@ -18,6 +18,8 @@ RUN pip install -r apps/api/requirements.txt
 COPY apps/api apps/api
 COPY contract contract
 COPY docs docs
+# PostgreSQL + RLS init step (docker-compose.postgres.yml).
+COPY infra/postgres infra/postgres
 
 # Non-root user; data/ is a bind mount (see docker-compose.yml) holding demo.db, rag/ and logs.
 RUN useradd --create-home --uid 1000 app \
