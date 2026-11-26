@@ -1,11 +1,13 @@
 # CLAUDE.md: rules for every Claude session working in this repo
 
-Two developers (Vinay and Ravi) each work with their own Claude. Both Claudes follow this file.
+Two developers (Vinay and Yash) each work with their own Claude. Both Claudes follow this file.
 
 ## What this project is
 A demo of an AI-powered operations system for a label-printing plant: one web app (13 screens), a chatbot and 8 AI agents, replacing 11 linked Excel workbooks. Read `contract/SPEC.md` first: it holds the business rules, the endpoint list and the conventions. `contract/openapi.yaml`, `contract/schema.md` and `contract/fixtures/` expand it. The client walkthrough is `docs/DEMO_SCRIPT.md`.
 
 ## Current status (update this when it changes)
+- **Team change (2026-11-24):** Yash replaced Ravi and owns backend, agents and infra. Senior reviewer: Udit.
+- **Now building demo v0.2: multi-tenant from day 1** (Udit). One app, many label companies; every row carries a `company_id`; the company comes **only from the login token**; each company has its own users, settings and AI budget; extra demo companies use **synthetic** data (never copies of client data). Plan: milestone *Demo v0.2 (multi-tenant)*, pinned Task Board #64, tasks #47-#63 in this order: H1 -> H2 -> K1 `[contract]` -> K2 `[tests]` -> F1 -> F2 -> B1 -> (B2, B3, C1) -> W1-W3 (mock mode from K1) -> W4 -> G1 -> D1 -> R1.
 - **Demo v0.1 is feature-complete on `dev`** (2026-11-20): Task 0 (#1-#7), web W1-W6 (#8-#14), chatbot C1 (#13), API A1-A3 (#15-#17), agents G1 (#18), run scripts G2 (#19). All issues closed; Task Board is #20.
 - `dev` CI is fully green; all 4 checks (`integrity`, `backend`, `integration`, `web`) are **required** on `dev` and `main`. Integration: 143/143.
 - Every screen runs **live** against the API with no "Sample data" badge; mock mode still works (`npm run dev`).
@@ -21,7 +23,7 @@ A demo of an AI-powered operations system for a label-printing plant: one web ap
 | Folder | Owner |
 |---|---|
 | `apps/web/`, `apps/api/chat/` | Vinay (frontend + chatbot) |
-| `apps/api/app/`, `apps/api/agents/`, `infra/` | Ravi (backend API + agents) |
+| `apps/api/app/`, `apps/api/agents/`, `infra/` | Yash (backend API + agents + infra) |
 | `apps/api/core/` (rules engine, models, ETL, LLM gateway) | Shared foundation; change only with the other developer's review |
 | `contract/`, `tests/`, `apps/web/e2e/`, `.github/`, `scripts/ci/`, `pyproject.toml` | LOCKED: only in a separate PR titled `[contract]`, `[tests]` or `[ci]`, approved by the other developer |
 

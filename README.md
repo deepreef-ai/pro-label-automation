@@ -72,10 +72,10 @@ pro-label-automation/
 │   │   └── e2e/       🔒 Locked smoke test
 │   └── api/
 │       ├── core/      Foundation: models, rules engine, ETL, LLM gateway (Task 0)
-│       ├── app/       Backend API endpoints and services (owner: Ravi)
-│       ├── agents/    PO reader + AI agents + outbox (owner: Ravi)
+│       ├── app/       Backend API endpoints and services (owner: Yash)
+│       ├── agents/    PO reader + AI agents + outbox (owner: Yash)
 │       └── chat/      LangGraph chatbot + RAG (owner: Vinay)
-├── infra/             Dockerfiles and compose (owner: Ravi)
+├── infra/             Dockerfiles and compose (owner: Yash)
 ├── docs/              Demo script, guides, synthetic sample POs
 └── data/              ⛔ Git-ignored: client files, SQLite DB, vector index
 ```
@@ -150,7 +150,7 @@ optional and used only when its key is set in `.env` (copy `.env.example`; **nev
 ```
 main   ← stable, demo-ready; updated only by "[release] …" PRs from dev at milestones
  └── dev   ← integration branch; every feature PR targets dev
-      ├── feat/web-*   ── PR ──► dev, reviewed by Ravi
+      ├── feat/web-*   ── PR ──► dev, reviewed by Yash
       └── feat/api-*   ── PR ──► dev, reviewed by Vinay
 ```
 
@@ -170,7 +170,14 @@ Both developers' Claude sessions follow [`CLAUDE.md`](CLAUDE.md) (folder ownersh
 | Owner | Issues |
 |---|---|
 | **Vinay** (frontend + chat) | #1–#7 Foundation & CI setup · #8 W1 · #9 W2 · #10 W3 · #11 W4 · #12 W5 · #13 C1 · #14 W6 |
-| **Ravi** (backend + agents) | #15 A1 · #16 A2 · #17 A3 · #18 G1 · #19 G2 |
+| **Ravi** (backend + agents, v0.1) | #15 A1 · #16 A2 · #17 A3 · #18 G1 · #19 G2 |
+
+**Demo v0.2 (multi-tenant), Task Board #64:**
+
+| Owner | Issues |
+|---|---|
+| **Vinay** (frontend + chat) | #48 H2 · #56 W1 · #57 W2 · #58 W3 · #59 C1 · #60 W4 · #62 D1 · #63 R1 |
+| **Yash** (backend + agents + infra) | #47 H1 · #49 K1 · #50 K2 · #51 F1 · #52 F2 · #53 B1 · #54 B2 · #55 B3 · #61 G1 · #63 R1 |
 
 ---
 
