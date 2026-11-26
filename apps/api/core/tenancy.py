@@ -48,6 +48,15 @@ def default_company() -> str:
     return os.environ.get("DEMO_COMPANY_ID") or DEMO_COMPANY
 
 
+def company_of(db) -> str | None:
+    """The company a Session / Connection / Engine is scoped to (None = unscoped)."""
+    try:
+        bind = db.get_bind() if hasattr(db, "get_bind") else db
+        return bind.get_execution_options().get(COMPANY_OPTION)
+    except Exception:
+        return None
+
+
 def _company_from_context(context) -> str | None:
     return context.execution_options.get(COMPANY_OPTION)
 

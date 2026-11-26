@@ -91,7 +91,9 @@ def llm_extract(text: str, file_name: str, db: Session | None = None) -> dict[st
     if db is not None:
         cl = T("clients")
         clients = [{"id": r.id, "name": r.name} for r in db.execute(select(cl.c.id, cl.c.name)).all()]
-    found = extract_po(text, clients=clients)
+    from core.tenancy import company_of
+
+    found = extract_po(text, clients=clients, company_id=company_of(db) if db is not None else None)
     if not found:
         return None
     material = found.pop("material", None)
