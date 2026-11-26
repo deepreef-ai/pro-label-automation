@@ -1,11 +1,14 @@
-import { Check, ChevronDown, Cloud, Cpu, Menu, Moon, Search, Sun, UserRound } from 'lucide-react'
+import { Building2, Check, ChevronDown, Cloud, Cpu, LogIn, LogOut, Menu, Moon, Search, Sun, UserRound } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import { useApi, useSampleDataShown } from '@/lib/api'
 import { ROLES, ROLE_LABELS, setRole, useRole, type Role } from '@/lib/role'
+import { signOut, useSession } from '@/lib/session'
 import { cn } from '@/lib/utils'
 import {
   Button,
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
@@ -86,8 +89,66 @@ function RoleSwitcher() {
   )
 }
 
+/** Signed in: company badge + menu (user, role, sign out). The role comes from the login, so no switcher. */
+function CompanyMenu() {
+  const session = useSession()
+  const navigate = useNavigate()
+  if (!session) return null
+  const role = session.role === 'platform_admin' ? 'Platform admin' : ROLE_LABELS[session.role as Role]
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant="secondary"
+          size="sm"
+          aria-label={`${session.company.name}, signed in as ${role}. Account menu`}
+          className="gap-2 border-accent/40 bg-accent-soft pr-2 text-accent-soft-foreground hover:bg-accent-soft"
+        >
+          <Building2 aria-hidden />
+          <span className="hidden max-w-40 truncate sm:inline">{session.company.name}</span>
+          <span className="hidden text-xs font-normal opacity-80 md:inline">· {role}</span>
+          <ChevronDown className="opacity-70" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-64">
+        <DropdownMenuLabel className="space-y-0.5">
+          <div className="text-sm font-semibold text-foreground">{session.company.name}</div>
+          <div className="text-xs font-normal text-muted-foreground">
+            {session.user.login || session.user.name} · {role}
+          </div>
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <p className="px-2 py-1.5 text-xs text-muted-foreground">You see only {session.company.name} data.</p>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem
+          onSelect={() => {
+            signOut()
+            toast('Signed out')
+            navigate('/login', { replace: true })
+          }}
+        >
+          <LogOut className="mr-2 size-4" /> Sign out
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  )
+}
+
+/** Not signed in (demo v0.1 behaviour): a quiet link to the company sign-in. */
+function SignInLink() {
+  const navigate = useNavigate()
+  return (
+    <Tooltip content="Sign in to a company">
+      <Button variant="ghost" size="sm" onClick={() => navigate('/login')} className="gap-1.5">
+        <LogIn /> <span className="hidden md:inline">Sign in</span>
+      </Button>
+    </Tooltip>
+  )
+}
+
 export function Topbar({ onOpenSearch, onOpenMobileNav }: { onOpenSearch: () => void; onOpenMobileNav: () => void }) {
   const { theme, toggle } = useTheme()
+  const session = useSession()
   return (
     <header className="sticky top-0 z-20 flex h-[var(--topbar-height)] items-center gap-3 border-b border-border bg-background/85 px-4 backdrop-blur-md sm:px-6">
       <Button variant="ghost" size="icon" className="lg:hidden" onClick={onOpenMobileNav} aria-label="Open menu">
@@ -116,7 +177,14 @@ export function Topbar({ onOpenSearch, onOpenMobileNav }: { onOpenSearch: () => 
             {theme === 'dark' ? <Sun /> : <Moon />}
           </Button>
         </Tooltip>
-        <RoleSwitcher />
+        {session ? (
+          <CompanyMenu />
+        ) : (
+          <>
+            <SignInLink />
+            <RoleSwitcher />
+          </>
+        )}
       </div>
     </header>
   )

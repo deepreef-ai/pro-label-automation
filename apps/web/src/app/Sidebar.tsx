@@ -2,21 +2,27 @@ import { NavLink } from 'react-router-dom'
 import { PanelLeftClose, PanelLeftOpen } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useRole } from '@/lib/role'
+import { DEFAULT_COMPANY, initials, useSession } from '@/lib/session'
 import { Tooltip } from '@/components/ui'
 import { navForRole } from './nav'
 
 export function Logo({ collapsed }: { collapsed?: boolean }) {
+  const company = useSession()?.company ?? DEFAULT_COMPANY
   return (
     <div className="flex items-center gap-2.5">
       <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-accent text-accent-foreground shadow-xs">
-        <svg viewBox="0 0 32 32" className="size-5" aria-hidden>
+        {company.id === DEFAULT_COMPANY.id ? (
+          <svg viewBox="0 0 32 32" className="size-5" aria-hidden>
           <path d="M10 8h7.5a5.5 5.5 0 0 1 0 11H14v5h-4z" fill="currentColor" />
           <path d="M14 12v3h3.3a1.5 1.5 0 0 0 0-3z" className="fill-accent" />
-        </svg>
+          </svg>
+        ) : (
+          <span className="text-md font-bold">{initials(company.name)}</span>
+        )}
       </span>
       {!collapsed && (
         <div className="flex min-w-0 items-center gap-2">
-          <span className="text-md font-semibold tracking-tight whitespace-nowrap text-foreground">Pro Labels</span>
+          <span className="text-md font-semibold tracking-tight whitespace-nowrap text-foreground">{company.name}</span>
           <span className="rounded-sm bg-accent-soft px-1.5 py-0.5 text-[10px] font-semibold tracking-wide whitespace-nowrap text-accent-soft-foreground uppercase">
             AI Ops
           </span>
@@ -92,7 +98,7 @@ export function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle:
       style={{ width: collapsed ? 'var(--sidebar-collapsed)' : 'var(--sidebar-width)' }}
     >
       <div className={cn('flex h-[var(--topbar-height)] shrink-0 items-center', collapsed ? 'justify-center px-2' : 'px-5')}>
-        <NavLink to="/" aria-label="Pro Labels home" className="rounded-md">
+        <NavLink to="/" aria-label="Home" className="rounded-md">
           <Logo collapsed={collapsed} />
         </NavLink>
       </div>

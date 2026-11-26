@@ -13,6 +13,7 @@
  */
 import { useCallback, useEffect, useState, useSyncExternalStore } from 'react'
 import { getRole, useRole } from './role'
+import { getToken, signOut } from './session'
 import { sleep } from './utils'
 
 export type ApiMode = 'mock' | 'live'
@@ -201,6 +202,8 @@ async function mockRequest<T>(method: Method, path: string, body?: unknown): Pro
 
 async function liveRequest<T>(method: Method, path: string, body?: unknown, signal?: AbortSignal): Promise<T> {
   const headers: Record<string, string> = { 'X-Role': getRole(), Accept: 'application/json' }
+  const token = getToken()
+  if (token) headers.Authorization = `Bearer ${token}`
   let payload: BodyInit | undefined
   if (body instanceof FormData) payload = body
   else if (body !== undefined) {
@@ -222,6 +225,11 @@ async function liveRequest<T>(method: Method, path: string, body?: unknown, sign
     } catch {
       data = text
     }
+  }
+  if (res.status === 401 && token && !path.startsWith('/api/auth/')) {
+    // The login token expired or was revoked: sign out and ask the user to sign in again.
+    signOut()
+    if (typeof window !== 'undefined' && window.location.pathname !== '/login') window.location.assign('/login?expired=1')
   }
   if (!res.ok) {
     const detail =

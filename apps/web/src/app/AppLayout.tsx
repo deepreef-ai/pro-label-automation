@@ -1,6 +1,7 @@
 import { Suspense, useCallback, useEffect, useState } from 'react'
-import { Outlet, useLocation } from 'react-router-dom'
+import { Navigate, Outlet, useLocation } from 'react-router-dom'
 import { cn, safeStorage } from '@/lib/utils'
+import { REQUIRE_LOGIN, useSession } from '@/lib/session'
 import { PageSkeleton, Sheet, SheetContent } from '@/components/ui'
 import { ChatLauncher } from '@/chat/ChatLauncher'
 import { Sidebar, SidebarNav, Logo } from './Sidebar'
@@ -11,6 +12,7 @@ import { ErrorBoundary } from './ErrorBoundary'
 const COLLAPSE_KEY = 'pl.sidebar.collapsed'
 
 export function AppLayout() {
+  const session = useSession()
   const { pathname } = useLocation()
   const [collapsed, setCollapsed] = useState(() => safeStorage.get(COLLAPSE_KEY) === '1')
   const [paletteOpen, setPaletteOpen] = useState(false)
@@ -39,6 +41,9 @@ export function AppLayout() {
   useEffect(() => {
     window.scrollTo(0, 0)
   }, [pathname])
+
+  // Multi-tenant product: nobody sees company data before signing in (VITE_REQUIRE_LOGIN=true).
+  if (REQUIRE_LOGIN && !session) return <Navigate to={`/login?next=${encodeURIComponent(pathname)}`} replace />
 
   return (
     <div className="min-h-screen bg-background">
