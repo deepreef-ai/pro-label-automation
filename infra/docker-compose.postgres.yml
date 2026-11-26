@@ -48,7 +48,7 @@ services:
       # The API connects as the RLS-bound role, never as the owner (superusers bypass RLS).
       DATABASE_URL: postgresql+psycopg://label_app:${PG_APP_PASSWORD:-label_app}@db:5432/labels
       LLM_CACHE_PATH: data/llm_cache.json
-      CORS_ORIGINS: http://localhost:8080
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:8080,http://localhost:5173}
       OLLAMA_URL: ${OLLAMA_URL_DOCKER:-http://host.docker.internal:11434/v1}
     extra_hosts:
       - "host.docker.internal:host-gateway"

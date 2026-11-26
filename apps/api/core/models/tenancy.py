@@ -5,7 +5,7 @@ from sqlalchemy import ForeignKey, Integer, Numeric, UniqueConstraint
 from sqlalchemy.orm import mapped_column
 
 from ..db import Base
-from ._types import BOOL, DATE, FRAC, ID, INT, NUM, TEXT, TS, Demo, Timestamps
+from ._types import BOOL, DATE, FRAC, ID, INT, JSONT, NUM, TEXT, TS, Demo, Timestamps
 
 
 class Company(Demo, Timestamps, Base):
@@ -53,3 +53,49 @@ class AiUsage(Timestamps, Base):
     cached = mapped_column(BOOL, nullable=False, default=False)
     calls = mapped_column(INT, nullable=False, default=1)      # extra: >1 only for seeded monthly totals
 
+
+class AuthSession(Timestamps, Base):
+    """A signed-in token (SPEC 6.2). Logout sets ``revoked_at``; a revoked token gets 401."""
+
+    __tablename__ = "sessions"
+    id = mapped_column(ID, primary_key=True)                  # token id (jti)
+    user_id = mapped_column(ID, ForeignKey("users.id"), nullable=False, index=True)
+    company_id = mapped_column(ID, ForeignKey("companies.id"), index=True)  # null = platform_admin
+    issued_at = mapped_column(TS, nullable=False)
+    expires_at = mapped_column(TS, nullable=False)
+    revoked_at = mapped_column(TS)
+
+
+class OtpCode(Timestamps, Base):
+    """One-time password for a login (only a hash is stored)."""
+
+    __tablename__ = "otp_codes"
+    id = mapped_column(Integer, primary_key=True, autoincrement=True)
+    company_id = mapped_column(ID, ForeignKey("companies.id"), index=True)
+    login = mapped_column(TEXT, nullable=False, index=True)
+    code_hash = mapped_column(TEXT, nullable=False)
+    expires_at = mapped_column(TS, nullable=False)
+    attempts = mapped_column(INT, nullable=False, default=0)
+
+
+
+class Import(Timestamps, Base):
+    """One onboarding-template upload (SPEC 6.3, B2 #54). ``company_id`` is added by ``apply_tenancy``."""
+
+    __tablename__ = "imports"
+    id = mapped_column(ID, primary_key=True)                  # IMP-####
+    file_name = mapped_column(TEXT, nullable=False)
+    at = mapped_column(TS, nullable=False)
+    status = mapped_column(TEXT, nullable=False)              # ok | partial | failed
+    result = mapped_column(JSONT)                             # the ImportResult body
+    by_user = mapped_column(ID)                               # platform admin (null in demo mode)
+
+
+class Connection(Timestamps, Base):
+    """Status of one outside connection of a company (SPEC 6.3). Key is per company (``apply_tenancy``)."""
+
+    __tablename__ = "connections"
+    key = mapped_column(TEXT, primary_key=True)               # erp | tally | po_inbox | whatsapp
+    status = mapped_column(TEXT, nullable=False, default="not_connected")  # connected|demo|not_connected|error
+    detail = mapped_column(TEXT)
+    last_sync_at = mapped_column(TS)
