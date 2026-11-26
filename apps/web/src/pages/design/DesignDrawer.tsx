@@ -19,6 +19,7 @@ import { api, useApi } from '@/lib/api'
 import { formatDate, formatNumber } from '@/lib/format'
 import { cn } from '@/lib/utils'
 import { DIE_LABEL, DIE_TONE, NEXT_STAGE, PLATE_LABEL, PLATE_TONE, PRESS_UNITS, STAGE_LABEL, STEPS, boardStage } from './shared'
+import { appToday } from '@/lib/clock'
 
 export function DesignDrawer({
   jobCard,
@@ -220,7 +221,7 @@ function DrawerBody({
           if (!next) return
           setSaving(true)
           try {
-            const today = new Date().toISOString().slice(0, 10)
+            const today = appToday()
             const patch: Partial<Design> = { stage: next }
             if (next === 'proof_sent') patch.proof_sent_on = today
             if (next === 'approved') {

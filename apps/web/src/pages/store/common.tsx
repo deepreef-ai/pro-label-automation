@@ -2,6 +2,7 @@ import type { ReactNode } from 'react'
 import { AlertTriangle, Info } from 'lucide-react'
 import { ApiError } from '@/lib/api'
 import { cn } from '@/lib/utils'
+import { appToday } from '@/lib/clock'
 
 /** Turn any thrown value into `{ status, message }` for an inline error. */
 export function describeError(err: unknown): { status: number | null; message: string } {
@@ -127,10 +128,7 @@ export function BarcodeId({ id }: { id: string }) {
 
 /** ISO date `YYYY-MM-DD` for today (local). */
 export function todayIso(): string {
-  const d = new Date()
-  const m = String(d.getMonth() + 1).padStart(2, '0')
-  const day = String(d.getDate()).padStart(2, '0')
-  return `${d.getFullYear()}-${m}-${day}`
+  return appToday() // the server's demo day (see lib/clock)
 }
 
 /** Whole days between two ISO dates (b - a). */

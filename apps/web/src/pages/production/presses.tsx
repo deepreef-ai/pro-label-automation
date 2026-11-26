@@ -25,6 +25,7 @@ import {
 } from '@/components/ui'
 import { describeError, InlineAlert } from '@/pages/store/common'
 import type { LiveCounter } from './useLiveCounter'
+import { appNowIso } from '@/lib/clock'
 
 export const DOWNTIME_REASONS = [
   'Make-ready',
@@ -328,7 +329,7 @@ export function StartRunDialog({
               client_name: job?.client_name ?? res.client_name,
               machine_name: machine.name,
               hour_rate: machine.hour_rate,
-              start: new Date().toISOString(),
+              start: appNowIso(),
               required_m: job?.required_m ?? res.required_m,
               printed_qty: 0,
               status: 'running',
@@ -500,7 +501,7 @@ function EndRunForm({
       printed_qty: p,
       used_m: u,
       stops: dm > 0 ? [...run.stops, { reason, minutes: dm }] : run.stops,
-      end: new Date().toISOString(),
+      end: appNowIso(),
     }
     setSaving(true)
     try {

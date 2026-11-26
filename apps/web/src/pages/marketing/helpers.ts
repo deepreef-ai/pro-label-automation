@@ -1,6 +1,7 @@
 import type { Enquiry } from '@contract/types'
 import type { Tone } from '@/components/ui'
 import { parseDate } from '@/lib/format'
+import { appToday } from '@/lib/clock'
 
 /** Quotes stay valid for 15 days (client's practice). */
 export const QUOTE_VALIDITY_DAYS = 15
@@ -24,8 +25,7 @@ export const LOST_REASONS = ['Price', 'Delivery date', 'Client on credit hold', 
 export const SOURCES: Enquiry['source'][] = ['phone', 'email', 'whatsapp', 'visit', 'repeat', 'website']
 
 export function todayISO(): string {
-  const d = new Date()
-  return toISO(d)
+  return appToday() // the server's demo day (see lib/clock)
 }
 
 export function toISO(d: Date): string {

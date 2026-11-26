@@ -92,6 +92,9 @@ def draft_from_dispatch(db: Session, dispatch_id: str, role: str) -> dict:
     db.execute(inv.insert().values({k: v for k, v in values.items() if k in inv.c}))
     audit(db, role=role, action="invoice_draft", entity="invoice", entity_id=inv_id,
           after={**values, "taxable": amounts.taxable, "gst": amounts.gst, "total": amounts.total})
+    from app.services import job_status
+
+    job_status.advance(db, row.job_card, "invoiced", role=role, reason=f"invoice {inv_id}")
     db.commit()
     return get_invoice(db, inv_id, row.client_id) or {}
 

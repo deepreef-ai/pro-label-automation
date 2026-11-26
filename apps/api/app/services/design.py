@@ -345,6 +345,10 @@ def update_design(db: Session, job_card: str, changes: dict, role: str) -> dict:
         db.execute(d.update().where(d.c.job_card == job_card)
                    .values({k: v for k, v in values.items() if k in d.c}))
     _save_plates(db, merged, new_plates)
+    if "units" in changes:  # keep the job card's colours in step with Design (Job 360 shows both)
+        jobs = T("jobs")
+        db.execute(jobs.update().where(jobs.c.job_card == job_card)
+                   .values(units=[u["colour"] for u in sorted(merged["units"], key=lambda u: u["unit"])]))
     audit(db, role=role, action="design_update", entity="design", entity_id=job_card,
           before=before, after=after)
     db.commit()

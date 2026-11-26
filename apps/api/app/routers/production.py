@@ -9,7 +9,7 @@ from __future__ import annotations
 import asyncio
 import json
 from collections.abc import AsyncIterator
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from typing import Literal
 
 from fastapi import APIRouter
@@ -18,7 +18,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy import select
 
 from app.audit import audit, next_id
-from app.deps import DB, Role, T, allow, bad_request, conflict, not_found
+from app.deps import DB, Role, T, allow, bad_request, conflict, not_found, today
 from app.serialize import now
 from app.services import jobs as job_svc
 from app.services import production as svc
@@ -146,6 +146,12 @@ def post_run_end(run_id: str, body: RunEnd, db: DB, role: Role) -> dict:
     if r.end is not None:
         raise conflict(f"run {rid} already ended at {r.end.isoformat()}")
     end = svc.to_plant(body.end) if body.end is not None else svc.plant_now()
+    # Runs live on the plant's (demo) day. An end sent on the laptop's real calendar day is shifted
+    # back by the gap between the two calendars (keeps runs that cross midnight correct).
+    real_today = datetime.now(svc.IST).date()
+    shift = (real_today - today()).days
+    if shift > 1 and end.date() >= real_today:  # an end on the demo calendar (even after midnight) stays
+        end = end - timedelta(days=shift)
     if end <= r.start:
         raise bad_request(f"end {end.isoformat()} must be after start {r.start.isoformat()}")
     hours = round((end - r.start).total_seconds() / 3600, 2)
