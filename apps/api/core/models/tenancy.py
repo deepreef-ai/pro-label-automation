@@ -5,7 +5,7 @@ from sqlalchemy import ForeignKey, Integer, Numeric, UniqueConstraint
 from sqlalchemy.orm import mapped_column
 
 from ..db import Base
-from ._types import BOOL, DATE, FRAC, ID, INT, NUM, TEXT, TS, Demo, Timestamps
+from ._types import BOOL, DATE, FRAC, ID, INT, JSONT, NUM, TEXT, TS, Demo, Timestamps
 
 
 class Company(Demo, Timestamps, Base):
@@ -77,3 +77,25 @@ class OtpCode(Timestamps, Base):
     expires_at = mapped_column(TS, nullable=False)
     attempts = mapped_column(INT, nullable=False, default=0)
 
+
+
+class Import(Timestamps, Base):
+    """One onboarding-template upload (SPEC 6.3, B2 #54). ``company_id`` is added by ``apply_tenancy``."""
+
+    __tablename__ = "imports"
+    id = mapped_column(ID, primary_key=True)                  # IMP-####
+    file_name = mapped_column(TEXT, nullable=False)
+    at = mapped_column(TS, nullable=False)
+    status = mapped_column(TEXT, nullable=False)              # ok | partial | failed
+    result = mapped_column(JSONT)                             # the ImportResult body
+    by_user = mapped_column(ID)                               # platform admin (null in demo mode)
+
+
+class Connection(Timestamps, Base):
+    """Status of one outside connection of a company (SPEC 6.3). Key is per company (``apply_tenancy``)."""
+
+    __tablename__ = "connections"
+    key = mapped_column(TEXT, primary_key=True)               # erp | tally | po_inbox | whatsapp
+    status = mapped_column(TEXT, nullable=False, default="not_connected")  # connected|demo|not_connected|error
+    detail = mapped_column(TEXT)
+    last_sync_at = mapped_column(TS)
