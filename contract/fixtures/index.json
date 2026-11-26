@@ -45,6 +45,7 @@
   "GET /api/health": "health.json",
   "GET /api/invoices": "invoices.json",
   "POST /api/invoices/draft-from-dispatch/{dispatch_id}": "invoice_draft.json",
+  "POST /api/invoices/{id}/issue": "invoice_issue.json",
   "GET /api/items": "items.json",
   "GET /api/jobs": "jobs.json",
   "POST /api/jobs": "job_create.json",

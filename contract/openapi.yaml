@@ -1745,6 +1745,39 @@ paths:
           $ref: '#/components/responses/NotFound'
         '409':
           $ref: '#/components/responses/Conflict'
+  /api/invoices/{id}/issue:
+    post:
+      tags:
+      - Money
+      summary: Issue a draft invoice (draft -> open); it then counts in debtors, ageing, locks and revenue
+      operationId: post_invoice_issue
+      x-status: planned
+      x-since: v0.2
+      x-roles:
+      - owner
+      - accounts
+      description: 404 unknown invoice (or another company's); 409 if the invoice is not a draft.
+      parameters:
+      - $ref: '#/components/parameters/XRole'
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+        description: INV-####
+      responses:
+        '200':
+          description: Issued
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Invoice'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
   /api/debtors:
     get:
       tags:

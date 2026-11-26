@@ -1948,6 +1948,7 @@ export interface Endpoints {
   "GET /api/dispatch/{id}/challan.pdf": Blob;
   "GET /api/invoices": InvoiceListResponse;
   "POST /api/invoices/draft-from-dispatch/{dispatch_id}": Invoice;
+  "POST /api/invoices/{id}/issue": Invoice;
   "GET /api/debtors": Debtors;
   "POST /api/clients/{id}/release-lock": ReleaseLockResult;
   "GET /api/collections": Collection[];

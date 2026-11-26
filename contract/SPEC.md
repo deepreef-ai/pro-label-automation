@@ -54,7 +54,7 @@ separate `[contract]` PR approved by both developers.
 | Production | `GET /api/production/runs`, `POST /api/production/runs/start`, `POST /api/production/runs/{id}/end`, `GET /api/production/press-setup/{job_card}`, `POST /api/production/press-setup`, `GET /api/production/oee`, `GET /api/production/morning-report`, `GET /api/production/counter/stream?run_id=` (SSE) |
 | QC | `GET /api/qc`, `POST /api/qc` |
 | Dispatch | `GET /api/dispatch`, `POST /api/dispatch`, `GET /api/dispatch/{id}/challan.pdf` |
-| Money | `GET /api/invoices`, `POST /api/invoices/draft-from-dispatch/{dispatch_id}`, `GET /api/debtors`, `POST /api/clients/{id}/release-lock` (owner), `GET /api/collections`, `POST /api/collections`, `GET /api/creditors`, `POST /api/payments`, `GET /api/cashplan`, `GET /api/pnl?month=YYYY-MM` |
+| Money | `GET /api/invoices`, `POST /api/invoices/draft-from-dispatch/{dispatch_id}`, `POST /api/invoices/{id}/issue` (draft -> open, v0.2), `GET /api/debtors`, `POST /api/clients/{id}/release-lock` (owner), `GET /api/collections`, `POST /api/collections`, `GET /api/creditors`, `POST /api/payments`, `GET /api/cashplan`, `GET /api/pnl?month=YYYY-MM` |
 | Agents Center | `GET /api/agents`, `GET /api/agents/findings?status=open\|done\|rejected`, `POST /api/agents/run` (body `{"agent": "<name>"\|"all"}`), `POST /api/agents/findings/{id}/approve`, `POST /api/agents/findings/{id}/reject` (body `{"reason"}`), `POST /api/agents/findings/{id}/edit` (body `{"payload"}`), `GET /api/outbox` |
 | Floor Board | `GET /api/floor/board` |
 | Auth (v0.2) | `POST /api/auth/otp`, `POST /api/auth/login`, `POST /api/auth/logout`, `GET /api/auth/me` |
