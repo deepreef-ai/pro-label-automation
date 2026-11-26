@@ -31,9 +31,11 @@ type Step = 'login' | 'otp'
 type Err = { field: 'company' | 'login' | 'otp'; message: string } | null
 
 async function signInRequest(company: string, login: string, otp: string): Promise<Session> {
+  // Mock mode: the contract fixture always answers the Pro Labels owner, so use the demo directory to try every company.
+  if (api.mode === 'mock') return demoSignIn(company, login, otp)
   try {
     const res = await api.post<LoginResponse>('/api/auth/login', {
-      company: normaliseSlug(company),
+      company_slug: normaliseSlug(company),
       login: login.trim(),
       otp: otp.trim(),
     })
@@ -92,6 +94,8 @@ export default function LoginPage() {
     }
     setStep('otp')
     setResendIn(30)
+    // Contract §6.2: ask the backend to send the OTP (demo mode returns it); errors are ignored, the demo OTP still works.
+    if (api.mode === 'live') void api.post('/api/auth/otp', { company_slug: normaliseSlug(company), login: login.trim() }).catch(() => undefined)
     toast(`OTP sent. Demo OTP is ${DEMO_OTP}.`)
   }
 

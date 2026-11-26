@@ -30,11 +30,13 @@ export interface Session {
   role: SessionRole
 }
 
-/** Shape returned by POST /api/auth/login (K1 #49). */
+/** Shape returned by POST /api/auth/login (contract §6.2, K1 #49): the role is inside `user`. */
 export interface LoginResponse {
   token?: string
+  token_type?: string
+  expires_at?: string
   company?: Company
-  user?: { name: string; login: string }
+  user?: { id?: string; name: string; login: string; role?: SessionRole }
   role?: SessionRole
 }
 
@@ -55,14 +57,14 @@ export const DEFAULT_COMPANY: Company = {
 
 export const DEMO_COMPANIES: Company[] = [
   DEFAULT_COMPANY,
-  { id: 'CO-002', name: 'Sunrise Labels', slug: 'sunrise' },
-  { id: 'CO-003', name: 'Apex Packaging', slug: 'apex' },
+  { id: 'CO-002', name: 'Sunrise Flexo Prints', slug: 'sunriseflexo' },
+  { id: 'CO-003', name: 'Nilgiri Label Works', slug: 'nilgirilabels' },
 ]
 
 const DEMO_ROLES: Record<string, Role[]> = {
   prolabels: ['owner', 'ppic', 'design', 'store', 'production', 'qc', 'dispatch', 'accounts'],
-  sunrise: ['owner', 'store', 'production', 'accounts'],
-  apex: ['owner', 'store'],
+  sunriseflexo: ['owner', 'store', 'production', 'accounts'],
+  nilgirilabels: ['owner', 'store'],
 }
 
 export interface DemoLogin {
@@ -134,12 +136,13 @@ function roleTitle(role: SessionRole): string {
 
 /** Turns a backend login response into a session; null when it is not a real login answer (mock echo). */
 export function sessionFromResponse(res: LoginResponse | undefined): Session | null {
-  if (!res?.token || !res.company?.id || !res.role) return null
+  const role = res?.user?.role ?? res?.role
+  if (!res?.token || !res.company?.id || !role) return null
   return {
     token: res.token,
     company: res.company,
-    user: res.user ?? { name: roleTitle(res.role), login: '' },
-    role: res.role,
+    user: { name: res.user?.name ?? roleTitle(role), login: res.user?.login ?? '' },
+    role,
   }
 }
 
