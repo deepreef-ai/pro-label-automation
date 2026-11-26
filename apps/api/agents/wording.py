@@ -32,7 +32,8 @@ Word = Callable[[str, dict, str], str]
 # Seconds per wording call (agent text is short; the run must stay snappy).
 TIMEOUT = float(os.environ.get("AGENT_LLM_TIMEOUT", "8"))
 _NUMBER = re.compile(r"\d+(?:[.,]\d+)*")
-_MEMO: dict[tuple[str, str], tuple[str, str]] = {}  # (kind, fallback) -> (text, provider)
+# (company_id, kind, fallback) -> (text, provider); per company, never shared (SPEC 6.4)
+_MEMO: dict[tuple[str | None, str, str], tuple[str, str]] = {}
 _MEMO_MAX = 500
 # After a failure, skip the LLM for this many seconds (one slow/broken provider must not
 # slow down every agent run or every brief).
@@ -75,20 +76,22 @@ def make_word(db: Session, used: list[str] | None = None) -> Word:
         mode = str(load_settings(db).get("ai_mode") or "cloud").lower()
     except Exception:
         mode = "off"
+    from core.tenancy import company_of
+
+    company = company_of(db)
     state: dict = {"down": mode == "off", "anon": None}
 
     def word(kind: str, facts: dict, fallback: str) -> str:
         fallback = str(fallback or "")
         if state["down"] or not fallback.strip() or time.monotonic() < _DOWN_UNTIL[0]:
             return fallback
-        hit = _MEMO.get((kind, fallback))
+        hit = _MEMO.get((company, kind, fallback))
         if hit is not None:
             if used is not None and hit[1] not in used:
                 used.append(hit[1])
             return hit[0]
         try:
             from core.llm import get_gateway
-            from core.tenancy import company_of
 
             gateway = get_gateway()
             body = f"Kind: {kind}\nFacts: {json.dumps(jsonable(facts or {}), default=str)[:2000]}\nText: {fallback}"
@@ -101,7 +104,7 @@ def make_word(db: Session, used: list[str] | None = None) -> Word:
                 body, mapping = state["anon"].anonymize(body)
             result = gateway.complete(
                 [{"role": "system", "content": SYSTEM}, {"role": "user", "content": body}],
-                purpose="agent_wording", timeout=TIMEOUT, company_id=company_of(db),
+                purpose="agent_wording", timeout=TIMEOUT, company_id=company,
             )
             text = (result.text or "").strip().strip('"').strip()
             if mapping:
@@ -118,7 +121,7 @@ def make_word(db: Session, used: list[str] | None = None) -> Word:
             return fallback
         if len(_MEMO) >= _MEMO_MAX:
             _MEMO.clear()
-        _MEMO[(kind, fallback)] = (text, provider)
+        _MEMO[(company, kind, fallback)] = (text, provider)
         if used is not None and provider not in used:
             used.append(provider)
         return text
