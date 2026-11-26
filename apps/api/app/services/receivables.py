@@ -61,6 +61,23 @@ def get_invoice(db: Session, invoice_id: str, client_id: str) -> dict | None:
     return next((i for i in cl_svc.invoice_dicts(db, [client_id]) if i["id"] == invoice_id), None)
 
 
+def issue_invoice(db: Session, invoice_id: str, role: str) -> dict:
+    """Draft -> open (``POST /api/invoices/{id}/issue``). Only an issued invoice counts in debtors,
+    ageing, locks and revenue. 404 unknown (or another company's) invoice, 409 if not a draft."""
+    inv_id = invoice_id.strip().upper()
+    inv = T("invoices")
+    row = db.execute(select(inv.c.status, inv.c.client_id).where(inv.c.id == inv_id)).first()
+    if row is None:
+        raise not_found("invoice", inv_id)
+    if row.status != "draft":
+        raise conflict(f"invoice {inv_id} is {row.status}; only a draft can be issued")
+    db.execute(inv.update().where(inv.c.id == inv_id).values(status="open"))
+    audit(db, role=role, action="invoice_issue", entity="invoice", entity_id=inv_id,
+          before={"status": "draft"}, after={"status": "open"})
+    db.commit()
+    return get_invoice(db, inv_id, row.client_id) or {}
+
+
 def draft_from_dispatch(db: Session, dispatch_id: str, role: str) -> dict:
     """Draft invoice for one challan: qty from the challan, rate from the job, GST at the
     settings rate, dated today; due date = today + client credit days. 404 unknown challan,

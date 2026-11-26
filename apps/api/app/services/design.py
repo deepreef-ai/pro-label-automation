@@ -387,7 +387,7 @@ def _auto_plates_and_die(db: Session, job: Any, merged: dict, changes: dict) -> 
             to_insert.append({"id": f"PL-{start + len(to_insert):05d}", "job_card": jm["job_card"],
                               "unit": u["unit"], "colour": u["colour"], "made_on": None, "vendor_id": vendor,
                               "cost": round(float(avg_cost or 0), 2), "impressions": 0, "status": "ordered",
-                              "rack": None, "is_demo": bool(jm.get("is_demo") or False)})
+                              "rack": "Incoming", "is_demo": bool(jm.get("is_demo") or False)})
     if STAGES.index(stage) >= STAGES.index("plates_ready"):
         have = _job_plates(db, jm["job_card"])
         units = [dict(u) for u in merged["units"]]
@@ -417,4 +417,4 @@ def _save_plates(db: Session, merged: dict, new_plates: list[dict]) -> None:
         mounted = [u["plate_id"] for u in merged["units"] if u["plate_id"]]
         if mounted:
             db.execute(p.update().where(p.c.id.in_(mounted), p.c.status == "ordered")
-                       .values(status="in_use", made_on=today()))
+                       .values(status="in_use", made_on=today(), rack="On press"))

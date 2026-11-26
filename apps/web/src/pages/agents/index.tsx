@@ -151,7 +151,11 @@ export default function AgentsPage() {
       window.setTimeout(() => setDoneFlash(false), 1600)
       const msgs = messagesOf(f).length
       toast.success('Approved', {
-        description: msgs ? `${msgs} message${msgs === 1 ? '' : 's'} sent to the Outbox (simulated).` : 'Moved to Done.',
+        description: msgs
+          ? `${msgs} message${msgs === 1 ? '' : 's'} sent to the Outbox (simulated).`
+          : f.suggested_action?.type && f.suggested_action.type !== 'none'
+            ? 'Task added to the Outbox (simulated) and moved to Done.'
+            : 'Moved to Done.',
       })
     } catch (e) {
       toast.error('Could not approve', { description: (e as Error).message })

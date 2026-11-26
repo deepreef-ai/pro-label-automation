@@ -26,6 +26,12 @@ def post_invoice_draft(dispatch_id: str, db: DB, role: Role) -> dict:
     return svc.draft_from_dispatch(db, dispatch_id, role)
 
 
+@router.post("/invoices/{invoice_id}/issue", dependencies=[allow("owner", "accounts")])
+def post_invoice_issue(invoice_id: str, db: DB, role: Role) -> dict:
+    """Draft -> open (#94): the invoice then counts in debtors, ageing, locks and revenue."""
+    return svc.issue_invoice(db, invoice_id, role)
+
+
 @router.get("/debtors", dependencies=[allow("owner", "accounts", "marketing")])
 def get_debtors(db: DB) -> dict:
     return svc.debtors(db)

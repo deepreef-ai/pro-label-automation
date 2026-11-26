@@ -218,7 +218,11 @@ function GrnDialog({
             <Select
               id="grn-item"
               value={form.item_id}
-              onValueChange={(v) => set('item_id', v)}
+              onValueChange={(v) => {
+                const it = items.data?.find((i) => i.id === v)
+                // start from the item master rate; Store types the bill's rate if it differs
+                setForm((f) => ({ ...f, item_id: v, rate: f.rate || (it?.rate ? String(it.rate) : '') }))
+              }}
               placeholder={items.loading ? 'Loading…' : 'Choose item'}
               options={(items.data ?? []).map((i) => ({ value: i.id, label: `${i.name} · ${formatINR(i.rate)}/${i.uom}` }))}
             />

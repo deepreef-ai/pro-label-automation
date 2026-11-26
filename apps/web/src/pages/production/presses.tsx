@@ -578,11 +578,15 @@ function EndRunForm({
         </Field>
       </div>
       {wPct !== null && (
-        <InlineAlert tone={wPct > tol ? 'danger' : 'info'}>
+        <InlineAlert tone={wPct > tol ? 'danger' : wPct < 0 ? 'warn' : 'info'}>
           <span className="inline-flex items-center gap-1.5">
             <Timer className="size-4" aria-hidden />
-            Wastage will be {formatPercent(wPct)} ({formatNumber(u - required, 1)} m){' '}
-            {wPct > tol ? `: above the ${formatPercent(tol, { digits: 0 })} limit, the owner will be alerted.` : `: within the ${formatPercent(tol, { digits: 0 })} limit.`}
+            {wPct < 0
+              ? `Metres used (${formatNumber(u, 1)} m) are below the ${formatNumber(required, 1)} m the order needs: type the metres used from the press counter.`
+              : <>
+                  Wastage will be {formatPercent(wPct)} ({formatNumber(u - required, 1)} m){' '}
+                  {wPct > tol ? `: above the ${formatPercent(tol, { digits: 0 })} limit, the owner will be alerted.` : `: within the ${formatPercent(tol, { digits: 0 })} limit.`}
+                </>}
           </span>
         </InlineAlert>
       )}
