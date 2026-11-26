@@ -127,9 +127,9 @@ A single `run-demo` command will start everything once issue #19 (G2) is merged.
 ### Run the 3-company demo (v0.2)
 
 ```powershell
-.un-demo.cmd              # SQLite: builds data/demo.db with 3 companies, starts API :8000 + web :5173
-.un-demo.cmd -Postgres    # same, but API + agent scheduler on PostgreSQL with row-level security (Docker)
-.eset-demo.cmd            # rebuild the 3-company DB between rehearsals (run once after pulling v0.2)
+.\run-demo.cmd              # SQLite: builds data/demo.db with 3 companies, starts API :8000 + web :5173
+.\run-demo.cmd -Postgres    # same, but API + agent scheduler on PostgreSQL with row-level security (Docker)
+.\reset-demo.cmd            # rebuild the 3-company DB between rehearsals (run once after pulling v0.2)
 .\stop-demo.cmd             # stop (with -Postgres also: docker compose -f infra/docker-compose.postgres.yml down)
 ```
 macOS/Linux: `./run-demo.sh [--postgres]`, `./reset-demo.sh`, `./stop-demo.sh`.
