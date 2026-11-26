@@ -1,5 +1,9 @@
-"""ORM models for every table in contract/schema.md (plus ``fixed_assets`` and ``lists``)."""
+"""ORM models for every table in contract/schema.md (plus ``fixed_assets`` and ``lists``).
+
+v0.2 (SPEC 6): ``apply_tenancy`` adds ``company_id`` to every business table and makes keys per company.
+"""
 from ..db import Base
+from ..tenancy import apply_tenancy
 from .agents import AgentFinding, AgentRun, Feedback, Outbox
 from .masters import (
                       AuditLog,
@@ -31,11 +35,14 @@ from .operations import (
                       Run,
                       Slitting,
 )
+from .tenancy import Company, User
+
+apply_tenancy(Base.metadata)
 
 __all__ = [
     "Base", "Client", "Vendor", "Item", "StockHead", "OpeningStock", "Machine", "MachineCost", "Settings",
     "AuditLog", "FixedAsset", "ListValue", "Enquiry", "Quote", "Job", "Design", "Plate", "Die", "Grn",
     "Issue", "Roll", "Slitting", "PartyLaminate", "PressSetup", "Run", "QC", "Dispatch", "Invoice",
     "Receipt", "Collection", "SupplierBill", "Payment", "PaymentAllocation", "TallyPnl", "AgentRun",
-    "AgentFinding", "Outbox", "Feedback",
+    "AgentFinding", "Outbox", "Feedback", "Company", "User",
 ]

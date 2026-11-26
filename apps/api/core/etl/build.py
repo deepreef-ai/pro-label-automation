@@ -7,6 +7,10 @@
   demo stories are added on top.
 * ``raw_dir`` None / missing / without those files: a SYNTHETIC-ONLY database (invented clients,
   items, vendors, jobs plus every fixture story). This is the CI path; it needs no client files.
+
+v0.2 (SPEC 6): all of the above belongs to company ``CO-001`` (Pro Labels). Two made-up companies
+(``CO-002``, ``CO-003``) are added from separate synthetic runs, plus the companies and users tables
+(``core.etl.tenants``).
 """
 from __future__ import annotations
 
@@ -17,6 +21,7 @@ from sqlalchemy import insert, text
 
 from core.db import Base, get_engine
 from core.etl.generate import Context, Rows, generate_demo
+from core.etl.tenants import add_tenants
 
 CHUNK = 500
 
@@ -35,7 +40,7 @@ def has_real_files(raw_dir: str | None) -> bool:
 
 
 def build_rows(raw_dir: str | None = None) -> tuple[Rows, str]:
-    """Return all rows to insert and the mode (``real`` or ``synthetic``)."""
+    """Return CO-001's rows to insert and the mode (``real`` or ``synthetic``)."""
     R = Rows()
     ctx = Context()
     extra, overrides = None, None
@@ -73,7 +78,10 @@ def build_database(db_url: str, raw_dir: str | None = None) -> dict:
     Base.metadata.drop_all(engine)
     Base.metadata.create_all(engine)
     R, mode = build_rows(raw_dir)
+    others = add_tenants(R)  # stamps CO-001, adds companies/users, builds CO-002 and CO-003
     write_rows(engine, R)
+    for rows in others:
+        write_rows(engine, rows)
     counts = {}
     with engine.connect() as conn:
         for table in Base.metadata.sorted_tables:
