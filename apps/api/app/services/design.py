@@ -17,7 +17,7 @@ from __future__ import annotations
 from datetime import date, datetime, time
 from typing import Any
 
-from sqlalchemy import select
+from sqlalchemy import or_, select
 from sqlalchemy.orm import Session
 
 from app.audit import audit
@@ -140,16 +140,23 @@ def _record(db: Session, job: Any, row: Any) -> dict:
 
 # ---------------------------------------------------------------- reads
 
+NEW_JOB_STATUSES = ("planned", "design")
+
+
 def list_design(db: Session, stage: str | None = None) -> list[dict]:
     d, jobs = T("design"), T("jobs")
-    q = select(d.c.job_card).select_from(d.join(jobs, jobs.c.job_card == d.c.job_card))
-    if stage:
-        q = q.where(d.c.stage == stage)
+    # Every job with a design record, plus new jobs (planned / in design) that have none yet: they
+    # start at the artwork stage, so Design can pick them up (a new job card must show up here).
+    q = (select(jobs.c.job_card)
+         .select_from(jobs.outerjoin(d, d.c.job_card == jobs.c.job_card))
+         .where(or_(d.c.job_card.is_not(None), jobs.c.status.in_(NEW_JOB_STATUSES))))
     out = []
     for (jc,) in db.execute(q):
         job = _job(db, jc)
         if job is not None:
-            out.append(_record(db, job, _design_row(db, jc)))
+            rec = _record(db, job, _design_row(db, jc))
+            if not stage or rec["stage"] == stage:
+                out.append(rec)
     order = {s: i for i, s in enumerate(STAGES)}
     # work queue first: earliest stage, then most recently touched, then job card
     out.sort(key=lambda r: r["job_card"], reverse=True)
