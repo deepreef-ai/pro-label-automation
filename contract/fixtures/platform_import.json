@@ -1,0 +1,220 @@
+{
+  "import_id": "IMP-0007",
+  "company_id": "CO-003",
+  "file_name": "nilgiri_onboarding_template.xlsx",
+  "at": "2026-11-19T16:20:00+05:30",
+  "status": "partial",
+  "sheets": [
+    {
+      "sheet": "clients",
+      "rows": 42,
+      "good": 40,
+      "held_back": 2,
+      "status": "warn",
+      "checks": [
+        {
+          "rule": "Required columns present",
+          "status": "ok",
+          "count": 0,
+          "message": "All 9 columns found"
+        },
+        {
+          "rule": "GSTIN format",
+          "status": "warn",
+          "count": 2,
+          "message": "2 GSTINs are not 15 characters"
+        },
+        {
+          "rule": "Duplicate client names",
+          "status": "ok",
+          "count": 0,
+          "message": "No duplicates"
+        }
+      ]
+    },
+    {
+      "sheet": "vendors",
+      "rows": 11,
+      "good": 11,
+      "held_back": 0,
+      "status": "ok",
+      "checks": [
+        {
+          "rule": "Required columns present",
+          "status": "ok",
+          "count": 0,
+          "message": "All 6 columns found"
+        },
+        {
+          "rule": "MSME flag is Yes/No",
+          "status": "ok",
+          "count": 0,
+          "message": "All filled"
+        }
+      ]
+    },
+    {
+      "sheet": "items",
+      "rows": 186,
+      "good": 181,
+      "held_back": 5,
+      "status": "error",
+      "checks": [
+        {
+          "rule": "Unit is m, kg, sqm or nos",
+          "status": "error",
+          "count": 3,
+          "message": "3 items have unit 'roll'"
+        },
+        {
+          "rule": "Width given for items sold per sq m",
+          "status": "error",
+          "count": 2,
+          "message": "2 paper items have no width"
+        },
+        {
+          "rule": "Rate is a positive number",
+          "status": "ok",
+          "count": 0,
+          "message": "All rates valid"
+        }
+      ]
+    },
+    {
+      "sheet": "machines",
+      "rows": 7,
+      "good": 7,
+      "held_back": 0,
+      "status": "ok",
+      "checks": [
+        {
+          "rule": "Machine type is press or offline",
+          "status": "ok",
+          "count": 0,
+          "message": "4 presses, 3 offline"
+        }
+      ]
+    },
+    {
+      "sheet": "opening_stock",
+      "rows": 154,
+      "good": 152,
+      "held_back": 2,
+      "status": "error",
+      "checks": [
+        {
+          "rule": "Item exists in items sheet",
+          "status": "error",
+          "count": 2,
+          "message": "2 rows name items not in the items sheet"
+        },
+        {
+          "rule": "Stock date is the go-live date",
+          "status": "ok",
+          "count": 0,
+          "message": "All rows dated 2026-12-01"
+        }
+      ]
+    },
+    {
+      "sheet": "unpaid_invoices",
+      "rows": 63,
+      "good": 63,
+      "held_back": 0,
+      "status": "ok",
+      "checks": [
+        {
+          "rule": "Client exists in clients sheet",
+          "status": "ok",
+          "count": 0,
+          "message": "All clients found"
+        },
+        {
+          "rule": "Dates read day first (dd-mm-yyyy)",
+          "status": "ok",
+          "count": 0,
+          "message": "No ambiguous dates"
+        }
+      ]
+    }
+  ],
+  "fixes": [
+    {
+      "sheet": "clients",
+      "row": 14,
+      "column": "gstin",
+      "value": "33AAKCN12",
+      "problem": "GSTIN must be 15 characters",
+      "fix": "Type the full GSTIN from the client's invoice"
+    },
+    {
+      "sheet": "clients",
+      "row": 31,
+      "column": "gstin",
+      "value": "33ABCDE1234F1Z",
+      "problem": "GSTIN must be 15 characters",
+      "fix": "Type the full GSTIN from the client's invoice"
+    },
+    {
+      "sheet": "items",
+      "row": 22,
+      "column": "uom",
+      "value": "roll",
+      "problem": "Unit must be m, kg, sqm or nos",
+      "fix": "Use m (running metres) for paper and film rolls"
+    },
+    {
+      "sheet": "items",
+      "row": 57,
+      "column": "uom",
+      "value": "roll",
+      "problem": "Unit must be m, kg, sqm or nos",
+      "fix": "Use m (running metres) for paper and film rolls"
+    },
+    {
+      "sheet": "items",
+      "row": 90,
+      "column": "uom",
+      "value": "roll",
+      "problem": "Unit must be m, kg, sqm or nos",
+      "fix": "Use m (running metres) for paper and film rolls"
+    },
+    {
+      "sheet": "items",
+      "row": 103,
+      "column": "width_mm",
+      "value": null,
+      "problem": "Paper sold per sq m needs a width",
+      "fix": "Add the roll width in mm"
+    },
+    {
+      "sheet": "items",
+      "row": 141,
+      "column": "width_mm",
+      "value": null,
+      "problem": "Paper sold per sq m needs a width",
+      "fix": "Add the roll width in mm"
+    },
+    {
+      "sheet": "opening_stock",
+      "row": 18,
+      "column": "item",
+      "value": "PP SILVR 250",
+      "problem": "Item not found in the items sheet",
+      "fix": "Use the exact item name from the items sheet (PP SILVER 250)"
+    },
+    {
+      "sheet": "opening_stock",
+      "row": 77,
+      "column": "item",
+      "value": "CHROMO 90GSM",
+      "problem": "Item not found in the items sheet",
+      "fix": "Add the item to the items sheet or correct the name"
+    }
+  ],
+  "totals": {
+    "rows": 463,
+    "good": 454,
+    "held_back": 9
+  }
+}

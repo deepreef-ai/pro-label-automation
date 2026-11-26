@@ -1,0 +1,32 @@
+{
+  "items": [
+    {
+      "key": "erp",
+      "label": "ERP (job cards, GRN and issue exports)",
+      "status": "demo",
+      "detail": "Daily export uploaded by Store; automatic pull every 15 min after go-live",
+      "last_sync_at": "2026-11-20T09:15:00+05:30"
+    },
+    {
+      "key": "tally",
+      "label": "Tally (monthly P&L)",
+      "status": "not_connected",
+      "detail": "Month-end figures typed by Accounts; direct Tally link planned",
+      "last_sync_at": null
+    },
+    {
+      "key": "po_inbox",
+      "label": "PO inbox (client PO e-mails)",
+      "status": "demo",
+      "detail": "PDFs uploaded on the Jobs screen are read into draft job cards",
+      "last_sync_at": "2026-11-20T10:02:00+05:30"
+    },
+    {
+      "key": "whatsapp",
+      "label": "WhatsApp Business (reminders)",
+      "status": "not_connected",
+      "detail": "Approved reminders go to the Outbox (simulated); WhatsApp API after approval",
+      "last_sync_at": null
+    }
+  ]
+}

@@ -11,12 +11,12 @@ separate `[contract]` PR approved by both developers.
 | Python | 3.10+ (CI uses 3.11). Package root is `apps/api`; packages are `core`, `app`, `agents`, `chat`. Run with `PYTHONPATH=apps/api`. |
 | API app | FastAPI instance `app` in `apps/api/app/main.py`. All routes start with `/api`. |
 | DB | SQLite file `data/demo.db` (git-ignored) via SQLAlchemy 2.x. URL from env `DATABASE_URL`, default `sqlite:///data/demo.db`. Postgres-ready (no SQLite-only SQL). |
-| Roles (demo) | Header `X-Role`: `owner`, `ppic`, `design`, `store`, `production`, `qc`, `dispatch`, `accounts`, `marketing`. Missing header = `owner`. A forbidden call returns **403** `{"detail":"forbidden for role <r>"}`. |
+| Roles (demo) | Header `X-Role`: `owner`, `ppic`, `design`, `store`, `production`, `qc`, `dispatch`, `accounts`, `marketing` (plus `platform_admin` from v0.2). Missing header = `owner`. A forbidden call returns **403** `{"detail":"forbidden for role <r>"}`. From v0.2 the role and the company come from the login token; `X-Role` is kept for mock mode and `AUTH_MODE=demo` (section 6). |
 | Owner-only | `PUT /api/settings`, `POST /api/clients/{id}/release-lock`. |
 | Money | Rupees as numbers with 2 decimals; never strings. Dates are ISO `YYYY-MM-DD`; datetimes ISO 8601. |
 | IDs | Job card `JC-####`, enquiry `ENQ-####`, quote `Q-####`, GRN `GRN-#####`, issue `ISS-#####`, roll `R-YYYY-####`, run `RUN-#####`, QC `QC-#####`, challan `DC-####`, invoice `INV-####`, plate `PL-#####`, die `D-###`. IDs are permanent (never row-based). |
 | Demo data | Every generated row has `is_demo: true`; real rows from client files have `is_demo: false`. The UI shows a DEMO badge. |
-| Errors | `{"detail": "<message>"}` with 400 (validation/rule broken), 403 (role), 404 (not found), 409 (guard: e.g. dispatch above QC approved). |
+| Errors | `{"detail": "<message>"}` with 400 (validation/rule broken), 401 (not signed in, v0.2 token mode), 403 (role), 404 (not found, also for another company's row), 409 (guard: e.g. dispatch above QC approved). |
 | LLM | Never computes money/stock. All model calls go through `core.llm.gateway`. No network calls in tests. |
 
 ## 2. Business rules (from the client's Excel v12 system)
@@ -57,6 +57,9 @@ separate `[contract]` PR approved by both developers.
 | Money | `GET /api/invoices`, `POST /api/invoices/draft-from-dispatch/{dispatch_id}`, `GET /api/debtors`, `POST /api/clients/{id}/release-lock` (owner), `GET /api/collections`, `POST /api/collections`, `GET /api/creditors`, `POST /api/payments`, `GET /api/cashplan`, `GET /api/pnl?month=YYYY-MM` |
 | Agents Center | `GET /api/agents`, `GET /api/agents/findings?status=open\|done\|rejected`, `POST /api/agents/run` (body `{"agent": "<name>"\|"all"}`), `POST /api/agents/findings/{id}/approve`, `POST /api/agents/findings/{id}/reject` (body `{"reason"}`), `POST /api/agents/findings/{id}/edit` (body `{"payload"}`), `GET /api/outbox` |
 | Floor Board | `GET /api/floor/board` |
+| Auth (v0.2) | `POST /api/auth/otp`, `POST /api/auth/login`, `POST /api/auth/logout`, `GET /api/auth/me` |
+| Platform admin (v0.2, screens 17, 18, 20) | `GET /api/platform/companies`, `POST /api/platform/companies`, `POST /api/platform/companies/{id}/import` (multipart template), `GET /api/platform/usage?month=YYYY-MM` |
+| Company admin (v0.2, screen 19) | `GET /api/company/profile`, `GET /api/company/users`, `POST /api/company/users`, `PUT /api/company/users/{id}`, `GET /api/company/connections` |
 | Chat | `POST /api/chat` (body `{"message", "history"?, "role"?}` -> `{"reply", "actions":[{"type":"navigate","to"}\|{"type":"draft",...}], "sources":[...]}`), `GET /api/chat/suggestions` |
 
 ## 4. Agents (names are fixed)
@@ -79,3 +82,44 @@ A finding: `{id, agent, created_at, severity: high|medium|low, title, detail, ev
 - Routes: `/` dashboard, `/marketing`, `/jobs`, `/jobs/:jobCard`, `/design`, `/store`, `/production`, `/qc`, `/dispatch`, `/money`, `/agents`, `/floor` (full screen), `/settings`.
 - Page folders: `src/pages/<area>/` (one owner per folder). Shared UI in `src/components/`. The router registers every page from W1 onward (placeholders until filled).
 - Design rules: one button style, one card style, one radius scale; equal content edges; hover lift 2px on clickable cards, buttons press on click; no fade-in on scroll, no tilt, no carousels; no violet/lavender; visible focus rings; 44px touch targets on tablet screens; text contrast WCAG AA; INR formatting with lakh/crore (`en-IN`).
+
+## 6. Multi-tenant (v0.2)
+
+One app serves many label companies. Each company sees **only its own data**, has its own users, settings and AI budget, and pays its share of a small shared cost. Pro Labels is company `CO-001`; the demo adds two **made-up** companies (`CO-002` Sunrise Flexo Prints, `CO-003` Nilgiri Label Works) with synthetic data only.
+
+**6.1 Data**
+
+| Rule | Decision |
+|---|---|
+| Company | Table `companies` (`id` `CO-###`, `name`, `slug` unique, `status` `onboarding`/`parallel_run`/`live`/`paused`, `ai_budget_month`, ...). |
+| Every row | Every business table has `company_id` (not null, indexed, FK `companies`). Business ids stay as they are (`JC-1301`) but are unique **per company**: keys become `(company_id, id)`. Two companies may both have `JC-1301`. |
+| Isolation | One helper adds `company_id = :current` to every read and write (SQLite demo). The PostgreSQL option also turns on **row-level security** policies on every table, so a missing filter still returns nothing. |
+| Shared tables | Only platform tables have no `company_id`: `companies`, `users` (has `company_id`, null for platform staff), `ai_usage` and `imports` (both carry `company_id`). |
+| Settings | `settings` has one row **per company** (same fields and defaults as section 2). `PUT /api/settings` changes the signed-in company only. |
+| Rules | `core.rules` does not change: it is pure maths with no company. |
+
+**6.2 Who is calling**
+
+- The **current company comes only from the login token**, never from the URL, query or body. Request bodies have no `company_id` field; one sent anyway is ignored.
+- Login (demo): `POST /api/auth/otp` `{company_slug, login}`, then `POST /api/auth/login` `{company_slug, login, otp}` returns `{token, token_type: "Bearer", expires_at, user, company}`. Send `Authorization: Bearer <token>` on every call. The token is signed; its claims are `company_id`, `user_id`, `role`, `exp`. In `AUTH_MODE=demo` the OTP is always `123456` and `POST /api/auth/otp` returns it in `demo_otp` (null in token mode).
+- `AUTH_MODE` (env): `demo` (default on the demo laptop and in tests) = a call **without** a token acts as the `CO-001` owner and `X-Role` still works, so v0.1 screens, mock mode and the locked tests keep working. `token` = every call except `POST /api/auth/otp` and `POST /api/auth/login` needs a valid token. A sent token always wins over `X-Role`.
+- 401 `{"detail": "not signed in"}`: token missing (token mode), expired, tampered, or naming an unknown or paused company / disabled user.
+- Roles: the nine company roles keep their meaning **inside** the company. The company `owner` is also its **company admin** (users, profile, connections, settings). `platform_admin` is platform staff: no company, allowed only on `/api/platform/*` and `/api/auth/*`; every company endpoint returns 403 `forbidden for role platform_admin`, so platform staff never see a company's jobs, stock or money.
+- Another company's row is **404**, never 403 (do not confirm it exists). Lists and searches return only the current company's rows.
+- The audit log stores `company_id` and `user_id` with every write.
+
+**6.3 Platform admin (screens 17, 18, 20)**
+
+- Companies list: status, active users, isolation (always on), last import, AI budget used, cost this month.
+- Add company: create the company and its first admin (role `owner`, status `invited`); then upload the **standard onboarding template** (`.xlsx`, one sheet each: `clients`, `vendors`, `items`, `machines`, `opening_stock`, `unpaid_invoices`). Every sheet is checked (required columns, units, widths, GSTIN, item names, day-first dates). Good rows are saved with the new `company_id`; bad rows are **held back** and listed in `fixes` (sheet, row, column, value, problem, fix) for the company to correct and re-upload. Nothing is ever copied from another company.
+- Cost & usage: shared cost lines (server, database, storage, domain) are split across companies **by active users**; per-use costs (AI calls, OTP messages) are charged to the company that used them. `growth` shows the estimated cost per company as more companies join.
+
+**6.4 AI budget (Udit: minimum cost)**
+
+- Each company has `ai_budget_month` (rupees). `core.llm` counts AI spend per company per month. At **80%** (`ai_alert_pct`) the owner and platform admin are warned; at 100% (`ai_over_budget`) every AI feature (chat, agent wording, PO reader) uses its deterministic fallback until the next month. The demo never breaks.
+- The answer cache is per company (never shared). Name masking before cloud calls is unchanged.
+- Chat, agents, findings, outbox and documents (RAG) are per company: tools call the API with the user's token, and an id from another company counts as ungrounded.
+
+**6.5 Rollout of the contract**
+
+New operations carry `x-status: planned` (and `x-since: v0.2`) in `openapi.yaml` until the backend task that builds them is merged. For the same reason `platform_admin` is added to the `X-Role` enum (and so to every operation's role tests) only in the `[contract]` PR after B1, once every route, including chat, rejects it on company endpoints. The locked contract test (`test_api_contract.py`) skips planned operations; right after B1 (auth) and B2 (platform/company) merge, a small `[contract]` PR removes the marker so the operations are fully tested from then on. Mock mode serves planned operations from their fixtures like any other.

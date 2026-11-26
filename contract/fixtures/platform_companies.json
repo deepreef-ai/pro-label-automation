@@ -1,0 +1,64 @@
+{
+  "items": [
+    {
+      "id": "CO-001",
+      "name": "Pro Labels",
+      "slug": "prolabels",
+      "city": null,
+      "state": null,
+      "status": "parallel_run",
+      "users": 8,
+      "isolation": true,
+      "last_import_at": "2026-11-20T09:15:00+05:30",
+      "ai_budget_month": 3000,
+      "ai_used_month": 1840,
+      "ai_used_pct": 0.6133,
+      "cost_month": 5253.6,
+      "created_on": "2026-10-15",
+      "is_demo": false
+    },
+    {
+      "id": "CO-002",
+      "name": "Sunrise Flexo Prints",
+      "slug": "sunriseflexo",
+      "city": "Pune",
+      "state": "Maharashtra",
+      "status": "live",
+      "users": 9,
+      "isolation": true,
+      "last_import_at": "2026-11-20T08:45:00+05:30",
+      "ai_budget_month": 2000,
+      "ai_used_month": 1720,
+      "ai_used_pct": 0.86,
+      "cost_month": 5510.8,
+      "created_on": "2026-11-02",
+      "is_demo": true
+    },
+    {
+      "id": "CO-003",
+      "name": "Nilgiri Label Works",
+      "slug": "nilgirilabels",
+      "city": "Coimbatore",
+      "state": "Tamil Nadu",
+      "status": "onboarding",
+      "users": 3,
+      "isolation": true,
+      "last_import_at": "2026-11-19T16:20:00+05:30",
+      "ai_budget_month": 1000,
+      "ai_used_month": 120,
+      "ai_used_pct": 0.12,
+      "cost_month": 1375.8,
+      "created_on": "2026-11-18",
+      "is_demo": true
+    }
+  ],
+  "totals": {
+    "companies": 3,
+    "live": 1,
+    "parallel_run": 1,
+    "onboarding": 1,
+    "users": 20,
+    "cost_month": 12140.2,
+    "ai_used_month": 3680.0
+  }
+}

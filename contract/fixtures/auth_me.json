@@ -1,0 +1,15 @@
+{
+  "user": {
+    "id": "U-0001",
+    "name": "Rajiv Malhotra",
+    "login": "+91 90000 00001",
+    "role": "owner"
+  },
+  "company": {
+    "id": "CO-001",
+    "name": "Pro Labels",
+    "slug": "prolabels"
+  },
+  "auth_mode": "demo",
+  "expires_at": "2026-11-20T22:00:00+05:30"
+}
