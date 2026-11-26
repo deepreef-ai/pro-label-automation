@@ -136,3 +136,10 @@ In code: `core.etl.build.build_database(db_url, raw_dir=None) -> dict` (summary:
 - **machine_costs** (Jul-Nov): the fixture monthly costs scaled to the hours actually run, so `machine_hour_rate` gives exactly the fixture rates (Gallus EM 280 = Rs 800/h, JC-1301 crew cost Rs 2,800).
 - **opening_stock** of demo items is solved so that stock = opening + received - issued equals `store_stock.json`.
 - `tally_pnl` 2026-10 (demo) is the Tally column of `pnl_2026-10.json`. Settings use the SPEC defaults. `outbox` and `feedback` start empty. Synthetic clients and vendors are invented names (`*.example` e-mails).
+
+## Multi-tenant build (v0.2, SPEC 6)
+
+- Everything above belongs to company `CO-001` (Pro Labels). `core.etl.tenants` stamps `company_id` on every row, adds the `companies` and `users` tables (from the contract fixtures), and builds two made-up companies, `CO-002` Sunrise Flexo Prints and `CO-003` Nilgiri Label Works, from separate **synthetic** runs: own ids (`JC-1301` -> `JC-6301` / `JC-8301`), own invented client and vendor names, all `is_demo = true`. Real client rows are never copied.
+- Keys are per company: primary key `(company_id, id)` and composite foreign keys (`core.tenancy.apply_tenancy`).
+- The app reads and writes through a session scoped to one company (`core.db.get_session` -> `core.tenancy.scoped`); until login (B1) that is `CO-001` (`DEMO_COMPANY_ID` overrides).
+- An existing `data/demo.db` has the old schema: run `reset-demo` once after pulling.

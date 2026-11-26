@@ -81,9 +81,15 @@ class _LazySessionMaker:
 SessionLocal = _LazySessionMaker()
 
 
-def get_session() -> Iterator[Session]:
-    """FastAPI dependency: ``def route(db: Session = Depends(get_session))``."""
-    session = SessionLocal()
+def get_session(company_id: str | None = None) -> Iterator[Session]:
+    """FastAPI dependency: ``def route(db: Session = Depends(get_session))``.
+
+    The session sees and writes only one company's rows (SPEC 6, ``core.tenancy``). Until login
+    lands (B1 #53) that is the demo company (``CO-001``); B1 passes the company from the token.
+    """
+    from core.tenancy import default_company, scoped
+
+    session = SessionLocal(bind=scoped(engine(), company_id or default_company()))
     try:
         yield session
     finally:
