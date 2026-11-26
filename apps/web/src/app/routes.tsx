@@ -24,6 +24,9 @@ const FloorBoardPage = lazy(() => import('@/pages/floor/index'))
 const SettingsPage = lazy(() => import('@/pages/settings/index'))
 const NotFound = lazy(() => import('./NotFound'))
 const LoginPage = lazy(() => import('@/pages/login/index'))
+const PlatformCompaniesPage = lazy(() => import('@/pages/platform/index'))
+const PlatformAddCompanyPage = lazy(() => import('@/pages/platform/add-company'))
+const PlatformUsagePage = lazy(() => import('@/pages/platform/usage'))
 
 /** Root: keeps document.title in sync with the current screen. */
 function Root() {
@@ -66,6 +69,10 @@ export const routes: RouteObject[] = [
           { path: 'money', element: <MoneyPage /> },
           { path: 'agents', element: <AgentsPage /> },
           { path: 'settings', element: <SettingsPage /> },
+          // Platform admin (demo v0.2, screens 17, 18, 20)
+          { path: 'platform', element: <PlatformCompaniesPage /> },
+          { path: 'platform/add-company', element: <PlatformAddCompanyPage /> },
+          { path: 'platform/usage', element: <PlatformUsagePage /> },
           { path: '*', element: <NotFound /> },
         ],
       },

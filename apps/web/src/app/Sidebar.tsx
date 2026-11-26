@@ -4,10 +4,12 @@ import { cn } from '@/lib/utils'
 import { useRole } from '@/lib/role'
 import { DEFAULT_COMPANY, initials, useSession } from '@/lib/session'
 import { Tooltip } from '@/components/ui'
-import { navForRole } from './nav'
+import { PLATFORM_NAV, navForRole } from './nav'
 
 export function Logo({ collapsed }: { collapsed?: boolean }) {
-  const company = useSession()?.company ?? DEFAULT_COMPANY
+  const session = useSession()
+  const company = session?.company ?? DEFAULT_COMPANY
+  const platform = session?.role === 'platform_admin'
   return (
     <div className="flex items-center gap-2.5">
       <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-accent text-accent-foreground shadow-xs">
@@ -24,7 +26,7 @@ export function Logo({ collapsed }: { collapsed?: boolean }) {
         <div className="flex min-w-0 items-center gap-2">
           <span className="text-md font-semibold tracking-tight whitespace-nowrap text-foreground">{company.name}</span>
           <span className="rounded-sm bg-accent-soft px-1.5 py-0.5 text-[10px] font-semibold tracking-wide whitespace-nowrap text-accent-soft-foreground uppercase">
-            AI Ops
+            {platform ? 'Platform' : 'AI Ops'}
           </span>
         </div>
       )}
@@ -34,7 +36,14 @@ export function Logo({ collapsed }: { collapsed?: boolean }) {
 
 export function SidebarNav({ collapsed, onNavigate }: { collapsed?: boolean; onNavigate?: () => void }) {
   const role = useRole()
-  const groups = navForRole(role)
+  const session = useSession()
+  // Platform staff see only the platform; company users only their company; the demo presenter (no session) sees both.
+  const groups =
+    session?.role === 'platform_admin'
+      ? [PLATFORM_NAV]
+      : !session && role === 'owner'
+        ? [...navForRole(role), PLATFORM_NAV]
+        : navForRole(role)
   return (
     <nav aria-label="Main" className="flex flex-col gap-5">
       {groups.map((group, gi) => (
@@ -50,7 +59,7 @@ export function SidebarNav({ collapsed, onNavigate }: { collapsed?: boolean; onN
             const link = (
               <NavLink
                 to={item.to}
-                end={item.to === '/'}
+                end={item.to === '/' || item.to === '/platform'}
                 onClick={onNavigate}
                 className={({ isActive }) =>
                   cn(

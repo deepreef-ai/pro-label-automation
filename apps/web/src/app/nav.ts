@@ -11,6 +11,9 @@ import {
   Settings,
   Truck,
   BriefcaseBusiness,
+  Building2,
+  ChartPie,
+  CirclePlus,
   type LucideIcon,
 } from 'lucide-react'
 import type { Role } from '@/lib/role'
@@ -168,6 +171,19 @@ export const NAV: NavGroup[] = [
 
 export const NAV_ITEMS: NavItem[] = NAV.flatMap((g) => g.items)
 
+/**
+ * Platform admin (demo v0.2, screens 17, 18, 20). Seen by `platform_admin` only, plus the demo presenter
+ * (owner, not signed in). Platform staff never see a company's screens (contract §6.2).
+ */
+export const PLATFORM_NAV: NavGroup = {
+  label: 'Platform',
+  items: [
+    { to: '/platform', title: 'Companies', icon: Building2, roles: ['owner'], description: 'All customer companies on the platform', keywords: 'tenants companies platform admin' },
+    { to: '/platform/add-company', title: 'Add company', icon: CirclePlus, roles: ['owner'], description: 'Onboard a new company in six steps', keywords: 'onboarding new tenant import template' },
+    { to: '/platform/usage', title: 'Cost & usage', icon: ChartPie, roles: ['owner'], description: 'Shared cost and cost per company', keywords: 'cost billing usage ai budget' },
+  ],
+}
+
 export function canSee(item: NavItem, role: Role): boolean {
   return role === 'owner' || item.roles === 'all' || item.roles.includes(role)
 }
@@ -179,6 +195,8 @@ export function navForRole(role: Role): NavGroup[] {
 /** Page title for a pathname (used for document.title and the feedback dialog). */
 export function titleForPath(pathname: string): string {
   if (/^\/jobs\/[^/]+/.test(pathname)) return 'Job 360'
+  const platform = PLATFORM_NAV.items.find((i) => i.to === pathname)
+  if (platform) return platform.title
   const hit = NAV_ITEMS.find((i) => i.to === pathname || (i.to !== '/' && pathname.startsWith(i.to + '/')))
   return hit?.title ?? (pathname === '/' ? 'Dashboard' : 'Not found')
 }

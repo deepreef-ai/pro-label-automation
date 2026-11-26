@@ -44,6 +44,8 @@ export function AppLayout() {
 
   // Multi-tenant product: nobody sees company data before signing in (VITE_REQUIRE_LOGIN=true).
   if (REQUIRE_LOGIN && !session) return <Navigate to={`/login?next=${encodeURIComponent(pathname)}`} replace />
+  // Platform staff never see a company's screens (contract §6.2).
+  if (session?.role === 'platform_admin' && !pathname.startsWith('/platform')) return <Navigate to="/platform" replace />
 
   return (
     <div className="min-h-screen bg-background">
