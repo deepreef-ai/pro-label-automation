@@ -6,6 +6,7 @@ import {
   Badge,
   Button,
   DemoBadge,
+  Input,
   ProgressSteps,
   QueryState,
   Sheet,
@@ -67,6 +68,7 @@ function DrawerBody({
   const jobQ = useApi<Job>(`/api/jobs/${encodeURIComponent(jobCard)}`)
   const [local, setLocal] = useState<Design | null>(null)
   const [saving, setSaving] = useState(false)
+  const [approvedBy, setApprovedBy] = useState('')
 
   return (
     <QueryState
@@ -109,9 +111,14 @@ function DrawerBody({
             const today = new Date().toISOString().slice(0, 10)
             const patch: Partial<Design> = { stage: next }
             if (next === 'proof_sent') patch.proof_sent_on = today
-            if (next === 'approved') patch.approved_on = today
-            await api.put(`/api/design/${encodeURIComponent(jobCard)}`, patch)
-            const updated = { ...d, ...patch }
+            if (next === 'approved') {
+              patch.approved_on = today
+              // the client's approval must say who approved the proof (SPEC: design rules)
+              patch.approved_by = approvedBy.trim() || d.client_name
+            }
+            // the server fills plates (ordered / mounted) and the matching die on later stages
+            const saved = await api.put<Design>(`/api/design/${encodeURIComponent(jobCard)}`, patch)
+            const updated = { ...d, ...patch, ...(saved?.job_card === jobCard ? saved : {}) }
             setLocal(updated)
             onUpdated(updated)
             toast.success(`${jobCard}: ${STAGE_LABEL[next]}`)
@@ -139,7 +146,19 @@ function DrawerBody({
               <div className="overflow-x-auto pb-1">
                 <ProgressSteps steps={STEPS} current={boardStage(d.stage)} complete={d.stage === 'done'} size="sm" className="min-w-[520px]" />
               </div>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap items-end gap-2">
+                {next === 'approved' && (
+                  <label className="flex min-w-48 flex-1 flex-col gap-1 text-xs text-muted-foreground">
+                    Approved by (client)
+                    <Input
+                      inputSize="sm"
+                      value={approvedBy}
+                      onChange={(e) => setApprovedBy(e.target.value)}
+                      placeholder={d.client_name}
+                      aria-label="Approved by (client)"
+                    />
+                  </label>
+                )}
                 {next && (
                   <Button size="sm" onClick={advance} loading={saving}>
                     Move to {STAGE_LABEL[next]} <ArrowRight />
