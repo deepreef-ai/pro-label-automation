@@ -17,3 +17,5 @@ langgraph>=0.2
 langchain-core>=0.2
 jsonschema>=4.20
 pyyaml>=6.0
+# PostgreSQL driver for infra/docker-compose.postgres.yml (DATABASE_URL=postgresql+psycopg://...); SQLite needs nothing.
+psycopg[binary]>=3.1
