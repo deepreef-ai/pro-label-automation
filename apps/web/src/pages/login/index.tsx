@@ -7,6 +7,7 @@ import {
   DEMO_LOGINS,
   DEMO_OTP,
   LoginError,
+  backendSlug,
   REQUIRE_LOGIN,
   companyBySlug,
   demoSignIn,
@@ -35,7 +36,7 @@ async function signInRequest(company: string, login: string, otp: string): Promi
   if (api.mode === 'mock') return demoSignIn(company, login, otp)
   try {
     const res = await api.post<LoginResponse>('/api/auth/login', {
-      company_slug: normaliseSlug(company),
+      company_slug: backendSlug(company),
       login: login.trim(),
       otp: otp.trim(),
     })
@@ -95,7 +96,7 @@ export default function LoginPage() {
     setStep('otp')
     setResendIn(30)
     // Contract §6.2: ask the backend to send the OTP (demo mode returns it); errors are ignored, the demo OTP still works.
-    if (api.mode === 'live') void api.post('/api/auth/otp', { company_slug: normaliseSlug(company), login: login.trim() }).catch(() => undefined)
+    if (api.mode === 'live') void api.post('/api/auth/otp', { company_slug: backendSlug(company), login: login.trim() }).catch(() => undefined)
     toast(`OTP sent. Demo OTP is ${DEMO_OTP}.`)
   }
 

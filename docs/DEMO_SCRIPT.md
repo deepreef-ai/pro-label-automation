@@ -21,12 +21,12 @@ The OTP is always **123456**. On the login screen, open **Demo logins (OTP 12345
 
 | Who | Company web address | Login |
 |---|---|---|
-| Pro Labels owner (company #1, `CO-001`) | `prolabels` | `owner@prolabels.demo` |
-| Sunrise Flexo Prints owner (`CO-002`, made up) | `sunriseflexo` | `owner@sunriseflexo.demo` |
-| Nilgiri Label Works owner (`CO-003`, made up) | `nilgirilabels` | `owner@nilgirilabels.demo` |
-| Platform admin (us, no company) | `platform` | `admin@platform.demo` |
+| Pro Labels owner (company #1, `CO-001`) | `prolabels` | `+91 90000 00001` |
+| Sunrise Flexo Prints owner (`CO-002`, made up) | `sunriseflexo` | `+91 90000 00201` |
+| Nilgiri Label Works owner (`CO-003`, made up) | `nilgirilabels` | `+91 90000 00301` |
+| Platform admin (us, no company) | `platform` (the screen sends no company) | `admin@platform.example` |
 
-Other roles follow the same pattern `<role>@<company>.demo`, for example `store@prolabels.demo` or `accounts@sunriseflexo.demo`.
+These are the real demo users in the backend (made-up people), so they work in mock and live mode; `run-demo` / `reset-demo` print the full list. Pro Labels store is `+91 90000 00005`, Sunrise store `+91 90000 00202`. (Mock mode also accepts the old short form `<role>@<company>.demo`.)
 
 ## Before the demo (15 min)
 
@@ -43,7 +43,7 @@ Other roles follow the same pattern `<role>@<company>.demo`, for example `store@
 
 | # | Screen | Click | Say |
 |---|---|---|---|
-| A0 | Login | Company `prolabels` → `owner@prolabels.demo` → Send OTP → `123456` → Sign in | "Each company signs in at its own web address with a one-time password." |
+| A0 | Login | Company `prolabels` → `+91 90000 00001` → Send OTP → `123456` → Sign in | "Each company signs in at its own web address with a one-time password." |
 | A0b | Header | Point at the **Pro Labels** badge; open it ("You see only Pro Labels data") | "Your company name is always on screen. Your role decides which screens you get." |
 | A1 | Dashboard | Today / Month / Year, AI morning brief | "Your whole factory on one screen, live." |
 | A2 | Marketing | New enquiry → quote (15-day validity) → Won | "Every enquiry, quote and win is tracked." |
@@ -76,7 +76,7 @@ The point: **one app, many label companies, and each one sees only its own data*
 | # | Screen | Click | Say | Status |
 |---|---|---|---|---|
 | B1 | Header | Company badge → **Sign out** | "Now let's be a different label company using the same app." | Works today |
-| B2 | Login | Company `sunriseflexo` → `owner@sunriseflexo.demo` → OTP `123456` → Sign in | "Sunrise Flexo Prints in Pune. Same app, its own web address." | Works today |
+| B2 | Login | Company `sunriseflexo` → `+91 90000 00201` → OTP `123456` → Sign in | "Sunrise Flexo Prints in Pune. Same app, its own web address." | Works today |
 | B3 | Header + Dashboard | Point at the **Sunrise Flexo Prints** badge; open the Dashboard and Jobs | "Its own name, its own jobs, its own numbers. Nothing from Pro Labels." | Badge works today. Own data **needs B1 #53** (in mock mode every company shows the same sample numbers: show only the badge and skip the numbers) |
 | B4 | Jobs / Job 360 | Search or open **JC-1301** | "This is a Pro Labels job. For Sunrise it simply does not exist: not found, not even 'no access'." | **Needs B1 #53**. In mock mode the sample job still opens, so do not show it: say "the server answers *not found* for another company's job; our locked tests check this on every change" |
 | B5 | Users & connections | **Invite a user** (name, mobile, role Store) → Invite; change one user's role in the table | "The company's own owner adds people and sets roles. No call to us needed." | Works today (mock mode shows the change at once). Saved for real **needs B2 #54** |
@@ -89,7 +89,7 @@ The point: **we run one small shared system, so the cost per company is low and 
 
 | # | Screen | Click | Say | Status |
 |---|---|---|---|---|
-| C1 | Login | Sign out → company `platform` → `admin@platform.demo` → OTP `123456` | "This is us, the platform team. We have no company of our own." | Works today |
+| C1 | Login | Sign out → company `platform` → `admin@platform.example` → OTP `123456` | "This is us, the platform team. We have no company of our own." | Works today |
 | C2 | Companies | Read the 4 cards: 3 companies, 20 users, cost this month, **Company isolation ON** | "Three companies on one system. Isolation is always on: the database itself blocks one company from reading another's rows." | Works today (sample data until **B2 #54**) |
 | C3 | Companies | Table: status (Live / Parallel run / Onboarding), AI budget bars; point at **Sunrise at 86%** (amber) | "Each company has an AI budget. At 80% the owner and we get an alarm; at 100% the AI switches to its non-AI fallback, so nothing breaks and the bill never runs away." | Works today |
 | C4 | Companies | Click **Open** on a company | "We see the list and the cost, never a company's jobs, stock or money. Support access needs the company's approval." | Works today |
