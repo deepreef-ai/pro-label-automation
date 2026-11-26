@@ -13,6 +13,7 @@ from fastapi.responses import JSONResponse
 
 from agents import router as agents_router
 from app.routers import (
+    auth,
     dashboard,
     design,
     dispatch,
@@ -52,7 +53,7 @@ async def _validation_as_400(_request: Request, exc: RequestValidationError) -> 
 
 
 # dashboard first: its /jobs/{job_card}/360 sits beside jobs' /jobs/{job_card}
-for _module in (shell, masters, marketing, dashboard, jobs, design, store, production, qc, dispatch,
+for _module in (auth, shell, masters, marketing, dashboard, jobs, design, store, production, qc, dispatch,
                 money_ar, money_ap):
     app.include_router(_module.router, prefix="/api")
 

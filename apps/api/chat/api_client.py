@@ -1,7 +1,9 @@
 """In-process client for the public HTTP API, handed to chat tools as ``ToolContext.api``.
 
 Calls go through ``httpx.AsyncClient`` + ``ASGITransport`` straight into the FastAPI app
-(no network, no port) with the caller's ``X-Role`` header, so every role check and business
+(no network, no port) with the caller's ``X-Role`` header and, when the chat request carried
+one, its ``Authorization`` header (SPEC 6.4: tools call the API with the user's token, so they
+see only the signed-in company's rows), so every role check, company scope and business
 rule of the real API applies to the chatbot too. The app is imported lazily to avoid an
 import cycle (``app.main`` includes ``chat.router``).
 
@@ -26,12 +28,21 @@ def _wrap(data: Any) -> dict:
 
 
 class InProcessApi:
-    """``get(path)`` / ``post(path, body)`` against the FastAPI app with ``X-Role``."""
+    """``get(path)`` / ``post(path, body)`` against the FastAPI app with the caller's headers."""
 
-    def __init__(self, role: str = "owner", app: Any = None, timeout: float = 20.0):
+    def __init__(self, role: str = "owner", app: Any = None, timeout: float = 20.0,
+                 authorization: str | None = None):
         self.role = role or "owner"
         self._app = app
         self.timeout = timeout
+        self.authorization = authorization
+
+    @property
+    def headers(self) -> dict:
+        out = {"X-Role": self.role}
+        if self.authorization:
+            out["Authorization"] = self.authorization
+        return out
 
     @property
     def app(self) -> Any:
@@ -47,7 +58,7 @@ class InProcessApi:
         transport = httpx.ASGITransport(app=self.app)
         async with httpx.AsyncClient(transport=transport, base_url="http://chat.local",
                                      timeout=self.timeout) as client:
-            res = await client.request(method, path, json=body, headers={"X-Role": self.role})
+            res = await client.request(method, path, json=body, headers=self.headers)
         try:
             data = res.json()
         except ValueError:

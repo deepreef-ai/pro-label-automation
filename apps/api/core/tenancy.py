@@ -40,7 +40,7 @@ from sqlalchemy.sql.selectable import Alias, Join
 COMPANY_OPTION = "company_id"
 DEMO_COMPANY = "CO-001"
 #: Platform tables: not owned by one company (``users.company_id`` is nullable, see SPEC 6.1).
-PLATFORM_TABLES = frozenset({"companies", "users"})
+PLATFORM_TABLES = frozenset({"companies", "users", "sessions", "otp_codes"})
 
 
 def default_company() -> str:
