@@ -35,7 +35,7 @@ export interface LoginResponse {
   token?: string
   token_type?: string
   expires_at?: string
-  company?: Company
+  company?: Company | null
   user?: { id?: string; name: string; login: string; role?: SessionRole }
   role?: SessionRole
 }
@@ -176,10 +176,13 @@ function roleTitle(role: SessionRole): string {
 /** Turns a backend login response into a session; null when it is not a real login answer (mock echo). */
 export function sessionFromResponse(res: LoginResponse | undefined): Session | null {
   const role = res?.user?.role ?? res?.role
-  if (!res?.token || !res.company?.id || !role) return null
+  if (!res?.token || !role) return null
+  // Platform staff have no company (contract: `company: null`); company users always have one.
+  const company = res.company?.id ? res.company : role === 'platform_admin' ? PLATFORM_COMPANY : null
+  if (!company) return null
   return {
     token: res.token,
-    company: res.company,
+    company,
     user: { name: res.user?.name ?? roleTitle(role), login: res.user?.login ?? '' },
     role,
   }
