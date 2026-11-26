@@ -53,3 +53,27 @@ class AiUsage(Timestamps, Base):
     cached = mapped_column(BOOL, nullable=False, default=False)
     calls = mapped_column(INT, nullable=False, default=1)      # extra: >1 only for seeded monthly totals
 
+
+class AuthSession(Timestamps, Base):
+    """A signed-in token (SPEC 6.2). Logout sets ``revoked_at``; a revoked token gets 401."""
+
+    __tablename__ = "sessions"
+    id = mapped_column(ID, primary_key=True)                  # token id (jti)
+    user_id = mapped_column(ID, ForeignKey("users.id"), nullable=False, index=True)
+    company_id = mapped_column(ID, ForeignKey("companies.id"), index=True)  # null = platform_admin
+    issued_at = mapped_column(TS, nullable=False)
+    expires_at = mapped_column(TS, nullable=False)
+    revoked_at = mapped_column(TS)
+
+
+class OtpCode(Timestamps, Base):
+    """One-time password for a login (only a hash is stored)."""
+
+    __tablename__ = "otp_codes"
+    id = mapped_column(Integer, primary_key=True, autoincrement=True)
+    company_id = mapped_column(ID, ForeignKey("companies.id"), index=True)
+    login = mapped_column(TEXT, nullable=False, index=True)
+    code_hash = mapped_column(TEXT, nullable=False)
+    expires_at = mapped_column(TS, nullable=False)
+    attempts = mapped_column(INT, nullable=False, default=0)
+
