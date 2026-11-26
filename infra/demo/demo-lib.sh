@@ -78,3 +78,14 @@ wait_url() {  # url seconds
   while [ "$i" -lt "$(( $2 * 2 ))" ]; do curl -fsS -o /dev/null "$1" 2>/dev/null && return 0; sleep 0.5; i=$((i + 1)); done
   return 1
 }
+
+# Demo logins (SPEC 6, contract/README.md): OTP is always 123456 in the demo.
+print_logins() {
+  echo "  Logins (OTP 123456):"
+  echo "    Pro Labels owner     company prolabels      +91 90000 00001"
+  echo "    Pro Labels store     company prolabels      +91 90000 00005"
+  echo "    Sunrise Flexo owner  company sunriseflexo   +91 90000 00201"
+  echo "    Nilgiri Labels owner company nilgirilabels  +91 90000 00301"
+  echo "    Platform admin       (no company)           admin@platform.example"
+}
+
