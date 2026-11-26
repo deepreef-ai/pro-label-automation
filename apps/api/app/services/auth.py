@@ -89,6 +89,14 @@ def demo_otp_visible() -> bool:
     return auth_mode() == "demo"
 
 
+PLATFORM_SLUGS = ("", "platform")  # platform staff sign in with no company (the web sends "platform")
+
+
+def _slug(slug: str | None) -> str:
+    s = (slug or "").strip().lower()
+    return "" if s in PLATFORM_SLUGS else s
+
+
 def _company(db, slug: str):
     companies = _t("companies")
     slug = (slug or "").strip().lower()
@@ -110,6 +118,7 @@ def _user(db, company_id: str | None, login: str):
 def send_otp(company_slug: str, login: str) -> dict:
     """Create a code for the login (if it exists). Always the same answer shape."""
     login = (login or "").strip()
+    company_slug = _slug(company_slug)
     channel = "email" if "@" in login else "sms"
     with SessionLocal() as db:
         company = _company(db, company_slug)
@@ -128,9 +137,10 @@ def send_otp(company_slug: str, login: str) -> dict:
 
 def login(company_slug: str, login_: str, otp_code: str) -> dict | None:
     """Check the OTP and return the session (contract ``AuthSession``), or None (401)."""
+    company_slug = _slug(company_slug)
     with SessionLocal() as db:
         company = _company(db, company_slug)
-        if company_slug.strip() and company is None:
+        if company_slug and company is None:
             return None
         if company is not None and company["status"] == "paused":
             return None
