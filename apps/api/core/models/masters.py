@@ -119,6 +119,7 @@ class AuditLog(Timestamps, Base):
     id = mapped_column(ID, primary_key=True)                  # AUD-#####
     at = mapped_column(TS, nullable=False)
     role = mapped_column(TEXT, nullable=False)
+    user_id = mapped_column(TEXT)                             # v0.2: signed-in user (null in demo mode)
     action = mapped_column(TEXT, nullable=False)
     entity = mapped_column(TEXT)
     entity_id = mapped_column(TEXT)

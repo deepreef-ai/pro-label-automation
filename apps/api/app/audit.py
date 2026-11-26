@@ -47,6 +47,7 @@ def audit(
         "id": aud_id,
         "at": now(),
         "role": role,
+        "user_id": db.info.get("user_id"),  # v0.2: the signed-in user (None in demo mode)
         "action": action,
         "entity": entity,
         "entity_id": str(entity_id),
