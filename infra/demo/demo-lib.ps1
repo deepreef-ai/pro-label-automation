@@ -199,6 +199,16 @@ function Test-Url([string]$url) {
     } catch { return $false }
 }
 
+# Demo logins (SPEC 6, contract/README.md): OTP is always 123456 in the demo.
+function Write-DemoLogins {
+    Write-Host "  Logins (OTP 123456):"
+    Write-Host "    Pro Labels owner     company prolabels      +91 90000 00001"
+    Write-Host "    Pro Labels store     company prolabels      +91 90000 00005"
+    Write-Host "    Sunrise Flexo owner  company sunriseflexo   +91 90000 00201"
+    Write-Host "    Nilgiri Labels owner company nilgirilabels  +91 90000 00301"
+    Write-Host "    Platform admin       (no company)           admin@platform.example"
+}
+
 function Wait-Url([string]$url, [int]$seconds, $proc) {
     $deadline = (Get-Date).AddSeconds($seconds)
     while ((Get-Date) -lt $deadline) {
