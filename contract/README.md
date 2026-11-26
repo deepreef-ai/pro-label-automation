@@ -5,7 +5,7 @@ The shared contract between the frontend (`apps/web`) and the backend (`apps/api
 | File | What it is |
 |---|---|
 | `SPEC.md` | Source of truth: conventions, business rules, endpoint list, agent names |
-| `openapi.yaml` | OpenAPI 3.1 with 74 operations. Every operation has `x-roles`, the X-Role values allowed to call it (owner may call everything). Errors use `{"detail": "..."}` with 400/403/404/409 |
+| `openapi.yaml` | OpenAPI 3.1 with 87 operations (74 built + 13 v0.2 multi-tenant operations marked `x-status: planned`). Every operation has `x-roles`, the X-Role values allowed to call it (owner may call every company endpoint; `/api/platform/*` is `platform_admin` only). Errors use `{"detail": "..."}` with 400/401/403/404/409 |
 | `schema.md` | Database tables, columns and foreign keys, plus the computed values |
 | `types.ts` | TypeScript interfaces that mirror `components/schemas`, plus an `Endpoints` map from `"METHOD /path"` to the response type |
 | `fixtures/*.json` | Synthetic example responses for every GET and every POST/PUT |
@@ -44,6 +44,16 @@ The other threads in the data:
 - 8 open agent findings, one per agent.
 
 Never put real client names, rates or files in fixtures. This repo is public.
+
+### Multi-tenant story (v0.2, SPEC 6)
+
+- **CO-001 Pro Labels** (parallel run, 8 active users) holds the whole JC-1301 story above. Its owner is Rajiv Malhotra (`U-0001`, synthetic).
+- **CO-002 Sunrise Flexo Prints** (Pune, live) and **CO-003 Nilgiri Label Works** (Coimbatore, onboarding) are made up. Nilgiri's first template upload (`IMP-0007`) saved 454 rows and held back 9 with a fix list.
+- **CO-004 Ganga Pack Labels** is the company created in the Add company wizard example.
+- November cost: Rs 12,140.20 in total. The shared Rs 8,300 (server, database, storage, domain) is split by active users (8 / 9 / 3), and AI and OTP costs go to the company that used them. Sunrise has used 86% of its AI budget, so it shows the 80% warning.
+- Login in mock and demo mode: company `prolabels`, any login, OTP `123456`.
+
+`x-status: planned` operations are served from their fixtures in mock mode like any other operation. The locked contract test skips them until the backend task that builds them is merged; a `[contract]` PR then removes the marker.
 
 ## Changing the contract
 

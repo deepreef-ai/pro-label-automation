@@ -3,6 +3,11 @@
 
 export type Role = "owner" | "ppic" | "design" | "store" | "production" | "qc" | "dispatch" | "accounts" | "marketing";
 
+/** v0.2 (SPEC 6): a role inside one company. The company owner is also its company admin. */
+export type CompanyRole = Role;
+/** v0.2: company roles plus platform staff (belongs to no company, sees no company data). */
+export type AnyRole = Role | "platform_admin";
+
 /** Error body for 400/403/404/409 */
 export interface ApiError {
   detail: string;
@@ -1633,6 +1638,258 @@ export interface ChatSuggestions {
   })[];
 }
 
+// ---- v0.2 multi-tenant (SPEC 6). Endpoints below are `x-status: planned` until their backend task lands. ----
+
+export type CompanyStatus = "onboarding" | "parallel_run" | "live" | "paused";
+
+export interface CompanyRef {
+  /** CO-### */
+  id: string;
+  name: string;
+  /** Web address name, e.g. prolabels */
+  slug: string;
+}
+
+export interface AuthOtpRequest {
+  company_slug: string;
+  /** Mobile number or e-mail */
+  login: string;
+}
+
+export interface AuthOtpResult {
+  sent: boolean;
+  channel: "sms" | "email";
+  masked_to: string;
+  expires_in_s: number;
+  /** Only in AUTH_MODE=demo; null in token mode */
+  demo_otp: string | null;
+}
+
+export interface AuthLoginRequest {
+  company_slug: string;
+  login: string;
+  /** 6 digits */
+  otp: string;
+}
+
+export interface AuthUser {
+  /** U-#### */
+  id: string;
+  name: string;
+  login: string;
+  role: AnyRole;
+}
+
+export interface AuthSession {
+  /** Send as `Authorization: Bearer <token>`. Claims company_id, user_id, role, exp. */
+  token: string;
+  token_type: "Bearer";
+  expires_at: string;
+  user: AuthUser;
+  /** null for platform_admin */
+  company: CompanyRef | null;
+}
+
+export interface AuthMe {
+  user: AuthUser;
+  company: CompanyRef | null;
+  /** demo = a call without a token acts as the Pro Labels owner */
+  auth_mode: "demo" | "token";
+  expires_at: string | null;
+}
+
+export interface LogoutResult {
+  ok: boolean;
+}
+
+export interface Company {
+  id: string;
+  name: string;
+  slug: string;
+  city: string | null;
+  state: string | null;
+  status: CompanyStatus;
+  /** Active users */
+  users: number;
+  /** Always true */
+  isolation: boolean;
+  last_import_at: string | null;
+  ai_budget_month: number;
+  ai_used_month: number;
+  /** Fraction 0..1 */
+  ai_used_pct: number;
+  cost_month: number;
+  created_on: string;
+  is_demo: boolean;
+}
+
+export interface CompanyList {
+  items: Company[];
+  totals: {
+    companies: number;
+    live: number;
+    parallel_run: number;
+    onboarding: number;
+    users: number;
+    cost_month: number;
+    ai_used_month: number;
+  };
+}
+
+export interface CompanyCreate {
+  name: string;
+  /** ^[a-z0-9-]{3,30}$, unique */
+  slug: string;
+  city?: string;
+  state?: string;
+  gstin?: string | null;
+  admin_name: string;
+  admin_login: string;
+  /** Default 1000 */
+  ai_budget_month?: number;
+}
+
+export interface CompanyCreated {
+  company: Company;
+  admin: CompanyUser;
+}
+
+export interface ImportCheck {
+  rule: string;
+  status: "ok" | "warn" | "error";
+  count: number;
+  message: string;
+}
+
+export interface ImportSheet {
+  sheet: "clients" | "vendors" | "items" | "machines" | "opening_stock" | "unpaid_invoices";
+  rows: number;
+  /** Saved for the company */
+  good: number;
+  /** Not saved; each has a line in `fixes` */
+  held_back: number;
+  status: "ok" | "warn" | "error";
+  checks: ImportCheck[];
+}
+
+export interface ImportFix {
+  sheet: string;
+  row: number;
+  column: string;
+  value: string | null;
+  problem: string;
+  fix: string;
+}
+
+export interface ImportResult {
+  /** IMP-#### */
+  import_id: string;
+  company_id: string;
+  file_name: string;
+  at: string;
+  status: "ok" | "partial" | "failed";
+  sheets: ImportSheet[];
+  fixes: ImportFix[];
+  totals: { rows: number; good: number; held_back: number };
+}
+
+export interface CostLine {
+  key: string;
+  label: string;
+  /** shared = split by active users; per_use = charged to the company that used it */
+  basis: "shared" | "per_use";
+  monthly: number;
+  note: string;
+}
+
+export interface CompanyUsage {
+  company_id: string;
+  name: string;
+  users: number;
+  saves: number;
+  pos_read: number;
+  chats: number;
+  files: number;
+  ai_calls: number;
+  ai_cost: number;
+  ai_budget_month: number;
+  ai_used_pct: number;
+  shared_cost: number;
+  direct_cost: number;
+  total_cost: number;
+}
+
+export interface Usage {
+  /** YYYY-MM */
+  month: string;
+  currency: "INR";
+  cost_lines: CostLine[];
+  total_cost: number;
+  companies: CompanyUsage[];
+  /** Estimated cost per company as companies grow */
+  growth: { companies: number; cost_per_company: number }[];
+  is_estimate: boolean;
+}
+
+export interface CompanyProfile {
+  id: string;
+  name: string;
+  slug: string;
+  gstin: string | null;
+  city: string | null;
+  state: string | null;
+  status: CompanyStatus;
+  plan: string;
+  users: number;
+  created_on: string;
+  ai_budget_month: number;
+  ai_used_month: number;
+  ai_used_pct: number;
+  /** Warn at this fraction (0.8) */
+  ai_alert_pct: number;
+  /** true = AI answers fall back to deterministic text until next month */
+  ai_over_budget: boolean;
+}
+
+export interface CompanyUser {
+  id: string;
+  name: string;
+  login: string;
+  role: CompanyRole;
+  device: string | null;
+  sign_in: "otp_phone" | "otp_email";
+  last_active_at: string | null;
+  status: "active" | "invited" | "disabled";
+}
+
+export interface CompanyUserList {
+  items: CompanyUser[];
+  totals: { active: number; invited: number; disabled: number };
+}
+
+export interface UserInvite {
+  name: string;
+  login: string;
+  role: CompanyRole;
+}
+
+export interface UserUpdate {
+  role?: CompanyRole;
+  status?: "active" | "disabled";
+}
+
+export interface Connection {
+  key: "erp" | "tally" | "po_inbox" | "whatsapp";
+  label: string;
+  status: "connected" | "demo" | "not_connected" | "error";
+  detail: string;
+  last_sync_at: string | null;
+}
+
+export interface ConnectionList {
+  items: Connection[];
+}
+
 /** Response type per endpoint key (same keys as fixtures/index.json, without query). */
 export interface Endpoints {
   "GET /api/health": Health;
@@ -1709,4 +1966,17 @@ export interface Endpoints {
   "GET /api/floor/board": FloorBoard;
   "POST /api/chat": ChatResponse;
   "GET /api/chat/suggestions": ChatSuggestions;
+  "POST /api/auth/otp": AuthOtpResult;
+  "POST /api/auth/login": AuthSession;
+  "POST /api/auth/logout": LogoutResult;
+  "GET /api/auth/me": AuthMe;
+  "GET /api/platform/companies": CompanyList;
+  "POST /api/platform/companies": CompanyCreated;
+  "POST /api/platform/companies/{id}/import": ImportResult;
+  "GET /api/platform/usage": Usage;
+  "GET /api/company/profile": CompanyProfile;
+  "GET /api/company/users": CompanyUserList;
+  "POST /api/company/users": CompanyUser;
+  "PUT /api/company/users/{id}": CompanyUser;
+  "GET /api/company/connections": ConnectionList;
 }

@@ -1,0 +1,10 @@
+{
+  "id": "U-0011",
+  "name": "Pooja Iyer",
+  "login": "pooja@prolabels.example",
+  "role": "accounts",
+  "device": null,
+  "sign_in": "otp_email",
+  "last_active_at": null,
+  "status": "invited"
+}

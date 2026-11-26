@@ -1,0 +1,37 @@
+{
+  "company": {
+    "id": "CO-004",
+    "name": "Ganga Pack Labels",
+    "slug": "gangapack",
+    "city": "Kanpur",
+    "state": "Uttar Pradesh",
+    "status": "onboarding",
+    "users": 1,
+    "isolation": true,
+    "last_import_at": null,
+    "ai_budget_month": 1000,
+    "ai_used_month": 0,
+    "ai_used_pct": 0.0,
+    "cost_month": 0,
+    "created_on": "2026-11-20",
+    "is_demo": true
+  },
+  "admin": {
+    "id": "U-0101",
+    "name": "Alok Tiwari",
+    "login": "+91 90000 00101",
+    "role": "owner",
+    "device": null,
+    "sign_in": "otp_phone",
+    "last_active_at": null,
+    "status": "invited"
+  },
+  "name": "Ganga Pack Labels",
+  "slug": "gangapack",
+  "city": "Kanpur",
+  "state": "Uttar Pradesh",
+  "gstin": null,
+  "admin_name": "Alok Tiwari",
+  "admin_login": "+91 90000 00101",
+  "ai_budget_month": 1000
+}
