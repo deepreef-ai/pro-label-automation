@@ -231,7 +231,7 @@ def ids(api, session: dict, url: str, key: str) -> set:
 
 def scoped_gets() -> list:
     """Every built company GET that needs no path id (query filled where required)."""
-    fill = {"/api/search": "q=a", "/api/dashboard/summary": "period=month"}
+    fill = {"/api/search": "q=JC", "/api/dashboard/summary": "period=month"}
     urls = []
     for key, op in OPS.items():
         method, path = key.split(" ", 1)
