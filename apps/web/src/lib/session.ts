@@ -64,31 +64,56 @@ export const DEMO_COMPANIES: Company[] = [
   { id: 'CO-003', name: 'Nilgiri Label Works', slug: 'nilgirilabels' },
 ]
 
-const DEMO_ROLES: Record<string, Role[]> = {
-  prolabels: ['owner', 'ppic', 'design', 'store', 'production', 'qc', 'dispatch', 'accounts'],
-  sunriseflexo: ['owner', 'store', 'production', 'accounts'],
-  nilgirilabels: ['owner', 'store'],
-}
-
 export interface DemoLogin {
   company: Company
+  /** The real demo user the backend knows (contract fixtures + core/etl/tenants.py; G1 prints them). */
   login: string
   role: SessionRole
 }
 
-/** Every demo login, e.g. `store@prolabels.demo`, plus the platform admin. OTP is always DEMO_OTP. */
+const [PRO, SUN, NIL] = DEMO_COMPANIES
+
+/**
+ * Demo users, exactly as seeded in the backend (made-up people; OTP is always DEMO_OTP), so the same logins
+ * work in mock and live mode. The platform admin has no company: the backend expects an empty company address.
+ */
 export const DEMO_LOGINS: DemoLogin[] = [
-  ...DEMO_COMPANIES.flatMap((company) =>
-    (DEMO_ROLES[company.slug] ?? []).map(
-      (role): DemoLogin => ({
-        company,
-        login: `${role}@${company.slug}.demo`,
-        role,
-      }),
-    ),
-  ),
-  { company: PLATFORM_COMPANY, login: 'admin@platform.demo', role: 'platform_admin' },
+  { company: PRO, login: '+91 90000 00001', role: 'owner' },
+  { company: PRO, login: '+91 90000 00003', role: 'ppic' },
+  { company: PRO, login: 'kavita@prolabels.example', role: 'design' },
+  { company: PRO, login: '+91 90000 00005', role: 'store' },
+  { company: PRO, login: '+91 90000 00006', role: 'production' },
+  { company: PRO, login: '+91 90000 00007', role: 'qc' },
+  { company: PRO, login: '+91 90000 00008', role: 'dispatch' },
+  { company: PRO, login: 'neha@prolabels.example', role: 'accounts' },
+  { company: SUN, login: '+91 90000 00201', role: 'owner' },
+  { company: SUN, login: '+91 90000 00202', role: 'store' },
+  { company: SUN, login: '+91 90000 00204', role: 'production' },
+  { company: SUN, login: 'swati@sunriseflexo.example', role: 'accounts' },
+  { company: NIL, login: '+91 90000 00301', role: 'owner' },
+  { company: NIL, login: 'lakshmi@nilgirilabels.example', role: 'accounts' },
+  { company: PLATFORM_COMPANY, login: 'admin@platform.example', role: 'platform_admin' },
 ]
+
+/** Same login, ignoring spaces and case (`+91 90000 00201` = `+919000000201`). */
+function sameLogin(a: string, b: string): boolean {
+  const norm = (s: string) => s.replace(/\s+/g, '').toLowerCase()
+  return norm(a) === norm(b)
+}
+
+/** Mock-mode shortcuts kept from the first build: `<role>@<company>.demo` and `admin@platform.demo`. */
+function aliasRole(company: Company, login: string): SessionRole | null {
+  const id = login.trim().toLowerCase()
+  if (company.slug === PLATFORM_COMPANY.slug) return id === 'admin@platform.demo' ? 'platform_admin' : null
+  const m = /^([a-z]+)@([a-z0-9-]+)\.demo$/.exec(id)
+  return m && m[2] === company.slug && (ROLES as readonly string[]).includes(m[1]) ? (m[1] as Role) : null
+}
+
+/** Company address the backend expects: platform staff sign in with no company (contract §6.2). */
+export function backendSlug(input: string): string {
+  const s = normaliseSlug(input)
+  return s === PLATFORM_COMPANY.slug ? '' : s
+}
 
 export function companyBySlug(slug: string): Company | undefined {
   const s = normaliseSlug(slug)
@@ -127,8 +152,10 @@ export function demoSignIn(companySlug: string, login: string, otp: string): Ses
       `We don't know "${normaliseSlug(companySlug) || companySlug}". Check your company web address.`,
       'company',
     )
-  const id = login.trim().toLowerCase()
-  const user = DEMO_LOGINS.find((d) => d.company.slug === company.slug && d.login === id)
+  const alias = aliasRole(company, login)
+  const user: DemoLogin | undefined =
+    DEMO_LOGINS.find((d) => d.company.slug === company.slug && sameLogin(d.login, login)) ??
+    (alias ? { company, login: login.trim().toLowerCase(), role: alias } : undefined)
   if (!user) throw new LoginError(`No user "${login.trim()}" in ${company.name}.`, 'login')
   if (otp.trim() !== DEMO_OTP) throw new LoginError('Wrong OTP. Please check the code and try again.', 'otp')
   return {
