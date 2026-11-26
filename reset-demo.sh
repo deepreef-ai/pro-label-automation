@@ -13,4 +13,5 @@ if "$PY" -c "import importlib.util,sys; sys.exit(0 if importlib.util.find_spec('
 else
   PYTHONPATH="$ROOT/apps/api" CHAT_RAG_MODE=keyword "$PY" -m chat.rag "client lock" || warn "keyword index build failed"
 fi
-echo "Reset done. Start with ./run-demo.sh"
+echo "Reset done: 3 companies (Pro Labels + 2 made-up). Start with ./run-demo.sh"
+print_logins
