@@ -5,7 +5,7 @@ The shared contract between the frontend (`apps/web`) and the backend (`apps/api
 | File | What it is |
 |---|---|
 | `SPEC.md` | Source of truth: conventions, business rules, endpoint list, agent names |
-| `openapi.yaml` | OpenAPI 3.1 with 87 operations (74 built + 13 v0.2 multi-tenant operations marked `x-status: planned`). Every operation has `x-roles`, the X-Role values allowed to call it (owner may call every company endpoint; `/api/platform/*` is `platform_admin` only). Errors use `{"detail": "..."}` with 400/401/403/404/409 |
+| `openapi.yaml` | OpenAPI 3.1 with 87 operations (74 from v0.1 + 13 v0.2 multi-tenant operations, all built). Every operation has `x-roles`, the X-Role values allowed to call it (owner may call every company endpoint; `/api/platform/*` is `platform_admin` only). Errors use `{"detail": "..."}` with 400/401/403/404/409 |
 | `schema.md` | Database tables, columns and foreign keys, plus the computed values |
 | `types.ts` | TypeScript interfaces that mirror `components/schemas`, plus an `Endpoints` map from `"METHOD /path"` to the response type |
 | `fixtures/*.json` | Synthetic example responses for every GET and every POST/PUT |
