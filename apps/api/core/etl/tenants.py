@@ -38,7 +38,12 @@ SYNTHETIC = {
         "owner": ("U-0201", "Meera Kulkarni", "+91 90000 00201"),
         "staff": [("U-0202", "Prakash Jadhav", "+91 90000 00202", "store"),
                   ("U-0203", "Swati Deshpande", "swati@sunriseflexo.example", "accounts"),
-                  ("U-0204", "Ganesh Pawar", "+91 90000 00204", "production")],
+                  ("U-0204", "Ganesh Pawar", "+91 90000 00204", "production"),
+                  ("U-0205", "Rahul Shinde", "+91 90000 00205", "ppic"),
+                  ("U-0206", "Anita Bhosale", "anita@sunriseflexo.example", "design"),
+                  ("U-0207", "Vijay More", "+91 90000 00207", "qc"),
+                  ("U-0208", "Sachin Kale", "+91 90000 00208", "dispatch"),
+                  ("U-0209", "Nitin Salunkhe", "+91 90000 00209", "production")],  # 9 active (contract story)
     },
     "CO-003": {
         "digit": 7, "seed": 2603, "background": 0,  # onboarding: only the core story
@@ -48,7 +53,8 @@ SYNTHETIC = {
                    "Dharapuram", "Gobi", "Nambiyur", "Kangeyam", "Vellakoil", "Palladam", "Valparai",
                    "Anamalai", "Siruvani"],
         "owner": ("U-0301", "Karthik Subramaniam", "+91 90000 00301"),
-        "staff": [("U-0302", "Lakshmi Narayanan", "lakshmi@nilgirilabels.example", "accounts")],
+        "staff": [("U-0302", "Lakshmi Narayanan", "lakshmi@nilgirilabels.example", "accounts"),
+                  ("U-0303", "Murugan Pillai", "+91 90000 00303", "store")],  # 3 active (contract story)
     },
 }
 CLIENT_KINDS = ["Foods", "Beverages", "Pharma", "Cosmetics", "Agro Products", "Dairy", "Chemicals", "Spices",
@@ -196,10 +202,26 @@ def add_ai_usage(R: Rows, company_id: str) -> None:
                            "tokens_in": 0, "tokens_out": 0, "cost": cost, "cached": False, "calls": calls})
 
 
+def add_platform_story(R: Rows) -> None:
+    """Rows behind the platform screens' story: Nilgiri's first template upload and Pro Labels'
+    connections (``platform_import.json``, ``company_connections.json``)."""
+    imp = _fixture("platform_import")
+    R.add("imports", {"id": imp["import_id"], "company_id": imp["company_id"], "file_name": imp["file_name"],
+                      "at": datetime.fromisoformat(imp["at"]), "status": imp["status"], "result": imp,
+                      "by_user": PLATFORM_ADMIN["id"]})
+    for c in _fixture("company_connections")["items"]:
+        R.add("connections", {"company_id": PRO_LABELS, "key": c["key"], "status": c["status"],
+                              "detail": c["detail"],
+                              "last_sync_at": datetime.fromisoformat(c["last_sync_at"]) if c["last_sync_at"] else None})
+
+
 def add_tenants(R: Rows) -> list[Rows]:
     """Stamp CO-001 on ``R``, add the platform rows, and return the made-up companies' rows."""
     stamp(R, PRO_LABELS)
+    for row in R.t.get("settings", []):  # the tenant's own name (was the v0.1 placeholder)
+        row["company_name"] = "Pro Labels"
     add_platform(R)
+    add_platform_story(R)
     add_ai_usage(R, PRO_LABELS)
     taken = {row["name"] for row in R.t.get("clients", [])} | {row["name"] for row in R.t.get("vendors", [])}
     out = []
