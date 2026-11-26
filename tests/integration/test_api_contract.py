@@ -28,11 +28,21 @@ INDEX = json.loads((FIXTURES / "index.json").read_text(encoding="utf-8"))
 ROLES = tuple(COMPONENTS["parameters"]["XRole"]["schema"]["enum"])
 METHODS = ("get", "post", "put", "patch", "delete")
 
+
+def planned(op: dict) -> bool:
+    """Designed in the contract but not built yet (SPEC 6: ``x-status: planned``).
+
+    Planned operations are checked by the locked tests once a ``[contract]`` PR removes the
+    marker, right after the backend task that builds them is merged.
+    """
+    return op.get("x-status") == "planned"
+
+
 OPS = [
     (method.upper(), path, op)
     for path, item in SPEC["paths"].items()
     for method, op in item.items()
-    if method in METHODS
+    if method in METHODS and not planned(op)
 ]
 
 # Path ids from the fixture story (JC-1301 for Fresh Juice, LOCKED client CL-011, ...).
@@ -95,6 +105,8 @@ def _get_cases() -> list:
         path_part, _, query = url.partition("?")
         template = template_of(path_part)
         op = SPEC["paths"][template]["get"]
+        if planned(op):
+            continue
         if all(f"{name}=" in query for name in required_query(template, op)):
             cases[url] = template
     return [pytest.param(url, template, id=url) for url, template in sorted(cases.items())]

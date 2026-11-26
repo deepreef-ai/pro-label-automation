@@ -1,4 +1,6 @@
-# Database schema (demo v0.1)
+# Database schema (demo v0.1, multi-tenant from v0.2)
+
+> **v0.2 (SPEC 6):** every table below gets `company_id` (FK `companies`, not null, indexed) and its business key becomes `(company_id, id)`. The new platform tables are at the end of this file.
 
 SQLAlchemy 2.x models in `apps/api/core`. SQLite now, Postgres later, so use portable types only:
 
@@ -490,3 +492,94 @@ Imported monthly P&L from Tally, compared with the system P&L.
 | message | text | |
 | rating | int null | 1-5 |
 | status | text | new, seen, done |
+
+## Multi-tenant (v0.2, SPEC 6)
+
+Applies to **every** business table above (masters, sales, design, store, production, dispatch, money, agents, feedback, audit): add `company_id` (text, not null, indexed, FK `companies.id`). Primary/unique keys become `(company_id, id)` (for `settings`: `company_id` alone; for `machine_costs`: `(company_id, machine_id, month)`). `core.rules` is unchanged. Demo: `CO-001` holds the existing story; `CO-002` and `CO-003` are synthetic.
+
+### companies
+| Column | Type | Meaning |
+|---|---|---|
+| id | id `CO-###` | |
+| name | text | |
+| slug | text unique | Web address name, `^[a-z0-9-]{3,30}$` |
+| gstin, city, state | text null | |
+| status | text | `onboarding`, `parallel_run`, `live`, `paused` (paused = nobody can sign in) |
+| plan | text | e.g. `Demo v0.2` |
+| ai_budget_month | num | Monthly AI cap in rupees (default 1000) |
+| ai_alert_pct | frac | Warn at this share of the budget (0.8) |
+| created_on | date | |
+| is_demo | bool | |
+
+### users
+| Column | Type | Meaning |
+|---|---|---|
+| id | id `U-####` | Unique across the platform |
+| company_id | id null | FK `companies`; null only for `platform_admin` |
+| name | text | |
+| login | text | Mobile number or e-mail; unique per company |
+| role | text | A company role (SPEC 1) or `platform_admin` |
+| sign_in | text | `otp_phone`, `otp_email` |
+| device | text null | Last device, e.g. `Tablet · Press floor` |
+| status | text | `active`, `invited`, `disabled` |
+| last_active_at | ts null | |
+
+### sessions
+| Column | Type | Meaning |
+|---|---|---|
+| id | id | Token id (`jti`) |
+| user_id | id | FK `users` |
+| company_id | id null | Copied from the user at login |
+| issued_at, expires_at | ts | |
+| revoked_at | ts null | Set by logout; a revoked token gets 401 |
+
+### otp_codes
+| Column | Type | Meaning |
+|---|---|---|
+| id | int PK | |
+| company_id | id null | |
+| login | text | |
+| code_hash | text | Never the plain code (demo OTP `123456` only when `AUTH_MODE=demo`) |
+| expires_at | ts | 5 minutes |
+| attempts | int | Locked after 5 wrong tries |
+
+### ai_usage
+| Column | Type | Meaning |
+|---|---|---|
+| id | int PK | |
+| company_id | id | FK `companies` |
+| at | ts | |
+| purpose | text | `chat`, `agent_wording`, `po_reader` |
+| provider, model | text | |
+| tokens_in, tokens_out | int | |
+| cost | num | Rupees (0 for free tiers and cache hits) |
+| cached | bool | |
+
+Monthly AI spend = sum of `cost` for the company and month; compared with `companies.ai_budget_month`.
+
+### imports
+| Column | Type | Meaning |
+|---|---|---|
+| id | id `IMP-####` | |
+| company_id | id | FK `companies` |
+| file_name | text | |
+| at | ts | |
+| status | text | `ok`, `partial`, `failed` |
+| result | json | The `ImportResult` body (per-sheet checks and fixes) |
+| by_user | id | FK `users` (platform admin) |
+
+### usage_events
+| Column | Type | Meaning |
+|---|---|---|
+| id | int PK | |
+| company_id | id | |
+| at | ts | |
+| kind | text | `save`, `po_read`, `chat`, `file`, `otp_sms` (feeds `GET /api/platform/usage`) |
+
+### connections
+| Column | Type | Meaning |
+|---|---|---|
+| company_id + key | composite PK | `key`: `erp`, `tally`, `po_inbox`, `whatsapp` |
+| status | text | `connected`, `demo`, `not_connected`, `error` |
+| detail | text | |
+| last_sync_at | ts null | |

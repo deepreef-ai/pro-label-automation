@@ -89,5 +89,18 @@
   "GET /api/store/slitting": "store_slitting.json",
   "GET /api/store/stock": "store_stock.json",
   "GET /api/store/summary": "store_summary.json",
-  "GET /api/vendors": "vendors.json"
+  "GET /api/vendors": "vendors.json",
+  "POST /api/auth/otp": "auth_otp.json",
+  "POST /api/auth/login": "auth_login.json",
+  "POST /api/auth/logout": "auth_logout.json",
+  "GET /api/auth/me": "auth_me.json",
+  "GET /api/platform/companies": "platform_companies.json",
+  "POST /api/platform/companies": "platform_company_create.json",
+  "POST /api/platform/companies/{id}/import": "platform_import.json",
+  "GET /api/platform/usage": "platform_usage.json",
+  "GET /api/company/profile": "company_profile.json",
+  "GET /api/company/users": "company_users.json",
+  "POST /api/company/users": "company_user_invite.json",
+  "PUT /api/company/users/{id}": "company_user_update.json",
+  "GET /api/company/connections": "company_connections.json"
 }
