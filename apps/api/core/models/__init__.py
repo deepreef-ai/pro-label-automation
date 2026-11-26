@@ -35,7 +35,7 @@ from .operations import (
                       Run,
                       Slitting,
 )
-from .tenancy import Company, User
+from .tenancy import AiUsage, Company, User
 
 apply_tenancy(Base.metadata)
 
@@ -44,5 +44,5 @@ __all__ = [
     "AuditLog", "FixedAsset", "ListValue", "Enquiry", "Quote", "Job", "Design", "Plate", "Die", "Grn",
     "Issue", "Roll", "Slitting", "PartyLaminate", "PressSetup", "Run", "QC", "Dispatch", "Invoice",
     "Receipt", "Collection", "SupplierBill", "Payment", "PaymentAllocation", "TallyPnl", "AgentRun",
-    "AgentFinding", "Outbox", "Feedback", "Company", "User",
+    "AgentFinding", "Outbox", "Feedback", "Company", "User", "AiUsage",
 ]

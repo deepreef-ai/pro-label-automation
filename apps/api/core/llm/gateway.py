@@ -132,6 +132,7 @@ class LLMGateway:
         cache_purposes: Iterable[str] | None = None,
         record: bool | None = None,
         parallel: int | None = None,
+        budget=None,
     ):
         """
         providers: ordered chain (objects with ``name``, ``available``,
@@ -144,6 +145,8 @@ class LLMGateway:
         record: also store live answers in the cache (env ``LLM_CACHE_RECORD=1``).
         parallel: providers raced at once. Default: 1 when ``providers`` is given
             (deterministic tests), else env ``LLM_PARALLEL`` or 2.
+        budget: per-company AI budget (``core.llm.budget.AiBudget``); used only when ``complete``
+            gets a ``company_id``. Default: the database budget unless ``providers`` is given.
         """
         self.mode = (mode or os.getenv("AI_MODE") or "cloud").strip().lower()
         if self.mode not in MODES:
@@ -164,6 +167,11 @@ class LLMGateway:
         if parallel is None:
             parallel = 1 if self._custom_providers else _env_int("LLM_PARALLEL", 2)
         self.parallel = max(1, int(parallel))
+        if budget is None and not self._custom_providers:
+            from .budget import AiBudget
+
+            budget = AiBudget()
+        self.budget = budget or None
 
     # -- configuration
 
@@ -199,20 +207,32 @@ class LLMGateway:
         json_schema: dict | None = None,
         cache: bool = True,
         timeout: float | None = None,
+        company_id: str | None = None,
     ) -> LLMResult:
+        """``company_id`` (SPEC 6.4): checks and counts that company's monthly AI budget and keeps
+        its cached answers separate. Over budget -> ``LLMUnavailable`` (callers fall back)."""
         if isinstance(messages, str):
             messages = [{"role": "user", "content": messages}]
         messages = [dict(m) for m in messages]
+        budget = self.budget if company_id else None
+        if budget is not None and budget.over(company_id):
+            raise LLMUnavailable(f"AI budget for {company_id} is used up this month",
+                                 [("budget", "monthly AI budget reached")])
+        # cached answers are per company (never shared across companies)
+        cache_key = ([{"role": "system", "content": f"[company {company_id}]"}] + messages) if company_id             else messages
 
         use_cache = (
             cache and self.cache is not None
             and (self.cache_purposes is None or purpose in self.cache_purposes)
         )
         if use_cache:
-            hit = self.cache.get(messages)
+            hit = self.cache.get(cache_key)
             if hit is not None:
                 try:
                     data = self._parse(hit, json_schema)
+                    if budget is not None:
+                        budget.record(company_id, purpose=purpose, provider="cache", model=None, tokens_in=0,
+                                      tokens_out=0, cost=0.0, cached=True)
                     return LLMResult(text=hit, provider="cache", cached=True, data=data)
                 except ValueError:
                     log.warning("cached answer for purpose=%s failed JSON check; ignoring", purpose)
@@ -231,12 +251,14 @@ class LLMGateway:
                 except Exception as exc:  # error, timeout, 429, bad JSON -> next
                     self._failed(provider, purpose, exc, errors)
                     continue
-                return self._success(provider, text, data, errors, messages, purpose, use_cache)
+                return self._success(provider, text, data, errors, cache_key, purpose, use_cache,
+                                     out_messages, company_id)
         else:
             won = self._race(chain, width, out_messages, json_schema, timeout, purpose, errors)
             if won is not None:
                 provider, text, data = won
-                return self._success(provider, text, data, errors, messages, purpose, use_cache)
+                return self._success(provider, text, data, errors, cache_key, purpose, use_cache,
+                                     out_messages, company_id)
 
         raise LLMUnavailable(
             "all LLM providers failed" if errors else "no LLM provider configured", errors
@@ -290,8 +312,17 @@ class LLMGateway:
         log.warning("LLM provider %s failed (purpose=%s): %s", name, purpose, exc)
         errors.append((name, str(exc)))
 
-    def _success(self, provider, text, data, errors, messages, purpose, use_cache) -> LLMResult:
+    def _success(self, provider, text, data, errors, messages, purpose, use_cache,
+                 sent: list | None = None, company_id: str | None = None) -> LLMResult:
         name = getattr(provider, "name", type(provider).__name__)
+        if company_id and self.budget is not None:
+            from .budget import call_cost, estimate_tokens
+
+            t_in = estimate_tokens(" ".join(str(m.get("content", "")) for m in (sent or messages)))
+            t_out = estimate_tokens(text)
+            paid = bool(getattr(provider, "paid", False))
+            self.budget.record(company_id, purpose=purpose, provider=name, model=getattr(provider, "model", None),
+                               tokens_in=t_in, tokens_out=t_out, cost=call_cost(paid, t_in, t_out), cached=False)
         if use_cache and self.record:
             try:
                 self.cache.put(messages, text, purpose)

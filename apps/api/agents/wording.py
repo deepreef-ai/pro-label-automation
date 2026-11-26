@@ -88,6 +88,7 @@ def make_word(db: Session, used: list[str] | None = None) -> Word:
             return hit[0]
         try:
             from core.llm import get_gateway
+            from core.tenancy import company_of
 
             gateway = get_gateway()
             body = f"Kind: {kind}\nFacts: {json.dumps(jsonable(facts or {}), default=str)[:2000]}\nText: {fallback}"
@@ -100,7 +101,7 @@ def make_word(db: Session, used: list[str] | None = None) -> Word:
                 body, mapping = state["anon"].anonymize(body)
             result = gateway.complete(
                 [{"role": "system", "content": SYSTEM}, {"role": "user", "content": body}],
-                purpose="agent_wording", timeout=TIMEOUT,
+                purpose="agent_wording", timeout=TIMEOUT, company_id=company_of(db),
             )
             text = (result.text or "").strip().strip('"').strip()
             if mapping:

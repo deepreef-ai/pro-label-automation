@@ -10,6 +10,7 @@ If nothing answers, :class:`LLMUnavailable` is raised and callers use
 deterministic fallbacks. See ``README.md`` in this folder.
 """
 from .anonymizer import Anonymizer, build_aliases
+from .budget import AiBudget, current_month
 from .cache import AnswerCache, normalise_prompt, prompt_key
 from .gateway import (
     LLMError,
@@ -35,7 +36,7 @@ from .providers import (
 )
 
 __all__ = [
-    "Anonymizer", "build_aliases",
+    "Anonymizer", "build_aliases", "AiBudget", "current_month",
     "AnswerCache", "normalise_prompt", "prompt_key",
     "LLMError", "LLMGateway", "LLMResult", "LLMUnavailable",
     "extract_json", "validate_json", "get_gateway", "set_gateway",

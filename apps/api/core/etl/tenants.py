@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import json
 import re
-from datetime import date
+from datetime import date, datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -29,7 +29,9 @@ PLATFORM_ADMIN = {"id": "U-0900", "company_id": None, "name": "Platform Admin", 
 # Made-up companies: id offset digit, seed, client and vendor name parts (all invented).
 SYNTHETIC = {
     "CO-002": {
-        "digit": 5, "seed": 2602,
+        "digit": 5, "seed": 2602, "background": 12,  # ~40% of Pro Labels' volume (live)
+        # its own limits (SPEC 6.1: settings per company)
+        "settings": {"wastage_tol": 0.12, "overprod_tol": 0.08, "grace_days": 10, "admin_pct": 0.04},
         "places": ["Sahyadri", "Deccan", "Indrayani", "Pavana", "Bhima", "Koyna", "Shivneri", "Sinhagad",
                    "Rajgad", "Torna", "Purandar", "Lohgad", "Visapur", "Tikona", "Korigad", "Raigad",
                    "Pratapgad", "Panhala", "Vasota", "Jejuri", "Saswad", "Baramati", "Mulshi", "Velhe"],
@@ -39,7 +41,8 @@ SYNTHETIC = {
                   ("U-0204", "Ganesh Pawar", "+91 90000 00204", "production")],
     },
     "CO-003": {
-        "digit": 7, "seed": 2603,
+        "digit": 7, "seed": 2603, "background": 0,  # onboarding: only the core story
+        "settings": {"wastage_tol": 0.18, "grace_days": 20, "ai_mode": "local"},
         "places": ["Velliangiri", "Marudhamalai", "Perur", "Kovai", "Pollachi", "Tiruppur", "Mettupalayam",
                    "Kotagiri", "Coonoor", "Sathy", "Annur", "Karamadai", "Sulur", "Avinashi", "Udumalai",
                    "Dharapuram", "Gobi", "Nambiyur", "Kangeyam", "Vellakoil", "Palladam", "Valparai",
@@ -129,7 +132,8 @@ def synthetic_company(company_id: str, name: str, taken_names: set[str]) -> Rows
     """A full synthetic data set for a made-up company (never derived from real rows)."""
     spec = SYNTHETIC[company_id]
     R = Rows()
-    generate_demo(R, Context(), seed=spec["seed"], settings_overrides={"company_name": name})
+    generate_demo(R, Context(), seed=spec["seed"], settings_overrides={"company_name": name, **spec["settings"]},
+                  background=spec["background"])
     ids = _id_map(R, spec["digit"])
     names = _names(R, "clients", spec["places"], CLIENT_KINDS, "", taken_names)
     names |= _names(R, "vendors", spec["places"][::-1], VENDOR_KINDS, " Pvt Ltd", taken_names | set(names.values()))
@@ -173,15 +177,36 @@ def add_platform(R: Rows) -> None:
     R.add("users", dict(PLATFORM_ADMIN))
 
 
+AI_PURPOSES = (("chat", 0.6), ("agent_wording", 0.3), ("po_reader", 0.1))
+
+
+def add_ai_usage(R: Rows, company_id: str) -> None:
+    """This month's AI spend from the contract story (``platform_usage.json``), split by purpose."""
+    usage = _fixture("platform_usage")
+    row = next(c for c in usage["companies"] if c["company_id"] == company_id)
+    month = usage["month"]
+    left_cost, left_calls = row["ai_cost"], row["ai_calls"]
+    for i, (purpose, share) in enumerate(AI_PURPOSES):
+        last = i == len(AI_PURPOSES) - 1
+        cost = left_cost if last else round(row["ai_cost"] * share, 2)
+        calls = left_calls if last else round(row["ai_calls"] * share)
+        left_cost, left_calls = round(left_cost - cost, 2), left_calls - calls
+        R.add("ai_usage", {"company_id": company_id, "at": datetime(2026, 11, 19, 18, 0, tzinfo=timezone.utc),
+                           "month": month, "purpose": purpose, "provider": "seed", "model": None,
+                           "tokens_in": 0, "tokens_out": 0, "cost": cost, "cached": False, "calls": calls})
+
+
 def add_tenants(R: Rows) -> list[Rows]:
     """Stamp CO-001 on ``R``, add the platform rows, and return the made-up companies' rows."""
     stamp(R, PRO_LABELS)
     add_platform(R)
+    add_ai_usage(R, PRO_LABELS)
     taken = {row["name"] for row in R.t.get("clients", [])} | {row["name"] for row in R.t.get("vendors", [])}
     out = []
     companies = {c["id"]: c["name"] for c in _fixture("platform_companies")["items"]}
     for cid in SYNTHETIC:
         rows = synthetic_company(cid, companies[cid], taken)
+        add_ai_usage(rows, cid)
         taken |= {row["name"] for row in rows.t.get("clients", [])}
         out.append(rows)
     return out
