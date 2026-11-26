@@ -1,4 +1,5 @@
 import { useMemo, useState, type FormEvent } from 'react'
+import { currentCompany } from '@/lib/session'
 import { Link, useNavigate } from 'react-router-dom'
 import { Cloud, Cpu, Info, Lock, RotateCcw, Save } from 'lucide-react'
 import type { Settings, SettingsUpdate } from '@contract/types'
@@ -106,7 +107,7 @@ export default function SettingsPage() {
     <div className="space-y-6">
       <PageHeader
         title="Settings"
-        subtitle="Tolerances, credit rules and AI mode used by every screen, alert and agent."
+        subtitle={`Tolerances, credit rules and AI mode used by every screen, alert and agent. These apply to ${currentCompany().name} only.`}
         meta={!isOwner ? <Badge tone="neutral">Read only</Badge> : undefined}
       />
       <QueryState query={{ ...q, data: effective }} loading={<PageSkeleton />}>

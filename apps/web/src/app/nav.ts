@@ -14,6 +14,7 @@ import {
   Building2,
   ChartPie,
   CirclePlus,
+  UsersRound,
   type LucideIcon,
 } from 'lucide-react'
 import type { Role } from '@/lib/role'
@@ -164,6 +165,14 @@ export const NAV: NavGroup[] = [
         roles: 'all',
         description: 'Tolerances, AI mode and preferences',
         keywords: 'tolerance settings ai mode gst',
+      },
+      {
+        to: '/company',
+        title: 'Users & connections',
+        icon: UsersRound,
+        roles: ['owner'],
+        description: 'Company users, roles, profile, ERP/Tally links and AI budget',
+        keywords: 'users invite roles company admin connections erp tally ai budget',
       },
     ],
   },
