@@ -124,6 +124,28 @@ npm run dev                      # runs on mock data until the API is connected
 
 A single `run-demo` command will start everything once issue #19 (G2) is merged.
 
+### Run the 3-company demo (v0.2)
+
+```powershell
+.\run-demo.cmd              # SQLite: builds data/demo.db with 3 companies, starts API :8000 + web :5173
+.\run-demo.cmd -Postgres    # same, but API + agent scheduler on PostgreSQL with row-level security (Docker)
+.\reset-demo.cmd            # rebuild the 3-company DB between rehearsals (run once after pulling v0.2)
+.\stop-demo.cmd             # stop (with -Postgres also: docker compose -f infra/docker-compose.postgres.yml down)
+```
+macOS/Linux: `./run-demo.sh [--postgres]`, `./reset-demo.sh`, `./stop-demo.sh`.
+
+Demo logins (OTP is always `123456`; the scripts print this table):
+
+| Who | Company (web address) | Login |
+|---|---|---|
+| Pro Labels owner | `prolabels` | `+91 90000 00001` |
+| Pro Labels store | `prolabels` | `+91 90000 00005` |
+| Sunrise Flexo Prints owner (made up) | `sunriseflexo` | `+91 90000 00201` |
+| Nilgiri Label Works owner (made up) | `nilgirilabels` | `+91 90000 00301` |
+| Platform admin | none | `admin@platform.example` |
+
+`AUTH_MODE=demo` (default) also lets screens work without signing in (Pro Labels owner, role switcher); `AUTH_MODE=token` requires login.
+
 ### LLM providers and keys (`.env`)
 
 All AI calls go through one gateway (`apps/api/core/llm/`, details in its README). Every provider is

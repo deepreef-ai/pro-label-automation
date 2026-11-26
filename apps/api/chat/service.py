@@ -515,7 +515,11 @@ def _is_generic(text: str) -> bool:
 
 
 def _ungrounded(text: str, ctx: ToolContext) -> bool:
-    """True when an LLM answer shows an unrestored privacy alias or a job card that does not exist."""
+    """True when an LLM answer shows an unrestored privacy alias or a job card that does not exist.
+
+    The check uses the request's own ``ctx.api`` (the caller's token), so a job card of another
+    company is "not found" and counts as ungrounded (SPEC 6.4).
+    """
     if _ALIAS.search(text or ""):
         return True
     for jc in sorted(set(_JOB_ID.findall(text or "")))[:6]:
@@ -579,7 +583,14 @@ def _nav_reply(route: str, label: str, hi: bool) -> ChatReply:
 
 
 def answer(message: str, *, role: str = "owner", history: list | None = None,
-           gateway: Any = None, api: Any = None) -> ChatReply:
+           gateway: Any = None, api: Any = None, company_id: str | None = None) -> ChatReply:
+    """Reply to one chat message for the caller's company (SPEC 6.4).
+
+    ``api`` must be the per-request API client carrying the caller's token, so tools and the
+    grounding guard see only that company's rows (another company's id is "not found").
+    ``company_id`` selects the company's documents (RAG) and AI budget; over budget the
+    gateway raises ``LLMUnavailable`` and the deterministic answer is used.
+    """
     message = (message or "").strip()
     role = role or "owner"
     hi = is_hindi(message)
@@ -595,7 +606,7 @@ def answer(message: str, *, role: str = "owner", history: list | None = None,
         from chat.api_client import default_api
 
         api = default_api(role)
-    ctx = ToolContext(role=role, api=api)
+    ctx = ToolContext(role=role, api=api, company_id=company_id)
 
     use_agent = True
     if gateway is None:

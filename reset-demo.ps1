@@ -44,5 +44,6 @@ if ($hasFastembed) {
 
 $secs = [int]((Get-Date) - $started).TotalSeconds
 Write-Host ""
-Write-Host "Reset done ($secs s). Start the demo with .\run-demo.cmd" -ForegroundColor Green
+Write-Host "Reset done ($secs s): 3 companies (Pro Labels + 2 made-up). Start the demo with .\run-demo.cmd" -ForegroundColor Green
+Write-DemoLogins
 exit 0

@@ -23,7 +23,8 @@ param(
     [int]$WebPort = 5173,
     [switch]$Synthetic,   # build a synthetic DB if the DB is missing, even when data\raw exists
     [switch]$Mock,        # web uses contract fixtures instead of the API
-    [switch]$NoBrowser
+    [switch]$NoBrowser,
+    [switch]$Postgres     # API + scheduler on PostgreSQL with row-level security (Docker, infra/docker-compose.postgres.yml)
 )
 
 . (Join-Path $PSScriptRoot 'infra\demo\demo-lib.ps1')
@@ -46,7 +47,7 @@ $py = Initialize-Venv
 Initialize-NodeModules
 
 $dbPath = Get-SqlitePath
-if ($dbPath -and -not (Test-Path -LiteralPath $dbPath)) {
+if (-not $Postgres -and $dbPath -and -not (Test-Path -LiteralPath $dbPath)) {
     Build-DemoDb $py $Synthetic.IsPresent
 }
 
@@ -70,8 +71,21 @@ $webOrigin = "http://localhost:$WebPort"
 if ((Get-EnvOr 'CORS_ORIGINS' '') -eq '') { $env:CORS_ORIGINS = "$webOrigin,http://127.0.0.1:$WebPort" }
 $env:PYTHONPATH = Join-Path $RepoRoot 'apps\api'
 $apiUrl = "http://localhost:$ApiPort"
-Write-Step "Starting API on $apiUrl"
-$api = Start-DemoProcess 'api' $py @('-m', 'uvicorn', 'app.main:app', '--app-dir', 'apps/api', '--host', '127.0.0.1', '--port', "$ApiPort") $RepoRoot
+$compose = Join-Path $RepoRoot 'infra\docker-compose.postgres.yml'
+if ($Postgres) {
+    if (-not (Get-Command docker -ErrorAction SilentlyContinue)) {
+        Write-Warn2 "-Postgres needs Docker Desktop (docker compose). Run without -Postgres for the SQLite demo."
+        exit 1
+    }
+    if ($ApiPort -ne 8000) { Write-Warn2 "-Postgres serves the API on port 8000 (docker-compose.postgres.yml)"; $apiUrl = "http://localhost:8000" }
+    Write-Step "Starting PostgreSQL + RLS, API and scheduler (docker compose; first run builds images)"
+    & docker compose -f $compose up -d --build
+    if ($LASTEXITCODE -ne 0) { Write-Warn2 "docker compose failed; see the output above"; exit 1 }
+    $api = $null
+} else {
+    Write-Step "Starting API on $apiUrl"
+    $api = Start-DemoProcess 'api' $py @('-m', 'uvicorn', 'app.main:app', '--app-dir', 'apps/api', '--host', '127.0.0.1', '--port', "$ApiPort") $RepoRoot
+}
 
 # ---- Web (Vite dev server, run with node directly rather than through npm)
 $webDir = Join-Path $RepoRoot 'apps\web'
@@ -88,7 +102,7 @@ Write-Step "Starting web on $webOrigin ($env:VITE_API_MODE mode)"
 $web = Start-DemoProcess 'web' $node $viteArgs $webDir
 
 # ---- Wait until both answer
-if (-not (Wait-Url "$apiUrl/api/health" 90 $api)) {
+if (-not (Wait-Url "$apiUrl/api/health" ($(if ($Postgres) { 600 } else { 90 })) $api)) {
     Write-Warn2 "API did not become healthy; see data\logs\api.log"
     Stop-DemoProcesses
     exit 1
@@ -110,5 +124,7 @@ Write-Host "  Web:      $webOrigin"
 Write-Host "  API:      $apiUrl   (docs: $apiUrl/docs)"
 Write-Host "  AI mode:  $aiMode"
 Write-Host "  Logs:     data\logs\   PIDs: data\demo.pids"
-Write-Host "  Stop:     .\stop-demo.cmd"
+Write-Host "  Stop:     .\stop-demo.cmd$(if ($Postgres) { "   and   docker compose -f infra\docker-compose.postgres.yml down" })"
+Write-Host "  Database: $(if ($Postgres) { 'PostgreSQL with row-level security (3 companies)' } else { 'SQLite data\demo.db (3 companies)' })"
+Write-DemoLogins
 exit 0
