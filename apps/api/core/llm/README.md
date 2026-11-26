@@ -104,3 +104,15 @@ set_gateway(gw)   # make get_gateway() return it; set_gateway(None) resets
 ```
 In `local` mode only providers with `is_local=True` (or named `ollama`) are tried.
 `reset_cooldowns()` clears key cooldowns between tests.
+
+## Per-company AI budget (v0.2, SPEC 6.4)
+
+`complete(..., company_id="CO-002")` checks that company's monthly budget (`companies.ai_budget_month`) before any
+provider is called and logs the call in `ai_usage` (purpose, provider, tokens, rupee cost, cache hit). Free tiers and
+cache hits cost Rs 0; paid providers are priced from tokens (`LLM_PRICE_IN_PER_M` / `LLM_PRICE_OUT_PER_M` USD per
+million, default 4 / 20, `USD_INR` default 84). At 80% (`ai_alert_pct`) a warning is logged; at 100% `complete` raises
+`LLMUnavailable` and the caller uses its deterministic fallback. Cached answers are keyed per company and never
+shared. `AiBudget().status(company_id)` returns `{month, budget, used, used_pct, alert, over, calls}` for the
+platform usage and company profile screens. Agents' wording and the PO reader pass the company of their DB session
+(`core.tenancy.company_of`); the chatbot will pass it from C1 #59. Without `company_id` nothing is counted.
+

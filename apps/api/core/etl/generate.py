@@ -821,12 +821,13 @@ def add_demo_lists(R: Rows) -> None:
 
 
 def generate_demo(R: Rows, ctx: Context, seed: int = SEED, settings_extra: dict | None = None,
-                  settings_overrides: dict | None = None) -> Rows:
+                  settings_overrides: dict | None = None, background: int = 60) -> Rows:
     """Add every demo row to ``R`` (masters must already contain real machines in a real build)."""
     rng = random.Random(seed)
     add_demo_masters(R, ctx)
     add_story(R, ctx, rng)
-    add_background(R, ctx, rng)
+    if background:
+        add_background(R, ctx, rng, n=background)
     add_machine_costs(R, ctx)
     add_opening_stock(R)
     add_settings(R, settings_extra, settings_overrides)

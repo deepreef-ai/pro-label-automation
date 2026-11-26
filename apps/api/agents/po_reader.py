@@ -127,7 +127,7 @@ def _field(value: Any, raw: str, text: str, scale: float = 1.0) -> dict:
     return {"value": value, "confidence": round(conf, 2), "source_text": raw}
 
 
-def extract_po(text: str, *, clients: list[dict], gateway=None) -> dict | None:
+def extract_po(text: str, *, clients: list[dict], gateway=None, company_id: str | None = None) -> dict | None:
     """``{field: {value, confidence, source_text}}`` for the ``PoDraft`` fields the model found,
     or None when the LLM is unavailable / answers nothing usable.
 
@@ -141,7 +141,7 @@ def extract_po(text: str, *, clients: list[dict], gateway=None) -> dict | None:
 
             gateway = get_gateway()
         result = gateway.complete([{"role": "user", "content": PROMPT + text[:MAX_TEXT]}],
-                                  purpose="po_reader", json_schema=SCHEMA, cache=False)
+                                  purpose="po_reader", json_schema=SCHEMA, cache=False, company_id=company_id)
         data = result.data
     except Exception as exc:  # noqa: BLE001 - LLMUnavailable or anything else -> regex fallback
         log.info("po_reader LLM path unavailable: %s", exc)
