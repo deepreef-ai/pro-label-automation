@@ -98,7 +98,8 @@ def _agent_step(state: AgentState, gateway: Any, ctx: ToolContext) -> AgentState
     msgs = list(state["messages"])
     if state["steps"] >= MAX_STEPS:
         msgs.append({"role": "user", "content": 'No more tools. Reply now with {"answer": "..."} only.'})
-    res = gateway.complete(msgs, purpose="chat")  # may raise LLMUnavailable
+    # company_id: that company's AI budget and answer cache (SPEC 6.4); over budget -> LLMUnavailable
+    res = gateway.complete(msgs, purpose="chat", company_id=getattr(ctx, "company_id", None))
     data = _parse(res.text)
     msgs.append({"role": "assistant", "content": res.text})
     tool_name = data.get("tool")

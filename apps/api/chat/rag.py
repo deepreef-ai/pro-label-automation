@@ -12,6 +12,12 @@ Search:
 * **keyword** (BM25) otherwise, or if anything in the semantic path fails.
 
 The chunk list and vectors are cached under the git-ignored ``data/rag/``.
+
+Per company (SPEC 6.4): the demo company ``CO-001`` keeps the corpus and cache above. Any other
+company reads only its own folder ``data/rag/<company_id>/`` (documents in it or in its ``docs/``
+subfolder; cache files next to them). An empty or missing folder means no hits, so the chat
+falls back to its deterministic how-to answer. Each company has its own in-memory cache, and a
+search never looks at another company's documents. Only the embedding model is shared.
 """
 from __future__ import annotations
 
@@ -36,17 +42,53 @@ MODEL_NAME = "BAAI/bge-small-en-v1.5"
 CHUNK = 900
 OVERLAP = 150
 
+DEMO_COMPANY = "CO-001"  # keeps the original corpus and cache location
+_SAFE_ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$")
+
 _lock = threading.Lock()
-_state: dict = {"chunks": None, "sig": None, "bm25": None, "vectors": None, "model": None,
-                "method": "none"}
+_model_state: dict = {"model": None}
+_states: dict[str, dict] = {}
+
+
+def _company_key(company_id: str | None) -> str:
+    if company_id:
+        return str(company_id)
+    from core.tenancy import default_company
+
+    return default_company()
+
+
+def _state_for(company_id: str | None) -> dict:
+    """The per-company index state (corpus paths, chunks, BM25, vectors, last method)."""
+    key = _company_key(company_id)
+    st = _states.get(key)
+    if st is None:
+        if key == DEMO_COMPANY:
+            st = {"raw": RAW_DIR, "cache": CACHE_DIR, "docs": None}
+        elif _SAFE_ID.match(key) and key.lower() != MODEL_DIR.name:
+            folder = CACHE_DIR / key
+            st = {"raw": None, "cache": folder, "docs": folder}
+        else:  # never build a path from an odd id
+            st = {"raw": None, "cache": None, "docs": None}
+        st.update(company=key, chunks=None, sig=None, bm25=None, vectors=None, method="none")
+        _states[key] = st
+    return st
 
 
 # ----------------------------------------------------------------- corpus
 
-def _sources() -> list[Path]:
-    if RAW_DIR.is_dir():
-        folder = RAW_DIR / "docs" if (RAW_DIR / "docs").is_dir() else RAW_DIR
-        return sorted(p for p in folder.iterdir() if p.suffix.lower() in (".pdf", ".txt", ".md"))
+def _doc_files(base: Path) -> list[Path]:
+    folder = base / "docs" if (base / "docs").is_dir() else base
+    return sorted(p for p in folder.iterdir() if p.is_file() and p.suffix.lower() in (".pdf", ".txt", ".md"))
+
+
+def _sources(st: dict) -> list[Path]:
+    if st["docs"] is not None:  # another company: only its own folder
+        return _doc_files(st["docs"]) if st["docs"].is_dir() else []
+    if st["raw"] is None:
+        return []
+    if st["raw"].is_dir():
+        return _doc_files(st["raw"])
     files = sorted((ROOT / "docs").glob("*.md")) if (ROOT / "docs").is_dir() else []
     spec = ROOT / "contract" / "SPEC.md"
     return files + ([spec] if spec.exists() else [])
@@ -78,11 +120,12 @@ def _split(text: str) -> list[str]:
     return [c for c in out if len(c) >= 20]
 
 
-def _load_documents(paths: list[Path]) -> list[dict]:
-    if RAW_DIR.is_dir():
+def _load_documents(st: dict, paths: list[Path]) -> list[dict]:
+    base = st["docs"] if st["docs"] is not None else st["raw"]
+    if base is not None and base.is_dir():
         from core.etl.docs import list_documents
 
-        return list_documents(RAW_DIR)
+        return list_documents(base)
     docs = []
     for p in paths:
         text = p.read_text(encoding="utf-8", errors="replace")
@@ -92,12 +135,15 @@ def _load_documents(paths: list[Path]) -> list[dict]:
     return docs
 
 
-def _chunks() -> list[dict]:
-    paths = _sources()
+def _chunks(st: dict) -> list[dict]:
+    paths = _sources(st)
     sig = _signature(paths) if paths else "empty"
-    if _state["chunks"] is not None and _state["sig"] == sig:
-        return _state["chunks"]
-    cache = CACHE_DIR / "chunks.json"
+    if st["chunks"] is not None and st["sig"] == sig:
+        return st["chunks"]
+    if not paths:  # nothing to index (e.g. a company without documents yet)
+        st.update(chunks=[], sig=sig, bm25=None, vectors=None)
+        return []
+    cache = st["cache"] / "chunks.json"
     chunks = None
     try:
         if cache.exists():
@@ -108,15 +154,15 @@ def _chunks() -> list[dict]:
         chunks = None
     if chunks is None:
         chunks = []
-        for d in _load_documents(paths):
+        for d in _load_documents(st, paths):
             for piece in _split(d["text"]):
                 chunks.append({"source": d["source"], "page": d.get("page"), "text": piece})
         try:
-            CACHE_DIR.mkdir(parents=True, exist_ok=True)
+            st["cache"].mkdir(parents=True, exist_ok=True)
             cache.write_text(json.dumps({"sig": sig, "chunks": chunks}, ensure_ascii=False), encoding="utf-8")
         except OSError as exc:
             log.debug("rag: cannot write chunk cache: %s", exc)
-    _state.update(chunks=chunks, sig=sig, bm25=None, vectors=None)
+    st.update(chunks=chunks, sig=sig, bm25=None, vectors=None)
     return chunks
 
 
@@ -168,40 +214,40 @@ def _semantic_allowed() -> bool:
 
 
 def _model():
-    if _state["model"] is None:
+    if _model_state["model"] is None:
         from fastembed import TextEmbedding
 
         MODEL_DIR.mkdir(parents=True, exist_ok=True)
-        _state["model"] = TextEmbedding(model_name=MODEL_NAME, cache_dir=str(MODEL_DIR))
-    return _state["model"]
+        _model_state["model"] = TextEmbedding(model_name=MODEL_NAME, cache_dir=str(MODEL_DIR))
+    return _model_state["model"]
 
 
-def _vectors(chunks: list[dict]):
+def _vectors(st: dict, chunks: list[dict]):
     import numpy as np
 
-    if _state["vectors"] is not None:
-        return _state["vectors"]
-    path = CACHE_DIR / f"vectors_{_state['sig']}.npy"
+    if st["vectors"] is not None:
+        return st["vectors"]
+    path = st["cache"] / f"vectors_{st['sig']}.npy"
     if path.exists():
         vecs = np.load(path)
         if len(vecs) == len(chunks):
-            _state["vectors"] = vecs
+            st["vectors"] = vecs
             return vecs
     vecs = np.array(list(_model().embed([c["text"] for c in chunks])), dtype="float32")
     vecs /= np.linalg.norm(vecs, axis=1, keepdims=True) + 1e-9
     try:
-        CACHE_DIR.mkdir(parents=True, exist_ok=True)
+        st["cache"].mkdir(parents=True, exist_ok=True)
         np.save(path, vecs)
     except OSError as exc:
         log.debug("rag: cannot write vectors: %s", exc)
-    _state["vectors"] = vecs
+    st["vectors"] = vecs
     return vecs
 
 
-def _semantic(query: str, chunks: list[dict], k: int) -> list[tuple[int, float]]:
+def _semantic(st: dict, query: str, chunks: list[dict], k: int) -> list[tuple[int, float]]:
     import numpy as np
 
-    vecs = _vectors(chunks)
+    vecs = _vectors(st, chunks)
     q = np.array(next(iter(_model().query_embed([query]))), dtype="float32")
     q /= np.linalg.norm(q) + 1e-9
     sims = vecs @ q
@@ -211,54 +257,59 @@ def _semantic(query: str, chunks: list[dict], k: int) -> list[tuple[int, float]]
 
 # ----------------------------------------------------------------- public
 
-def search(query: str, k: int = 4) -> list[dict]:
-    """Top-k chunks: ``[{"source", "page", "text", "score"}]`` (text trimmed to ~600 chars)."""
+def search(query: str, k: int = 4, company_id: str | None = None) -> list[dict]:
+    """Top-k chunks of ``company_id``'s documents only (None = the default company):
+    ``[{"source", "page", "text", "score"}]`` (text trimmed to ~600 chars)."""
     with _lock:
+        st = _state_for(company_id)
         try:
-            chunks = _chunks()
+            chunks = _chunks(st)
         except Exception as exc:
             log.warning("rag: could not load documents: %s", exc)
-            _state["method"] = "none"
+            st["method"] = "none"
             return []
         if not chunks or not query.strip():
             return []
         ranked: list[tuple[int, float]] | None = None
         if _semantic_allowed():
             try:
-                ranked = _semantic(query, chunks, k)
-                _state["method"] = "semantic"
+                ranked = _semantic(st, query, chunks, k)
+                st["method"] = "semantic"
             except Exception as exc:
                 log.warning("rag: semantic search unavailable (%s); using keyword search", exc)
                 ranked = None
         if ranked is None:
-            if _state["bm25"] is None:
-                _state["bm25"] = BM25([c["text"] for c in chunks])
-            scores = _state["bm25"].scores(query)
+            if st["bm25"] is None:
+                st["bm25"] = BM25([c["text"] for c in chunks])
+            scores = st["bm25"].scores(query)
             order = sorted(range(len(scores)), key=lambda i: -scores[i])[:k]
             ranked = [(i, scores[i]) for i in order if scores[i] > 0]
-            _state["method"] = "keyword"
+            st["method"] = "keyword"
     return [{"source": chunks[i]["source"], "page": chunks[i].get("page"),
              "text": chunks[i]["text"][:600], "score": round(s, 4)} for i, s in ranked]
 
 
-def last_method() -> str:
-    return _state["method"]
+def last_method(company_id: str | None = None) -> str:
+    return _state_for(company_id)["method"]
 
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="Build / query the chat RAG index")
     ap.add_argument("--build", action="store_true", help="download the model and embed all chunks")
+    ap.add_argument("--company", default=None, help="company id (default: the demo company)")
     ap.add_argument("query", nargs="?", default="")
     a = ap.parse_args(argv)
     if a.build:
         os.environ["CHAT_RAG_DOWNLOAD"] = "1"
-        chunks = _chunks()
-        _vectors(chunks)
-        print(f"indexed {len(chunks)} chunks into {CACHE_DIR}")
+        st = _state_for(a.company)
+        chunks = _chunks(st)
+        if chunks:
+            _vectors(st, chunks)
+        print(f"indexed {len(chunks)} chunks into {st['cache']}")
     if a.query:
-        for h in search(a.query):
+        for h in search(a.query, company_id=a.company):
             print(f"[{h['score']}] {h['source']} p.{h['page']}: {h['text'][:160]!r}")
-        print("method:", last_method())
+        print("method:", last_method(a.company))
     return 0
 
 

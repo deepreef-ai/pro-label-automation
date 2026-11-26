@@ -25,7 +25,8 @@ from urllib.parse import quote, urlencode
 @dataclass
 class ToolContext:
     role: str = "owner"
-    api: Any = None
+    api: Any = None  # per request: calls the API with the caller's token / X-Role (SPEC 6.4)
+    company_id: str | None = None  # the caller's company (RAG folder, AI budget); None = demo company
 
 
 @dataclass
@@ -277,14 +278,15 @@ def _rag_search(args: dict, ctx: ToolContext) -> dict:
     from chat import rag
 
     q = str(_arg(args, "query", "q", "text", default=""))
-    hits = rag.search(q, k=int(args.get("k") or 4)) if q else []
+    hits = rag.search(q, k=int(args.get("k") or 4), company_id=ctx.company_id) if q else []
     sources, seen = [], set()
     for h in hits:
         label = f"{h['source']}" + (f" p.{h['page']}" if h.get("page") else "")
         if label not in seen:
             seen.add(label)
             sources.append(_src(label, None))
-    return {"data": {"query": q, "hits": hits, "method": rag.last_method()}, "sources": sources}
+    return {"data": {"query": q, "hits": hits, "method": rag.last_method(ctx.company_id)},
+            "sources": sources}
 
 
 # ----------------------------------------------------------------- draft tools
