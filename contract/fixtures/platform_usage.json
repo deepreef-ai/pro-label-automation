@@ -1,0 +1,122 @@
+{
+  "month": "2026-11",
+  "currency": "INR",
+  "cost_lines": [
+    {
+      "key": "compute",
+      "label": "App server (cloud, 1 small container)",
+      "basis": "shared",
+      "monthly": 4800,
+      "note": "Shared by all companies"
+    },
+    {
+      "key": "database",
+      "label": "PostgreSQL database (managed, smallest size)",
+      "basis": "shared",
+      "monthly": 2900,
+      "note": "Shared; each row tagged with company_id"
+    },
+    {
+      "key": "storage",
+      "label": "File storage and daily backups",
+      "basis": "shared",
+      "monthly": 450,
+      "note": "Shared"
+    },
+    {
+      "key": "domain",
+      "label": "Domain and SSL certificate",
+      "basis": "shared",
+      "monthly": 150,
+      "note": "Shared"
+    },
+    {
+      "key": "ai",
+      "label": "AI (LLM calls; free tiers first, paid model only when needed)",
+      "basis": "per_use",
+      "monthly": 3680.0,
+      "note": "Capped per company by its monthly AI budget"
+    },
+    {
+      "key": "otp",
+      "label": "Login OTP messages",
+      "basis": "per_use",
+      "monthly": 160.2,
+      "note": "Rs 0.18 per SMS; e-mail OTP is free"
+    }
+  ],
+  "total_cost": 12140.2,
+  "companies": [
+    {
+      "company_id": "CO-001",
+      "name": "Pro Labels",
+      "users": 8,
+      "saves": 3412,
+      "pos_read": 38,
+      "chats": 214,
+      "files": 26,
+      "ai_calls": 1150,
+      "ai_cost": 1840,
+      "ai_budget_month": 3000,
+      "ai_used_pct": 0.6133,
+      "shared_cost": 3320.0,
+      "direct_cost": 1933.6,
+      "total_cost": 5253.6
+    },
+    {
+      "company_id": "CO-002",
+      "name": "Sunrise Flexo Prints",
+      "users": 9,
+      "saves": 2105,
+      "pos_read": 21,
+      "chats": 160,
+      "files": 12,
+      "ai_calls": 1060,
+      "ai_cost": 1720,
+      "ai_budget_month": 2000,
+      "ai_used_pct": 0.86,
+      "shared_cost": 3735.0,
+      "direct_cost": 1775.8,
+      "total_cost": 5510.8
+    },
+    {
+      "company_id": "CO-003",
+      "name": "Nilgiri Label Works",
+      "users": 3,
+      "saves": 240,
+      "pos_read": 0,
+      "chats": 18,
+      "files": 6,
+      "ai_calls": 75,
+      "ai_cost": 120,
+      "ai_budget_month": 1000,
+      "ai_used_pct": 0.12,
+      "shared_cost": 1245.0,
+      "direct_cost": 130.8,
+      "total_cost": 1375.8
+    }
+  ],
+  "growth": [
+    {
+      "companies": 1,
+      "cost_per_company": 9580.07
+    },
+    {
+      "companies": 3,
+      "cost_per_company": 4046.73
+    },
+    {
+      "companies": 10,
+      "cost_per_company": 2110.07
+    },
+    {
+      "companies": 25,
+      "cost_per_company": 1811.27
+    },
+    {
+      "companies": 50,
+      "cost_per_company": 1678.47
+    }
+  ],
+  "is_estimate": true
+}

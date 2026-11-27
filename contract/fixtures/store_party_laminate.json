@@ -1,0 +1,71 @@
+{
+  "as_of": "2026-11-20",
+  "balances": [
+    {
+      "client_id": "CL-003",
+      "client_name": "Lotus Cosmetics Pvt Ltd",
+      "laminate": "ABL 250 micron tube laminate",
+      "balance_m": 1450.0
+    },
+    {
+      "client_id": "CL-008",
+      "client_name": "Bharat Home Care Ltd",
+      "laminate": "PBL 300 micron tube laminate",
+      "balance_m": 2000.0
+    }
+  ],
+  "rows": [
+    {
+      "id": "PLM-0031",
+      "date": "2026-10-25",
+      "client_id": "CL-003",
+      "client_name": "Lotus Cosmetics Pvt Ltd",
+      "movement": "in",
+      "laminate": "ABL 250 micron tube laminate",
+      "width_mm": 300,
+      "qty_m": 3000.0,
+      "job_card": null,
+      "balance_m": 3000.0,
+      "is_demo": true
+    },
+    {
+      "id": "PLM-0034",
+      "date": "2026-11-04",
+      "client_id": "CL-003",
+      "client_name": "Lotus Cosmetics Pvt Ltd",
+      "movement": "out",
+      "laminate": "ABL 250 micron tube laminate",
+      "width_mm": 300,
+      "qty_m": 1150.0,
+      "job_card": "JC-1288",
+      "balance_m": 1850.0,
+      "is_demo": true
+    },
+    {
+      "id": "PLM-0036",
+      "date": "2026-11-08",
+      "client_id": "CL-008",
+      "client_name": "Bharat Home Care Ltd",
+      "movement": "in",
+      "laminate": "PBL 300 micron tube laminate",
+      "width_mm": 330,
+      "qty_m": 2000.0,
+      "job_card": null,
+      "balance_m": 2000.0,
+      "is_demo": true
+    },
+    {
+      "id": "PLM-0039",
+      "date": "2026-11-16",
+      "client_id": "CL-003",
+      "client_name": "Lotus Cosmetics Pvt Ltd",
+      "movement": "out",
+      "laminate": "ABL 250 micron tube laminate",
+      "width_mm": 300,
+      "qty_m": 400.0,
+      "job_card": "JC-1251",
+      "balance_m": 1450.0,
+      "is_demo": true
+    }
+  ]
+}

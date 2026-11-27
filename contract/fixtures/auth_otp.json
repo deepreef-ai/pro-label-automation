@@ -1,0 +1,7 @@
+{
+  "sent": true,
+  "channel": "sms",
+  "masked_to": "+91 90000 0xx01",
+  "expires_in_s": 300,
+  "demo_otp": "123456"
+}

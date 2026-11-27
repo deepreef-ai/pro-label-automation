@@ -1,0 +1,17 @@
+{
+  "id": "CO-001",
+  "name": "Pro Labels",
+  "slug": "prolabels",
+  "gstin": null,
+  "city": null,
+  "state": null,
+  "status": "parallel_run",
+  "plan": "Demo v0.2",
+  "users": 8,
+  "created_on": "2026-10-15",
+  "ai_budget_month": 3000,
+  "ai_used_month": 1840,
+  "ai_used_pct": 0.6133,
+  "ai_alert_pct": 0.8,
+  "ai_over_budget": false
+}

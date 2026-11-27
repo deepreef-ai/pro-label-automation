@@ -1,0 +1,82 @@
+{
+  "month": "2026-10",
+  "lines": [
+    {
+      "key": "revenue",
+      "label": "Revenue (invoiced taxable)",
+      "system": 5240000.0,
+      "tally": 5240000.0,
+      "diff": 0.0,
+      "note": ""
+    },
+    {
+      "key": "material",
+      "label": "Material",
+      "system": 2410400.0,
+      "tally": 2452900.0,
+      "diff": -42500.0,
+      "note": "GRN-00398 (Rs 42,500) booked in Tally in Oct, used in Nov"
+    },
+    {
+      "key": "plates",
+      "label": "Plates & dies",
+      "system": 148000.0,
+      "tally": 148000.0,
+      "diff": 0.0,
+      "note": ""
+    },
+    {
+      "key": "ink",
+      "label": "Ink & varnish",
+      "system": 236800.0,
+      "tally": 236800.0,
+      "diff": 0.0,
+      "note": ""
+    },
+    {
+      "key": "salaries",
+      "label": "Salaries (crew)",
+      "system": 615000.0,
+      "tally": 615000.0,
+      "diff": 0.0,
+      "note": ""
+    },
+    {
+      "key": "freight",
+      "label": "Freight",
+      "system": 88600.0,
+      "tally": 102300.0,
+      "diff": -13700.0,
+      "note": "3 Metro Freight bills (Rs 13,700) not linked to challans"
+    },
+    {
+      "key": "admin",
+      "label": "Admin share",
+      "system": 262000.0,
+      "tally": 262000.0,
+      "diff": 0.0,
+      "note": ""
+    },
+    {
+      "key": "overheads",
+      "label": "Overheads",
+      "system": 320000.0,
+      "tally": 320000.0,
+      "diff": 0.0,
+      "note": ""
+    },
+    {
+      "key": "profit",
+      "label": "Net profit",
+      "system": 1159200.0,
+      "tally": 1103000.0,
+      "diff": 56200.0,
+      "note": "Gap explained by the 2 items above"
+    }
+  ],
+  "system_profit": 1159200.0,
+  "tally_profit": 1103000.0,
+  "difference": 56200.0,
+  "matched": false,
+  "tally_imported_at": "2026-11-05T18:20:00+05:30"
+}

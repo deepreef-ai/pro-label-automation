@@ -1,0 +1,26 @@
+{
+  "id": "QC-03331",
+  "date": "2026-11-20",
+  "job_card": "JC-1240",
+  "client_name": "Sunrise Pharma Ltd",
+  "run_id": "RUN-05570",
+  "checked": 61500,
+  "approved": 59900,
+  "rejected": 1600,
+  "rejection_pct": 0.026,
+  "decision": "Approved",
+  "counts_as_approved": true,
+  "defects": [
+    {
+      "type": "Plate damage marks",
+      "qty": 1100
+    },
+    {
+      "type": "Colour variation",
+      "qty": 500
+    }
+  ],
+  "inspector": "QC Inspector B",
+  "notes": "Balance of RUN-05570",
+  "is_demo": true
+}

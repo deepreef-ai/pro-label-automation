@@ -1,0 +1,66 @@
+"""FastAPI app (SPEC 1: ``app`` in ``apps/api/app/main.py``; every route starts with ``/api``).
+
+Run locally:  ``uvicorn app.main:app --reload --app-dir apps/api``
+"""
+from __future__ import annotations
+
+import os
+
+from fastapi import FastAPI, Request
+from fastapi.exceptions import RequestValidationError
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+
+from agents import router as agents_router
+from app.routers import (
+    auth,
+    company,
+    dashboard,
+    design,
+    dispatch,
+    jobs,
+    marketing,
+    masters,
+    money_ap,
+    money_ar,
+    platform,
+    production,
+    qc,
+    shell,
+    store,
+)
+from chat import router as chat_router
+
+VERSION = "0.1.0"
+
+app = FastAPI(title="Pro Labels API (demo)", version=VERSION)
+
+_origins = os.environ.get("CORS_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173,http://localhost:4173,http://127.0.0.1:4173")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[o.strip() for o in _origins.split(",") if o.strip()],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
+@app.exception_handler(RequestValidationError)
+async def _validation_as_400(_request: Request, exc: RequestValidationError) -> JSONResponse:
+    """SPEC 1: validation errors are 400 ``{"detail": "<message>"}`` (not FastAPI's 422 list)."""
+    parts = []
+    for err in exc.errors():
+        loc = ".".join(str(x) for x in err.get("loc", ()) if x not in ("body", "query", "path"))
+        parts.append(f"{loc}: {err.get('msg')}" if loc else str(err.get("msg")))
+    return JSONResponse(status_code=400, content={"detail": "; ".join(parts) or "invalid request"})
+
+
+# dashboard first: its /jobs/{job_card}/360 sits beside jobs' /jobs/{job_card}
+for _module in (auth, shell, masters, marketing, dashboard, jobs, design, store, production, qc, dispatch,
+                money_ar, money_ap, platform, company):
+    app.include_router(_module.router, prefix="/api")
+
+# Agents, findings, owner brief and outbox (apps/api/agents, issue #18).
+app.include_router(agents_router.router, prefix="/api")
+
+# The chatbot router (apps/api/chat, owned by Vinay) already carries the /api prefix.
+app.include_router(chat_router.router)

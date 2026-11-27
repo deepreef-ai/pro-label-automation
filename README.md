@@ -72,10 +72,10 @@ pro-label-automation/
 │   │   └── e2e/       🔒 Locked smoke test
 │   └── api/
 │       ├── core/      Foundation: models, rules engine, ETL, LLM gateway (Task 0)
-│       ├── app/       Backend API endpoints and services (owner: Ravi)
-│       ├── agents/    PO reader + AI agents + outbox (owner: Ravi)
+│       ├── app/       Backend API endpoints and services (owner: Yash)
+│       ├── agents/    PO reader + AI agents + outbox (owner: Yash)
 │       └── chat/      LangGraph chatbot + RAG (owner: Vinay)
-├── infra/             Dockerfiles and compose (owner: Ravi)
+├── infra/             Dockerfiles and compose (owner: Yash)
 ├── docs/              Demo script, guides, synthetic sample POs
 └── data/              ⛔ Git-ignored: client files, SQLite DB, vector index
 ```
@@ -124,6 +124,45 @@ npm run dev                      # runs on mock data until the API is connected
 
 A single `run-demo` command will start everything once issue #19 (G2) is merged.
 
+### Run the 3-company demo (v0.2)
+
+```powershell
+.\run-demo.cmd              # SQLite: builds data/demo.db with 3 companies, starts API :8000 + web :5173
+.\run-demo.cmd -Postgres    # same, but API + agent scheduler on PostgreSQL with row-level security (Docker)
+.\reset-demo.cmd            # rebuild the 3-company DB between rehearsals (run once after pulling v0.2)
+.\stop-demo.cmd             # stop (with -Postgres also: docker compose -f infra/docker-compose.postgres.yml down)
+```
+macOS/Linux: `./run-demo.sh [--postgres]`, `./reset-demo.sh`, `./stop-demo.sh`.
+
+Demo logins (OTP is always `123456`; the scripts print this table):
+
+| Who | Company (web address) | Login |
+|---|---|---|
+| Pro Labels owner | `prolabels` | `+91 90000 00001` |
+| Pro Labels store | `prolabels` | `+91 90000 00005` |
+| Sunrise Flexo Prints owner (made up) | `sunriseflexo` | `+91 90000 00201` |
+| Nilgiri Label Works owner (made up) | `nilgirilabels` | `+91 90000 00301` |
+| Platform admin | none | `admin@platform.example` |
+
+`AUTH_MODE=demo` (default) also lets screens work without signing in (Pro Labels owner, role switcher); `AUTH_MODE=token` requires login.
+
+### LLM providers and keys (`.env`)
+
+All AI calls go through one gateway (`apps/api/core/llm/`, details in its README). Every provider is
+optional and used only when its key is set in `.env` (copy `.env.example`; **never commit `.env` or keys**).
+
+| Provider | Key env | Cost |
+|---|---|---|
+| Claude (Anthropic SDK, `claude-opus-5-5`) | `ANTHROPIC_API_KEY` | paid: ~$4 / $20 per million input / output tokens |
+| Groq, Cerebras, Gemini, SambaNova, Mistral, NVIDIA, GitHub Models, OpenRouter, Hugging Face | `GROQ_API_KEY`, `CEREBRAS_API_KEY`, `GEMINI_API_KEY`, `SAMBANOVA_API_KEY`, `MISTRAL_API_KEY`, `NVIDIA_API_KEY`, `GITHUB_MODELS_TOKEN`, `OPENROUTER_API_KEY`, `HF_TOKEN` | free tiers |
+| Ollama (local) | none (`OLLAMA_URL`) | free |
+
+- **Order:** `LLM_ORDER` (default `anthropic,groq,cerebras,gemini,sambanova,mistral,nvidia,github,openrouter,huggingface,ollama`). Claude goes first when its key is set; put the free ones first to save money.
+- **More keys:** add `<KEY>_2` .. `<KEY>_9` (e.g. `GEMINI_API_KEY_2`). Calls rotate across keys; a key that hits 429/quota/5xx rests for `LLM_COOLDOWN_SECONDS` (60).
+- **Speed:** `LLM_PARALLEL=2` races two providers and keeps the first answer (`1` = one at a time).
+- **Models:** each provider has a `<NAME>_MODEL` override; `ANTHROPIC_EFFORT` (`low` default) trades Claude speed/cost for depth.
+- **Privacy:** in cloud mode client and vendor names are replaced by aliases before any request leaves the machine (Claude included); `AI_MODE=local` uses only Ollama.
+
 ---
 
 ## How we work
@@ -131,25 +170,36 @@ A single `run-demo` command will start everything once issue #19 (G2) is merged.
 ### Branches and pull requests
 
 ```
-main (protected)
- ├── feat/web-*   ── PR ──► reviewed by Ravi  ──► squash merge
- └── feat/api-*   ── PR ──► reviewed by Vinay ──► squash merge
+main   ← stable, demo-ready; updated only by "[release] …" PRs from dev at milestones
+ └── dev   ← integration branch; every feature PR targets dev
+      ├── feat/web-*   ── PR ──► dev, reviewed by Yash
+      └── feat/api-*   ── PR ──► dev, reviewed by Vinay
 ```
 
-1. `git checkout main && git pull`
+1. `git checkout dev && git pull`
 2. `git checkout -b feat/<task>` (the branch name is given in each issue)
 3. Work **only in your folders**; keep one task per PR.
-4. `git pull --rebase origin main`, run the tests locally, push, then open a PR that links the issue (`Closes #<n>`).
+4. `git pull --rebase origin dev`, run the tests locally, push, then open a PR **into `dev`** that links the issue (`Closes #<n>`).
 5. CI must be green → the other person reviews and approves → squash-merge → delete the branch.
+6. **Merge reviewed PRs quickly** and always branch from the latest `dev`, so nothing drifts and conflicts stay rare.
 
-**Merge order:** Task 0 → A1 → W1–W5 (any time, mock mode) → A2 → A3 → C1 → G1 → G2 → W6 → tag `v0.1-demo`
+Both developers' Claude sessions follow [`CLAUDE.md`](CLAUDE.md) (folder ownership, branch flow, hard rules).
+
+**Merge order:** Task 0 → A1 → W1–W5 (any time, mock mode) → A2 → A3 → C1 → G1 → G2 → W6 → release PR dev → main → tag `v0.1-demo`
 
 ### Task assignments
 
 | Owner | Issues |
 |---|---|
 | **Vinay** (frontend + chat) | #1–#7 Foundation & CI setup · #8 W1 · #9 W2 · #10 W3 · #11 W4 · #12 W5 · #13 C1 · #14 W6 |
-| **Ravi** (backend + agents) | #15 A1 · #16 A2 · #17 A3 · #18 G1 · #19 G2 |
+| **Ravi** (backend + agents, v0.1) | #15 A1 · #16 A2 · #17 A3 · #18 G1 · #19 G2 |
+
+**Demo v0.2 (multi-tenant), Task Board #64:**
+
+| Owner | Issues |
+|---|---|
+| **Vinay** (frontend + chat) | #48 H2 · #56 W1 · #57 W2 · #58 W3 · #59 C1 · #60 W4 · #62 D1 · #63 R1 |
+| **Yash** (backend + agents + infra) | #47 H1 · #49 K1 · #50 K2 · #51 F1 · #52 F2 · #53 B1 · #54 B2 · #55 B3 · #61 G1 · #63 R1 |
 
 ---
 

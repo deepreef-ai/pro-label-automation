@@ -1,0 +1,32 @@
+{
+  "id": "F-0234",
+  "agent": "planning",
+  "created_at": "2026-11-20T07:00:00+05:30",
+  "severity": "high",
+  "title": "PP Silver 200 mm short by 700 m for JC-1310 and JC-1315",
+  "detail": "Open jobs need 2,584.45 m (JC-1310: 838.20 m, JC-1315: 1,746.25 m incl. 10% planning extra). Stock is 1,884.45 m. JC-1310 is due 28-Nov. Suggest one 1,000 m roll from Polyfilm Industries (7-day lead time).",
+  "evidence": [
+    {
+      "label": "Material summary",
+      "link": "/jobs?tab=material"
+    },
+    {
+      "label": "Stock PP Silver 200 mm",
+      "link": "/store?tab=stock&item=IT-0103"
+    }
+  ],
+  "suggested_action": {
+    "type": "draft_purchase_request",
+    "payload": {
+      "item_id": "IT-0103",
+      "qty_m": 1000,
+      "suggested_qty_m": 1000,
+      "vendor_id": "VN-002",
+      "needed_by": "2026-11-24"
+    }
+  },
+  "status": "open",
+  "decided_by": null,
+  "decided_at": null,
+  "reason": null
+}

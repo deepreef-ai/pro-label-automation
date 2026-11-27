@@ -1,0 +1,60 @@
+{
+  "as_of": "2026-11-20",
+  "planning_extra": 0.1,
+  "items": [
+    {
+      "item_id": "IT-0101",
+      "material": "PP White 250 mm",
+      "width_mm": 250,
+      "jobs": [
+        {
+          "job_card": "JC-1312",
+          "client_name": "Lotus Cosmetics Pvt Ltd",
+          "need_m": 698.5
+        }
+      ],
+      "need_m": 698.5,
+      "stock_m": 2595.0,
+      "shortage_m": 0.0,
+      "status": "ok"
+    },
+    {
+      "item_id": "IT-0102",
+      "material": "PP White 330 mm",
+      "width_mm": 330,
+      "jobs": [
+        {
+          "job_card": "JC-1313",
+          "client_name": "Bharat Home Care Ltd",
+          "need_m": 2794.0
+        }
+      ],
+      "need_m": 2794.0,
+      "stock_m": 2800.0,
+      "shortage_m": 0.0,
+      "status": "ok"
+    },
+    {
+      "item_id": "IT-0103",
+      "material": "PP Silver 200 mm",
+      "width_mm": 200,
+      "jobs": [
+        {
+          "job_card": "JC-1310",
+          "client_name": "Kaveri Agro Foods",
+          "need_m": 838.2
+        },
+        {
+          "job_card": "JC-1315",
+          "client_name": "Orchid Wellness",
+          "need_m": 1746.25
+        }
+      ],
+      "need_m": 2584.45,
+      "stock_m": 1884.45,
+      "shortage_m": 700.0,
+      "status": "short"
+    }
+  ],
+  "shortages": 1
+}

@@ -1,0 +1,109 @@
+{
+  "items": [
+    {
+      "id": "U-0001",
+      "name": "Rajiv Malhotra",
+      "login": "+91 90000 00001",
+      "role": "owner",
+      "device": "Laptop · Chrome",
+      "sign_in": "otp_phone",
+      "last_active_at": "2026-11-20T09:40:00+05:30",
+      "status": "active"
+    },
+    {
+      "id": "U-0002",
+      "name": "Neha Sharma",
+      "login": "neha@prolabels.example",
+      "role": "accounts",
+      "device": "Laptop · Edge",
+      "sign_in": "otp_email",
+      "last_active_at": "2026-11-20T10:05:00+05:30",
+      "status": "active"
+    },
+    {
+      "id": "U-0003",
+      "name": "Sanjay Verma",
+      "login": "+91 90000 00003",
+      "role": "ppic",
+      "device": "Desktop · Chrome",
+      "sign_in": "otp_phone",
+      "last_active_at": "2026-11-20T09:55:00+05:30",
+      "status": "active"
+    },
+    {
+      "id": "U-0004",
+      "name": "Kavita Joshi",
+      "login": "kavita@prolabels.example",
+      "role": "design",
+      "device": "Desktop · Chrome",
+      "sign_in": "otp_email",
+      "last_active_at": "2026-11-19T18:10:00+05:30",
+      "status": "active"
+    },
+    {
+      "id": "U-0005",
+      "name": "Deepak Yadav",
+      "login": "+91 90000 00005",
+      "role": "store",
+      "device": "Desktop · Chrome",
+      "sign_in": "otp_phone",
+      "last_active_at": "2026-11-20T08:30:00+05:30",
+      "status": "active"
+    },
+    {
+      "id": "U-0006",
+      "name": "Amit Chauhan",
+      "login": "+91 90000 00006",
+      "role": "production",
+      "device": "Tablet · Press floor",
+      "sign_in": "otp_phone",
+      "last_active_at": "2026-11-20T10:12:00+05:30",
+      "status": "active"
+    },
+    {
+      "id": "U-0007",
+      "name": "Manoj Singh",
+      "login": "+91 90000 00007",
+      "role": "qc",
+      "device": "Tablet · QC table",
+      "sign_in": "otp_phone",
+      "last_active_at": "2026-11-20T09:20:00+05:30",
+      "status": "active"
+    },
+    {
+      "id": "U-0008",
+      "name": "Pankaj Rawat",
+      "login": "+91 90000 00008",
+      "role": "dispatch",
+      "device": "Phone · Android",
+      "sign_in": "otp_phone",
+      "last_active_at": "2026-11-19T17:45:00+05:30",
+      "status": "active"
+    },
+    {
+      "id": "U-0009",
+      "name": "Rohit Mehra",
+      "login": "rohit@prolabels.example",
+      "role": "marketing",
+      "device": null,
+      "sign_in": "otp_email",
+      "last_active_at": null,
+      "status": "invited"
+    },
+    {
+      "id": "U-0010",
+      "name": "Suresh Bhatt",
+      "login": "+91 90000 00010",
+      "role": "production",
+      "device": "Tablet · Press floor",
+      "sign_in": "otp_phone",
+      "last_active_at": "2026-11-02T06:50:00+05:30",
+      "status": "disabled"
+    }
+  ],
+  "totals": {
+    "active": 8,
+    "invited": 1,
+    "disabled": 1
+  }
+}

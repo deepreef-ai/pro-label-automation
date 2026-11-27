@@ -1,0 +1,50 @@
+[
+  {
+    "run_id": "RUN-05582",
+    "ts": "2026-11-20T11:30:00+05:30",
+    "count": 38400,
+    "metres": 812.8,
+    "speed_mpm": 55.0,
+    "status": "running"
+  },
+  {
+    "run_id": "RUN-05582",
+    "ts": "2026-11-20T11:30:02+05:30",
+    "count": 38520,
+    "metres": 815.34,
+    "speed_mpm": 55.5,
+    "status": "running"
+  },
+  {
+    "run_id": "RUN-05582",
+    "ts": "2026-11-20T11:30:04+05:30",
+    "count": 38640,
+    "metres": 817.88,
+    "speed_mpm": 56.0,
+    "status": "running"
+  },
+  {
+    "run_id": "RUN-05582",
+    "ts": "2026-11-20T11:30:06+05:30",
+    "count": 38760,
+    "metres": 820.42,
+    "speed_mpm": 55.0,
+    "status": "running"
+  },
+  {
+    "run_id": "RUN-05582",
+    "ts": "2026-11-20T11:30:08+05:30",
+    "count": 38880,
+    "metres": 822.96,
+    "speed_mpm": 55.5,
+    "status": "running"
+  },
+  {
+    "run_id": "RUN-05582",
+    "ts": "2026-11-20T11:30:10+05:30",
+    "count": 39000,
+    "metres": 825.5,
+    "speed_mpm": 56.0,
+    "status": "running"
+  }
+]

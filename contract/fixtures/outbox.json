@@ -1,0 +1,102 @@
+{
+  "items": [
+    {
+      "id": "OB-0101",
+      "created_at": "2026-11-20T07:00:00+05:30",
+      "agent": "collections",
+      "finding_id": "F-0235",
+      "channel": "whatsapp",
+      "to": "Sunrise Pharma Ltd (Kiran Shah)",
+      "subject": "Payment reminder",
+      "body": "Dear Kiran Shah, Rs 1,420,012 is overdue. Your account will be put on hold on 2026-11-22. Kindly arrange payment. - Accounts",
+      "status": "draft",
+      "approved_by": null,
+      "sent_at": null,
+      "simulated": true
+    },
+    {
+      "id": "OB-0102",
+      "created_at": "2026-11-20T07:00:00+05:30",
+      "agent": "collections",
+      "finding_id": "F-0235",
+      "channel": "whatsapp",
+      "to": "Green Valley Dairy (Sunil Pawar)",
+      "subject": "Payment reminder",
+      "body": "Dear Sunil Pawar, Rs 739,860 is overdue. Your account will be put on hold on 2026-11-25. Kindly arrange payment. - Accounts",
+      "status": "draft",
+      "approved_by": null,
+      "sent_at": null,
+      "simulated": true
+    },
+    {
+      "id": "OB-0103",
+      "created_at": "2026-11-20T07:00:00+05:30",
+      "agent": "collections",
+      "finding_id": "F-0235",
+      "channel": "whatsapp",
+      "to": "Neelgiri Aqua Pvt Ltd (R. Senthil)",
+      "subject": "Payment reminder",
+      "body": "Dear R. Senthil, Rs 630,120 is overdue. Your account will be put on hold on 2026-11-27. Kindly arrange payment. - Accounts",
+      "status": "draft",
+      "approved_by": null,
+      "sent_at": null,
+      "simulated": true
+    },
+    {
+      "id": "OB-0104",
+      "created_at": "2026-11-20T07:00:00+05:30",
+      "agent": "collections",
+      "finding_id": "F-0235",
+      "channel": "whatsapp",
+      "to": "Royal Spices Pvt Ltd (Manish Jain)",
+      "subject": "Payment reminder",
+      "body": "Dear Manish Jain, Rs 985,300 is overdue. Your account will be put on hold on 2026-11-23. Kindly arrange payment. - Accounts",
+      "status": "draft",
+      "approved_by": null,
+      "sent_at": null,
+      "simulated": true
+    },
+    {
+      "id": "OB-0105",
+      "created_at": "2026-11-20T07:00:00+05:30",
+      "agent": "collections",
+      "finding_id": "F-0235",
+      "channel": "whatsapp",
+      "to": "Bharat Home Care Ltd (Dinesh Patel)",
+      "subject": "Payment reminder",
+      "body": "Dear Dinesh Patel, Rs 484,980 is overdue. Your account will be put on hold on 2026-11-30. Kindly arrange payment. - Accounts",
+      "status": "draft",
+      "approved_by": null,
+      "sent_at": null,
+      "simulated": true
+    },
+    {
+      "id": "OB-0094",
+      "created_at": "2026-11-11T07:00:00+05:30",
+      "agent": "collections",
+      "finding_id": "F-0224",
+      "channel": "email",
+      "to": "Coastal Seafoods Exports (Thomas Varghese)",
+      "subject": "Overdue: Rs 2,42,640",
+      "body": "Reminder: Rs 2,42,640 overdue.",
+      "status": "sent",
+      "approved_by": "owner",
+      "sent_at": "2026-11-11T09:03:00+05:30",
+      "simulated": true
+    },
+    {
+      "id": "OB-0097",
+      "created_at": "2026-11-18T10:12:00+05:30",
+      "agent": "import_checker",
+      "finding_id": "F-0219",
+      "channel": "task",
+      "to": "Store",
+      "subject": "6 issue lines need a job card",
+      "body": "Please check ISS lines 2231-2236 in the Aug import.",
+      "status": "sent",
+      "approved_by": "store",
+      "sent_at": "2026-11-18T10:12:00+05:30",
+      "simulated": true
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "date": "2026-11-20",
+  "generated_at": "2026-11-20T07:15:00+05:30",
+  "headline": "Rs 42.6 lakh from 5 clients will lock within 10 days; JC-1240 wasted 18% last night.",
+  "items": [
+    {
+      "text": "Sunrise Pharma locks on Sunday 22-Nov (Rs 14.2 lakh). Cheque promised for 21-Nov.",
+      "severity": "high",
+      "link": "/money?tab=debtors&client=CL-002"
+    },
+    {
+      "text": "Royal Spices promised 25-Nov, two days after its lock date. Call today.",
+      "severity": "high",
+      "link": "/money?tab=collections"
+    },
+    {
+      "text": "JC-1240 night shift wastage 18.0% (limit 15%): magenta plate damaged twice.",
+      "severity": "high",
+      "link": "/jobs/JC-1240"
+    },
+    {
+      "text": "PP Silver 200 mm short by 700 m for JC-1310 and JC-1315. Purchase request drafted.",
+      "severity": "medium",
+      "link": "/agents"
+    },
+    {
+      "text": "Pay Shree Ganesh Films Rs 1,86,400 by 23-Nov (MSME).",
+      "severity": "medium",
+      "link": "/money?tab=creditors"
+    },
+    {
+      "text": "Month so far: revenue Rs 38.6 lakh (64% of target), profit Rs 7.7 lakh, OEE 55%.",
+      "severity": "low",
+      "link": "/"
+    }
+  ],
+  "source": "llm",
+  "finding_id": "F-0238"
+}

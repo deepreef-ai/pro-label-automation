@@ -1,0 +1,83 @@
+name: Release
+
+# NOTE: the AWS deploy job is added here after client approval.
+#
+# Two ways to release:
+#  - push a tag `v*`            -> a normal release named after the tag
+#  - merge (push) into `main`   -> a pre-release `v<web version>-main.<run number>` on that commit
+# Each release attaches the source zip and the built web app.
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        if: hashFiles('apps/web/package.json') != ''
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+      - name: Release name
+        id: name
+        run: |
+          if [ "$GITHUB_REF_TYPE" = "tag" ]; then
+            tag="$GITHUB_REF_NAME"
+            prerelease=""
+          else
+            version="0.0.0"
+            if [ -f apps/web/package.json ]; then
+              version=$(node -p "require('./apps/web/package.json').version")
+            fi
+            tag="v${version}-main.${GITHUB_RUN_NUMBER}"
+            prerelease="--prerelease"
+          fi
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "prerelease=$prerelease" >> "$GITHUB_OUTPUT"
+          echo "Release: $tag $prerelease"
+      - name: Build web app
+        if: hashFiles('apps/web/package.json') != ''
+        working-directory: apps/web
+        run: |
+          npm ci
+          npm run build
+      - name: Package assets
+        env:
+          TAG: ${{ steps.name.outputs.tag }}
+        run: |
+          mkdir -p release
+          git archive --format=zip --prefix="pro-label-automation-${TAG}/" \
+            -o "release/pro-label-automation-${TAG}-source.zip" HEAD
+          if [ -d apps/web/dist ]; then
+            (cd apps/web/dist && zip -qr "../../../release/web-dist-${TAG}.zip" .)
+          fi
+          ls -l release
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.name.outputs.tag }}
+          PRERELEASE: ${{ steps.name.outputs.prerelease }}
+        run: |
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "Release $TAG already exists; skipping."
+            exit 0
+          fi
+          if [ "$GITHUB_REF_TYPE" = "tag" ]; then
+            gh release create "$TAG" release/*.zip --title "$TAG" --generate-notes --verify-tag
+          else
+            gh release create "$TAG" release/*.zip --title "$TAG" --generate-notes \
+              --target "$GITHUB_SHA" $PRERELEASE
+          fi

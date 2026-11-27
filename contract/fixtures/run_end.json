@@ -1,0 +1,30 @@
+{
+  "id": "RUN-05582",
+  "job_card": "JC-1316",
+  "client_name": "Fresh Juice Co.",
+  "machine_id": "M-01",
+  "machine_name": "Gallus EM 280",
+  "machine_type": "press",
+  "shift": "day",
+  "operator": "Suresh Patil",
+  "start": "2026-11-20T08:15:00+05:30",
+  "end": "2026-11-20T12:45:00+05:30",
+  "hours": 4.5,
+  "status": "ended",
+  "printed_qty": 51200,
+  "required_m": 1058.33,
+  "used_m": 1160.0,
+  "wastage_m": 101.67,
+  "wastage_pct": 0.0961,
+  "wastage_flag": false,
+  "overprod_flag": false,
+  "hour_rate": 800.0,
+  "crew_cost": 3600.0,
+  "stops": [
+    {
+      "reason": "Make-ready",
+      "minutes": 15
+    }
+  ],
+  "is_demo": true
+}

@@ -1,0 +1,132 @@
+{
+  "finding": {
+    "id": "F-0235",
+    "agent": "collections",
+    "created_at": "2026-11-20T07:00:00+05:30",
+    "severity": "high",
+    "title": "5 clients lock within 10 days: Rs 42.6 lakh at risk",
+    "detail": "Sunrise Pharma (Rs 14,20,012, locks 22-Nov), Royal Spices (Rs 9,85,300, 23-Nov), Green Valley Dairy (Rs 7,39,860, 25-Nov), Neelgiri Aqua (Rs 6,30,120, 27-Nov), Bharat Home Care (Rs 4,84,980, 30-Nov). Royal Spices promised payment on 25-Nov, which is after its lock date.",
+    "evidence": [
+      {
+        "label": "Debtors (at risk)",
+        "link": "/money?tab=debtors&filter=at_risk"
+      },
+      {
+        "label": "Collections log",
+        "link": "/money?tab=collections"
+      }
+    ],
+    "suggested_action": {
+      "type": "draft_messages",
+      "payload": {
+        "messages": [
+          {
+            "channel": "whatsapp",
+            "to": "Sunrise Pharma Ltd",
+            "body": "Dear Kiran Shah, Rs 1,420,012 is overdue. Your account will be put on hold on 2026-11-22. Kindly arrange payment. - Accounts"
+          },
+          {
+            "channel": "whatsapp",
+            "to": "Green Valley Dairy",
+            "body": "Dear Sunil Pawar, Rs 739,860 is overdue. Your account will be put on hold on 2026-11-25. Kindly arrange payment. - Accounts"
+          },
+          {
+            "channel": "whatsapp",
+            "to": "Neelgiri Aqua Pvt Ltd",
+            "body": "Dear R. Senthil, Rs 630,120 is overdue. Your account will be put on hold on 2026-11-27. Kindly arrange payment. - Accounts"
+          },
+          {
+            "channel": "whatsapp",
+            "to": "Royal Spices Pvt Ltd",
+            "body": "Dear Manish Jain, Rs 985,300 is overdue. Your account will be put on hold on 2026-11-23. Kindly arrange payment. - Accounts"
+          },
+          {
+            "channel": "whatsapp",
+            "to": "Bharat Home Care Ltd",
+            "body": "Dear Dinesh Patel, Rs 484,980 is overdue. Your account will be put on hold on 2026-11-30. Kindly arrange payment. - Accounts"
+          }
+        ]
+      }
+    },
+    "status": "done",
+    "decided_by": "owner",
+    "decided_at": "2026-11-20T11:35:00+05:30",
+    "reason": null
+  },
+  "outbox": [
+    {
+      "id": "OB-0101",
+      "created_at": "2026-11-20T07:00:00+05:30",
+      "agent": "collections",
+      "finding_id": "F-0235",
+      "channel": "whatsapp",
+      "to": "Sunrise Pharma Ltd (Kiran Shah)",
+      "subject": "Payment reminder",
+      "body": "Dear Kiran Shah, Rs 1,420,012 is overdue. Your account will be put on hold on 2026-11-22. Kindly arrange payment. - Accounts",
+      "status": "sent",
+      "approved_by": "owner",
+      "sent_at": "2026-11-20T11:35:00+05:30",
+      "simulated": true
+    },
+    {
+      "id": "OB-0102",
+      "created_at": "2026-11-20T07:00:00+05:30",
+      "agent": "collections",
+      "finding_id": "F-0235",
+      "channel": "whatsapp",
+      "to": "Green Valley Dairy (Sunil Pawar)",
+      "subject": "Payment reminder",
+      "body": "Dear Sunil Pawar, Rs 739,860 is overdue. Your account will be put on hold on 2026-11-25. Kindly arrange payment. - Accounts",
+      "status": "sent",
+      "approved_by": "owner",
+      "sent_at": "2026-11-20T11:35:00+05:30",
+      "simulated": true
+    },
+    {
+      "id": "OB-0103",
+      "created_at": "2026-11-20T07:00:00+05:30",
+      "agent": "collections",
+      "finding_id": "F-0235",
+      "channel": "whatsapp",
+      "to": "Neelgiri Aqua Pvt Ltd (R. Senthil)",
+      "subject": "Payment reminder",
+      "body": "Dear R. Senthil, Rs 630,120 is overdue. Your account will be put on hold on 2026-11-27. Kindly arrange payment. - Accounts",
+      "status": "sent",
+      "approved_by": "owner",
+      "sent_at": "2026-11-20T11:35:00+05:30",
+      "simulated": true
+    },
+    {
+      "id": "OB-0104",
+      "created_at": "2026-11-20T07:00:00+05:30",
+      "agent": "collections",
+      "finding_id": "F-0235",
+      "channel": "whatsapp",
+      "to": "Royal Spices Pvt Ltd (Manish Jain)",
+      "subject": "Payment reminder",
+      "body": "Dear Manish Jain, Rs 985,300 is overdue. Your account will be put on hold on 2026-11-23. Kindly arrange payment. - Accounts",
+      "status": "sent",
+      "approved_by": "owner",
+      "sent_at": "2026-11-20T11:35:00+05:30",
+      "simulated": true
+    },
+    {
+      "id": "OB-0105",
+      "created_at": "2026-11-20T07:00:00+05:30",
+      "agent": "collections",
+      "finding_id": "F-0235",
+      "channel": "whatsapp",
+      "to": "Bharat Home Care Ltd (Dinesh Patel)",
+      "subject": "Payment reminder",
+      "body": "Dear Dinesh Patel, Rs 484,980 is overdue. Your account will be put on hold on 2026-11-30. Kindly arrange payment. - Accounts",
+      "status": "sent",
+      "approved_by": "owner",
+      "sent_at": "2026-11-20T11:35:00+05:30",
+      "simulated": true
+    }
+  ],
+  "effects": [
+    "5 WhatsApp reminders marked sent (simulated)",
+    "Follow-up dates set to 2026-11-21"
+  ]
+}

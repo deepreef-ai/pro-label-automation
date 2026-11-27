@@ -1,0 +1,342 @@
+[
+  {
+    "job_card": "JC-1312",
+    "client_name": "Lotus Cosmetics Pvt Ltd",
+    "product": "Night cream jar lid label",
+    "stage": "proof_sent",
+    "designer": "Kavya Nair",
+    "artwork_version": 2,
+    "proof_sent_on": "2026-11-18",
+    "approved_on": null,
+    "approved_by": null,
+    "repeat_mm": 254.0,
+    "ups_across": 4,
+    "ups_along": 3,
+    "die_id": null,
+    "plate_ids": [],
+    "units": [
+      {
+        "unit": 1,
+        "colour": "Cyan",
+        "anilox_lpi": 800,
+        "plate_id": null
+      },
+      {
+        "unit": 2,
+        "colour": "Magenta",
+        "anilox_lpi": 800,
+        "plate_id": null
+      },
+      {
+        "unit": 3,
+        "colour": "Yellow",
+        "anilox_lpi": 700,
+        "plate_id": null
+      },
+      {
+        "unit": 4,
+        "colour": "Black",
+        "anilox_lpi": 900,
+        "plate_id": null
+      },
+      {
+        "unit": 5,
+        "colour": "Matt varnish",
+        "anilox_lpi": 400,
+        "plate_id": null
+      }
+    ],
+    "route": [
+      "Print Gallus EM 280",
+      "Inspection RW-1",
+      "Slitting / rewinding",
+      "Pack"
+    ],
+    "notes": "Client asked for darker lid ring; v2 proof sent",
+    "updated_at": "2026-11-18T16:10:00+05:30",
+    "is_demo": true
+  },
+  {
+    "job_card": "JC-1313",
+    "client_name": "Bharat Home Care Ltd",
+    "product": "Floor cleaner 1 L front label",
+    "stage": "artwork",
+    "designer": "Arjun Desai",
+    "artwork_version": 1,
+    "proof_sent_on": null,
+    "approved_on": null,
+    "approved_by": null,
+    "repeat_mm": 254.0,
+    "ups_across": 3,
+    "ups_along": 2,
+    "die_id": null,
+    "plate_ids": [],
+    "units": [
+      {
+        "unit": 1,
+        "colour": "Cyan",
+        "anilox_lpi": 800,
+        "plate_id": null
+      },
+      {
+        "unit": 2,
+        "colour": "Magenta",
+        "anilox_lpi": 800,
+        "plate_id": null
+      },
+      {
+        "unit": 3,
+        "colour": "Yellow",
+        "anilox_lpi": 700,
+        "plate_id": null
+      },
+      {
+        "unit": 4,
+        "colour": "Black",
+        "anilox_lpi": 900,
+        "plate_id": null
+      }
+    ],
+    "route": [
+      "Print Focus",
+      "Inspection RW-1",
+      "Slitting / rewinding",
+      "Pack"
+    ],
+    "notes": "Waiting for barcode from client",
+    "updated_at": "2026-11-19T11:40:00+05:30",
+    "is_demo": true
+  },
+  {
+    "job_card": "JC-1315",
+    "client_name": "Orchid Wellness",
+    "product": "Ashwagandha capsules bottle label",
+    "stage": "plates_ordered",
+    "designer": "Kavya Nair",
+    "artwork_version": 1,
+    "proof_sent_on": "2026-11-15",
+    "approved_on": "2026-11-17",
+    "approved_by": "Shalini Rao (client)",
+    "repeat_mm": 254.0,
+    "ups_across": 3,
+    "ups_along": 4,
+    "die_id": null,
+    "plate_ids": [],
+    "units": [
+      {
+        "unit": 1,
+        "colour": "Cyan",
+        "anilox_lpi": 800,
+        "plate_id": null
+      },
+      {
+        "unit": 2,
+        "colour": "Magenta",
+        "anilox_lpi": 800,
+        "plate_id": null
+      },
+      {
+        "unit": 3,
+        "colour": "Yellow",
+        "anilox_lpi": 700,
+        "plate_id": null
+      },
+      {
+        "unit": 4,
+        "colour": "Black",
+        "anilox_lpi": 900,
+        "plate_id": null
+      },
+      {
+        "unit": 5,
+        "colour": "Gloss varnish",
+        "anilox_lpi": 400,
+        "plate_id": null
+      }
+    ],
+    "route": [
+      "Print Gallus EM 280",
+      "Inspection RW-1",
+      "Slitting / rewinding",
+      "Pack"
+    ],
+    "notes": "New die needed 50 x 75 mm; plates ordered with Precision Plates",
+    "updated_at": "2026-11-17T15:05:00+05:30",
+    "is_demo": true
+  },
+  {
+    "job_card": "JC-1310",
+    "client_name": "Kaveri Agro Foods",
+    "product": "Coconut oil 500 ml label",
+    "stage": "plates_ready",
+    "designer": "Arjun Desai",
+    "artwork_version": 1,
+    "proof_sent_on": "2026-11-12",
+    "approved_on": "2026-11-14",
+    "approved_by": "Prakash Gowda (client)",
+    "repeat_mm": 228.6,
+    "ups_across": 3,
+    "ups_along": 4,
+    "die_id": "D-123",
+    "plate_ids": [
+      "PL-00890",
+      "PL-00891",
+      "PL-00892"
+    ],
+    "units": [
+      {
+        "unit": 1,
+        "colour": "Green",
+        "anilox_lpi": null,
+        "plate_id": "PL-00890"
+      },
+      {
+        "unit": 2,
+        "colour": "Gold",
+        "anilox_lpi": null,
+        "plate_id": "PL-00891"
+      },
+      {
+        "unit": 3,
+        "colour": "Black",
+        "anilox_lpi": 900,
+        "plate_id": "PL-00892"
+      }
+    ],
+    "route": [
+      "Print Taiyo 10",
+      "Inspection RW-1",
+      "Slitting / rewinding",
+      "Pack"
+    ],
+    "notes": "Plates in rack; waiting for PP Silver 200 mm",
+    "updated_at": "2026-11-18T10:20:00+05:30",
+    "is_demo": true
+  },
+  {
+    "job_card": "JC-1301",
+    "client_name": "Fresh Juice Co.",
+    "product": "Mango juice 200 ml bottle label",
+    "stage": "done",
+    "designer": "Kavya Nair",
+    "artwork_version": 1,
+    "proof_sent_on": "2026-11-05",
+    "approved_on": "2026-11-06",
+    "approved_by": "Anil Deshmukh (client)",
+    "repeat_mm": 254.0,
+    "ups_across": 4,
+    "ups_along": 3,
+    "die_id": "D-114",
+    "plate_ids": [
+      "PL-00871",
+      "PL-00872",
+      "PL-00873",
+      "PL-00874",
+      "PL-00875"
+    ],
+    "units": [
+      {
+        "unit": 1,
+        "colour": "Cyan",
+        "anilox_lpi": 800,
+        "plate_id": "PL-00871"
+      },
+      {
+        "unit": 2,
+        "colour": "Magenta",
+        "anilox_lpi": 800,
+        "plate_id": "PL-00872"
+      },
+      {
+        "unit": 3,
+        "colour": "Yellow",
+        "anilox_lpi": 700,
+        "plate_id": "PL-00873"
+      },
+      {
+        "unit": 4,
+        "colour": "Black",
+        "anilox_lpi": 900,
+        "plate_id": "PL-00874"
+      },
+      {
+        "unit": 5,
+        "colour": "Gloss varnish",
+        "anilox_lpi": 400,
+        "plate_id": "PL-00875"
+      }
+    ],
+    "route": [
+      "Print Gallus EM 280",
+      "Inspection RW-1",
+      "Slitting / rewinding",
+      "Pack"
+    ],
+    "notes": "Varnish spot-free on barcode area",
+    "updated_at": "2026-11-07T17:30:00+05:30",
+    "is_demo": true
+  },
+  {
+    "job_card": "JC-1316",
+    "client_name": "Fresh Juice Co.",
+    "product": "Mango juice 200 ml bottle label (repeat)",
+    "stage": "done",
+    "designer": "Kavya Nair",
+    "artwork_version": 1,
+    "proof_sent_on": null,
+    "approved_on": "2026-11-16",
+    "approved_by": "Repeat of JC-1301",
+    "repeat_mm": 254.0,
+    "ups_across": 4,
+    "ups_along": 3,
+    "die_id": "D-114",
+    "plate_ids": [
+      "PL-00871",
+      "PL-00872",
+      "PL-00873",
+      "PL-00874",
+      "PL-00875"
+    ],
+    "units": [
+      {
+        "unit": 1,
+        "colour": "Cyan",
+        "anilox_lpi": 800,
+        "plate_id": "PL-00871"
+      },
+      {
+        "unit": 2,
+        "colour": "Magenta",
+        "anilox_lpi": 800,
+        "plate_id": "PL-00872"
+      },
+      {
+        "unit": 3,
+        "colour": "Yellow",
+        "anilox_lpi": 700,
+        "plate_id": "PL-00873"
+      },
+      {
+        "unit": 4,
+        "colour": "Black",
+        "anilox_lpi": 900,
+        "plate_id": "PL-00874"
+      },
+      {
+        "unit": 5,
+        "colour": "Gloss varnish",
+        "anilox_lpi": 400,
+        "plate_id": "PL-00875"
+      }
+    ],
+    "route": [
+      "Print Gallus EM 280",
+      "Inspection RW-1",
+      "Slitting / rewinding",
+      "Pack"
+    ],
+    "notes": "Repeat: plates PL-00871..875 reused",
+    "updated_at": "2026-11-16T12:00:00+05:30",
+    "is_demo": true
+  }
+]

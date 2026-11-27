@@ -1,0 +1,21 @@
+{
+  "id": "ENQ-0059",
+  "date": "2026-11-20",
+  "client_id": "CL-007",
+  "client_name": "Kaveri Agro Foods",
+  "product": "Groundnut oil 1 L label",
+  "label_size": "70 x 90 mm",
+  "qty": 60000,
+  "material": "PP Silver",
+  "colours": 4,
+  "finish": "None",
+  "source": "phone",
+  "assigned_to": "Rohit Mehra",
+  "status": "new",
+  "quote_id": null,
+  "value": null,
+  "lost_reason": null,
+  "follow_up_on": "2026-11-23",
+  "job_card": null,
+  "is_demo": true
+}
