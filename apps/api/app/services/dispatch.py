@@ -118,6 +118,9 @@ def create_dispatch(db: Session, body: dict, role: str) -> dict:
     db.execute(d.insert().values({k: v for k, v in row.items() if k in d.c}))
     audit(db, role=role, action="dispatch_create", entity="dispatch", entity_id=dc_id,
           after={**row, "qc_approved": approved, "dispatched_before": already})
+    from app.services import job_status
+
+    job_status.advance(db, jc, "dispatch", role=role, reason=f"challan {dc_id}")
     db.commit()
     return get_dispatch(db, dc_id) or {}
 

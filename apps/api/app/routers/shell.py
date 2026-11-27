@@ -10,7 +10,7 @@ from sqlalchemy import select, text
 from sqlalchemy.orm import Session
 
 from app.audit import audit, next_id
-from app.deps import ALL, DB, Role, T, allow
+from app.deps import ALL, DB, Role, T, allow, today
 from app.serialize import now, row_dict
 
 router = APIRouter()
@@ -42,6 +42,7 @@ def health(db: DB) -> dict:
         "status": "ok" if db_ok == "ok" else "degraded",
         "version": VERSION,
         "time": now().isoformat(),
+        "today": today().isoformat(),  # the plant's demo day: the web uses it for every form date
         "db": db_ok,
         "ai_mode": ai_mode if ai_mode in ("cloud", "local", "off") else "cloud",
         "demo": demo,

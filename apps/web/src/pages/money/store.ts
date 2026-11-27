@@ -7,6 +7,7 @@
 import { useSyncExternalStore } from 'react'
 import type { Collection, Creditors, Debtors, Invoice, Payment, ReleaseLockResult } from '@contract/types'
 import { api } from '@/lib/api'
+import { appToday } from '@/lib/clock'
 
 interface MoneyOverlay {
   releases: Record<string, ReleaseLockResult>
@@ -129,7 +130,5 @@ export function applyCreditors(c: Creditors, o: MoneyOverlay): Creditors {
 }
 
 export function todayISO(): string {
-  const d = new Date()
-  const p = (n: number) => String(n).padStart(2, '0')
-  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`
+  return appToday() // the server's demo day (see lib/clock)
 }

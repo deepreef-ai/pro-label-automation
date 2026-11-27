@@ -23,6 +23,7 @@ import { cn } from '@/lib/utils'
 import { MaterialPanel } from './MaterialPanel'
 import { NewJobFromPoDialog } from './NewJobFromPo'
 import { FLAG_LABEL, JOB_STATUS_LABEL, JOB_STATUS_TONE, jobItems } from './shared'
+import { appToday } from '@/lib/clock'
 
 const STATUS_OPTIONS = [
   { value: 'all', label: 'All statuses' },
@@ -82,7 +83,7 @@ export default function JobsPage() {
   const all = jobItems(allJobsQ.data)
   const open = all.filter((j) => OPEN_STATUSES.includes(j.status))
   const openValue = open.reduce((s, j) => s + j.po_value, 0)
-  const today = new Date().toISOString().slice(0, 10)
+  const today = appToday()
   const late = open.filter((j) => j.due_date < today || j.flags.includes('late')).length
   const lockedCount = all.filter(isLocked).length
   const kpiLoading = allJobsQ.loading && !allJobsQ.data

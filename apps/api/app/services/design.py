@@ -17,11 +17,11 @@ from __future__ import annotations
 from datetime import date, datetime, time
 from typing import Any
 
-from sqlalchemy import or_, select
+from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session
 
-from app.audit import audit
-from app.deps import T, bad_request, not_found
+from app.audit import audit, next_id
+from app.deps import T, bad_request, not_found, today
 from app.serialize import IST, jsonable, money, now
 
 STAGES = ("artwork", "proof_sent", "approved", "plates_ordered", "plates_ready", "done")
@@ -270,6 +270,8 @@ def _check_stage(old: str, new: dict, version_up: bool) -> None:
             what = "plates" if i_new > STAGES.index("approved") else "approved"
             raise bad_request(f"client approval (approved_on, approved_by) is required before {what}")
     if i_new >= STAGES.index("plates_ready"):
+        if not new["units"]:
+            raise bad_request("plates_ready needs the colour units (press set-up) first")
         missing = [u["unit"] for u in new["units"] if not u["plate_id"]]
         if missing:
             raise bad_request(f"plates_ready needs a plate on every unit (missing on unit {missing[0]})")
@@ -320,6 +322,9 @@ def update_design(db: Session, job_card: str, changes: dict, role: str) -> dict:
     if "route" in changes:
         _check_route(merged["route"], press)
     stage_moved = "stage" in changes and changes["stage"] != current["stage"]
+    new_plates: list[dict] = []
+    if stage_moved:
+        new_plates = _auto_plates_and_die(db, job, merged, changes)
     if stage_moved or any(k in changes for k in ("proof_sent_on", "approved_on", "approved_by")):
         version_up = merged["artwork_version"] > current["artwork_version"]
         _check_stage(current["stage"], merged, version_up)
@@ -339,7 +344,77 @@ def update_design(db: Session, job_card: str, changes: dict, role: str) -> dict:
     else:
         db.execute(d.update().where(d.c.job_card == job_card)
                    .values({k: v for k, v in values.items() if k in d.c}))
+    _save_plates(db, merged, new_plates)
+    if "units" in changes:  # keep the job card's colours in step with Design (Job 360 shows both)
+        jobs = T("jobs")
+        db.execute(jobs.update().where(jobs.c.job_card == job_card)
+                   .values(units=[u["colour"] for u in sorted(merged["units"], key=lambda u: u["unit"])]))
     audit(db, role=role, action="design_update", entity="design", entity_id=job_card,
           before=before, after=after)
     db.commit()
     return get_design(db, job_card)
+
+
+def _job_plates(db: Session, job_card: str) -> dict[int, dict]:
+    """This job's usable plates by unit (latest first)."""
+    p = T("plates")
+    out: dict[int, dict] = {}
+    rows = db.execute(select(p).where(p.c.job_card == job_card).order_by(p.c.id.desc())).mappings()
+    for r in rows:
+        if r["status"] not in UNUSABLE_PLATE and r["unit"] is not None and r["unit"] not in out:
+            out[r["unit"]] = dict(r)
+    return out
+
+
+def _auto_plates_and_die(db: Session, job: Any, merged: dict, changes: dict) -> list[dict]:
+    """Stage moves done from the Design screen fill what the stage needs (SPEC 2 rules unchanged):
+
+    * ``plates_ordered``: one plate per colour unit is ordered in the Plate Store (status ``ordered``,
+      cost = this plant's average plate cost, so job profit counts the plates).
+    * ``plates_ready``: the job's plates are mounted on their units (status ``in_use``).
+    * ``done`` without a die: a usable Die Store die with the job's label size and ups is assigned.
+    Returns the plates to insert (written only after every check has passed).
+    """
+    stage = merged["stage"]
+    jm = job._mapping
+    to_insert: list[dict] = []
+    if stage == "plates_ordered":
+        have = _job_plates(db, jm["job_card"])
+        p = T("plates")
+        avg_cost, vendor = db.execute(select(func.avg(p.c.cost), func.max(p.c.vendor_id))).one()
+        start = int(next_id(db, "plates", "PL", 5).split("-")[1])
+        for u in (u for u in merged["units"] if u["unit"] not in have):
+            to_insert.append({"id": f"PL-{start + len(to_insert):05d}", "job_card": jm["job_card"],
+                              "unit": u["unit"], "colour": u["colour"], "made_on": None, "vendor_id": vendor,
+                              "cost": round(float(avg_cost or 0), 2), "impressions": 0, "status": "ordered",
+                              "rack": "Incoming", "is_demo": bool(jm.get("is_demo") or False)})
+    if STAGES.index(stage) >= STAGES.index("plates_ready"):
+        have = _job_plates(db, jm["job_card"])
+        units = [dict(u) for u in merged["units"]]
+        for u in units:
+            if not u["plate_id"] and u["unit"] in have:
+                u["plate_id"] = have[u["unit"]]["id"]
+        if units != merged["units"]:
+            merged["units"] = units
+            changes["units"] = units
+    if stage == "done" and not merged.get("die_id"):
+        dt = T("dies")
+        cands = db.execute(select(dt.c.id, dt.c.status).where(
+            dt.c.label_size == jm.get("label_size"), dt.c.ups_across == jm.get("ups_across"),
+            dt.c.ups_along == jm.get("ups_along"))).all()
+        usable = sorted((r for r in cands if r[1] not in UNUSABLE_DIE), key=lambda r: (r[1] != "ok", r[0]))
+        if usable:
+            merged["die_id"] = usable[0][0]
+            changes["die_id"] = usable[0][0]
+    return to_insert
+
+
+def _save_plates(db: Session, merged: dict, new_plates: list[dict]) -> None:
+    p = T("plates")
+    if new_plates:
+        db.execute(p.insert(), new_plates)
+    if STAGES.index(merged["stage"]) >= STAGES.index("plates_ready"):
+        mounted = [u["plate_id"] for u in merged["units"] if u["plate_id"]]
+        if mounted:
+            db.execute(p.update().where(p.c.id.in_(mounted), p.c.status == "ordered")
+                       .values(status="in_use", made_on=today(), rack="On press"))

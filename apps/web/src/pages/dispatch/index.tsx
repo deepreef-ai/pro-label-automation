@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { FileText, Printer, Truck } from 'lucide-react'
 import type { Dispatch, DispatchCreate, Job, JobListResponse } from '@contract/types'
-import { API_URL, api, ApiError, useApi } from '@/lib/api'
+import { api, ApiError, fetchFileUrl, useApi } from '@/lib/api'
 import { formatDate, formatINR, formatINRShort, formatNumber } from '@/lib/format'
 import { cn } from '@/lib/utils'
 import {
@@ -40,7 +40,19 @@ export default function DispatchPage() {
 
   const openChallan = (d: Dispatch) => {
     if (api.mode === 'mock') setPreview(d)
-    else window.open(`${API_URL}/api/dispatch/${encodeURIComponent(d.id)}/challan.pdf`, '_blank', 'noopener')
+    else {
+      // a new tab can't send the sign-in token, so fetch the PDF with it and open the file
+      const tab = window.open('', '_blank')
+      fetchFileUrl(`/api/dispatch/${encodeURIComponent(d.id)}/challan.pdf`)
+        .then((url) => {
+          if (tab) tab.location.href = url
+          else window.open(url, '_blank')
+        })
+        .catch((e: Error) => {
+          tab?.close()
+          toast.error(`Challan ${d.id}: ${e.message}`)
+        })
+    }
   }
 
   const columns: Column<Dispatch>[] = [

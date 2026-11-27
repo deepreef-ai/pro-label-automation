@@ -6,6 +6,7 @@ import {
   Badge,
   Button,
   DemoBadge,
+  Input,
   ProgressSteps,
   QueryState,
   Sheet,
@@ -18,6 +19,7 @@ import { api, useApi } from '@/lib/api'
 import { formatDate, formatNumber } from '@/lib/format'
 import { cn } from '@/lib/utils'
 import { DIE_LABEL, DIE_TONE, NEXT_STAGE, PLATE_LABEL, PLATE_TONE, PRESS_UNITS, STAGE_LABEL, STEPS, boardStage } from './shared'
+import { appToday } from '@/lib/clock'
 
 export function DesignDrawer({
   jobCard,
@@ -52,6 +54,117 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
   )
 }
 
+const FIELD =
+  'h-9 w-full rounded-md border border-border bg-surface px-2 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring'
+
+/** Design edits the colours per unit (+ anilox LPI), the route and the die; the server checks the rules
+ * (press unit count, route starts with "Print <job's press>", usable die, plates only after approval). */
+function SetupEditor({
+  design,
+  dies,
+  press,
+  onCancel,
+  onSaved,
+}: {
+  design: Design
+  dies: Die[]
+  press: string
+  onCancel: () => void
+  onSaved: (d: Design) => void
+}) {
+  const unitAt = (n: number) => design.units.find((u) => u.unit === n)
+  const [colours, setColours] = useState(() => Array.from({ length: PRESS_UNITS }, (_, i) => unitAt(i + 1)?.colour ?? ''))
+  const [lpi, setLpi] = useState(() =>
+    Array.from({ length: PRESS_UNITS }, (_, i) => (unitAt(i + 1)?.anilox_lpi ?? '').toString()),
+  )
+  const [route, setRoute] = useState(design.route.join(', '))
+  const [dieId, setDieId] = useState(design.die_id ?? '')
+  const [saving, setSaving] = useState(false)
+  const usableDies = dies.filter((x) => x.status !== 'scrapped' && x.status !== 'damaged')
+
+  const save = async () => {
+    const units = colours
+      .map((c, i) => ({
+        unit: i + 1,
+        colour: c.trim(),
+        anilox_lpi: lpi[i].trim() ? Number(lpi[i]) : null,
+        plate_id: unitAt(i + 1)?.plate_id ?? null,
+      }))
+      .filter((u) => u.colour)
+    const patch: Partial<Design> = {
+      units,
+      route: route.split(',').map((x) => x.trim()).filter(Boolean),
+      die_id: dieId || null,
+    }
+    setSaving(true)
+    try {
+      const saved = await api.put<Design>(`/api/design/${encodeURIComponent(design.job_card)}`, patch)
+      onSaved({ ...design, ...patch, ...(saved?.job_card === design.job_card ? saved : {}) })
+      toast.success(`${design.job_card}: set-up saved`)
+    } catch (e) {
+      toast.error((e as Error).message)
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <div className="space-y-3 rounded-lg border border-border p-3">
+      <p className="text-xs font-medium text-muted-foreground">Colour per unit (leave empty if unused) and anilox LPI</p>
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+        {colours.map((c, i) => (
+          <div key={i} className="flex items-center gap-2">
+            <span className="w-14 shrink-0 text-xs text-muted-foreground">Unit {i + 1}</span>
+            <input
+              className={FIELD}
+              value={c}
+              placeholder="Empty"
+              aria-label={`Unit ${i + 1} colour`}
+              onChange={(e) => setColours((xs) => xs.map((x, k) => (k === i ? e.target.value : x)))}
+            />
+            <input
+              className={cn(FIELD, 'w-20')}
+              value={lpi[i]}
+              inputMode="numeric"
+              placeholder="LPI"
+              aria-label={`Unit ${i + 1} anilox LPI`}
+              onChange={(e) => setLpi((xs) => xs.map((x, k) => (k === i ? e.target.value.replace(/[^0-9]/g, '') : x)))}
+            />
+          </div>
+        ))}
+      </div>
+      <label className="flex flex-col gap-1 text-xs text-muted-foreground">
+        Route (comma separated; first step prints on the job's press)
+        <input
+          className={FIELD}
+          value={route}
+          placeholder={`Print ${press}, Inspection RW-1, Pack`}
+          onChange={(e) => setRoute(e.target.value)}
+        />
+      </label>
+      <label className="flex flex-col gap-1 text-xs text-muted-foreground">
+        Die (Die Store)
+        <select className={FIELD} value={dieId} onChange={(e) => setDieId(e.target.value)}>
+          <option value="">No die yet</option>
+          {usableDies.map((x) => (
+            <option key={x.id} value={x.id}>
+              {x.id} · {x.label_size} · {x.ups_across}×{x.ups_along} · {x.status}
+            </option>
+          ))}
+        </select>
+      </label>
+      <div className="flex gap-2">
+        <Button size="sm" onClick={save} loading={saving}>
+          Save set-up
+        </Button>
+        <Button size="sm" variant="secondary" onClick={onCancel} disabled={saving}>
+          Cancel
+        </Button>
+      </div>
+    </div>
+  )
+}
+
 function DrawerBody({
   jobCard,
   plates,
@@ -67,6 +180,8 @@ function DrawerBody({
   const jobQ = useApi<Job>(`/api/jobs/${encodeURIComponent(jobCard)}`)
   const [local, setLocal] = useState<Design | null>(null)
   const [saving, setSaving] = useState(false)
+  const [approvedBy, setApprovedBy] = useState('')
+  const [editing, setEditing] = useState(false)
 
   return (
     <QueryState
@@ -106,12 +221,17 @@ function DrawerBody({
           if (!next) return
           setSaving(true)
           try {
-            const today = new Date().toISOString().slice(0, 10)
+            const today = appToday()
             const patch: Partial<Design> = { stage: next }
             if (next === 'proof_sent') patch.proof_sent_on = today
-            if (next === 'approved') patch.approved_on = today
-            await api.put(`/api/design/${encodeURIComponent(jobCard)}`, patch)
-            const updated = { ...d, ...patch }
+            if (next === 'approved') {
+              patch.approved_on = today
+              // the client's approval must say who approved the proof (SPEC: design rules)
+              patch.approved_by = approvedBy.trim() || d.client_name
+            }
+            // the server fills plates (ordered / mounted) and the matching die on later stages
+            const saved = await api.put<Design>(`/api/design/${encodeURIComponent(jobCard)}`, patch)
+            const updated = { ...d, ...patch, ...(saved?.job_card === jobCard ? saved : {}) }
             setLocal(updated)
             onUpdated(updated)
             toast.success(`${jobCard}: ${STAGE_LABEL[next]}`)
@@ -139,7 +259,19 @@ function DrawerBody({
               <div className="overflow-x-auto pb-1">
                 <ProgressSteps steps={STEPS} current={boardStage(d.stage)} complete={d.stage === 'done'} size="sm" className="min-w-[520px]" />
               </div>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap items-end gap-2">
+                {next === 'approved' && (
+                  <label className="flex min-w-48 flex-1 flex-col gap-1 text-xs text-muted-foreground">
+                    Approved by (client)
+                    <Input
+                      inputSize="sm"
+                      value={approvedBy}
+                      onChange={(e) => setApprovedBy(e.target.value)}
+                      placeholder={d.client_name}
+                      aria-label="Approved by (client)"
+                    />
+                  </label>
+                )}
                 {next && (
                   <Button size="sm" onClick={advance} loading={saving}>
                     Move to {STAGE_LABEL[next]} <ArrowRight />
@@ -175,6 +307,25 @@ function DrawerBody({
                   <dd className="font-medium text-foreground">{job?.label_size ?? '—'}</dd>
                 </div>
               </dl>
+              <p className="text-xs text-muted-foreground">Press, ups and repeat come from the job card (Planning).</p>
+              {d.stage !== 'done' && !editing && (
+                <Button size="sm" variant="secondary" onClick={() => setEditing(true)}>
+                  Edit set-up (colours, route, die)
+                </Button>
+              )}
+              {editing && (
+                <SetupEditor
+                  design={d}
+                  dies={dies}
+                  press={press}
+                  onCancel={() => setEditing(false)}
+                  onSaved={(updated) => {
+                    setLocal(updated)
+                    onUpdated(updated)
+                    setEditing(false)
+                  }}
+                />
+              )}
             </Section>
 
             <Section title={`Colour units (${d.units.length} of ${PRESS_UNITS})`}>

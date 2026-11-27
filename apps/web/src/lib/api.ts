@@ -200,6 +200,24 @@ async function mockRequest<T>(method: Method, path: string, body?: unknown): Pro
 /* Live mode                                                           */
 /* ------------------------------------------------------------------ */
 
+/** A file (e.g. the challan PDF) fetched with the same sign-in headers as every API call. */
+export async function fetchFileUrl(path: string): Promise<string> {
+  const headers: Record<string, string> = { 'X-Role': getRole() }
+  const token = getToken()
+  if (token) headers.Authorization = `Bearer ${token}`
+  const res = await fetch(`${API_URL}${path}`, { headers })
+  if (!res.ok) {
+    let detail = `${res.status} ${res.statusText}`
+    try {
+      detail = ((await res.json()) as { detail?: string }).detail ?? detail
+    } catch {
+      // not JSON
+    }
+    throw new Error(detail)
+  }
+  return URL.createObjectURL(await res.blob())
+}
+
 async function liveRequest<T>(method: Method, path: string, body?: unknown, signal?: AbortSignal): Promise<T> {
   const headers: Record<string, string> = { 'X-Role': getRole(), Accept: 'application/json' }
   const token = getToken()

@@ -112,5 +112,8 @@ def create_qc(db: Session, body: dict, role: str) -> dict:
     }
     db.execute(qc.insert().values({k: v for k, v in row.items() if k in qc.c}))
     audit(db, role=role, action="qc_create", entity="qc", entity_id=qc_id, after=row)
+    from app.services import job_status
+
+    job_status.advance(db, jc, "qc", role=role, reason=f"inspection {qc_id}")
     db.commit()
     return get_qc(db, qc_id) or {}

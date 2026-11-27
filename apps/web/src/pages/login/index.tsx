@@ -53,6 +53,11 @@ async function signInRequest(company: string, login: string, otp: string): Promi
   return demoSignIn(company, login, otp)
 }
 
+async function requestOtp(company: string, login: string): Promise<void> {
+  // errors are ignored: the API answers the same for unknown logins, and login then explains
+  await api.post('/api/auth/otp', { company_slug: backendSlug(company), login: login.trim() }).catch(() => undefined)
+}
+
 export default function LoginPage() {
   const navigate = useNavigate()
   const [params] = useSearchParams()
@@ -79,7 +84,7 @@ export default function LoginPage() {
     if (step === 'otp') otpRef.current?.focus()
   }, [step])
 
-  function sendOtp(e?: FormEvent) {
+  async function sendOtp(e?: FormEvent) {
     e?.preventDefault()
     setErr(null)
     if (!companyBySlug(company)) {
@@ -93,10 +98,13 @@ export default function LoginPage() {
       setErr({ field: 'login', message: 'Enter your mobile number or email.' })
       return
     }
+    // Contract §6.2: ask the backend for the OTP and wait, so the code exists before anyone signs in.
+    if (api.mode === 'live') {
+      setBusy(true)
+      await requestOtp(company, login).finally(() => setBusy(false))
+    }
     setStep('otp')
     setResendIn(30)
-    // Contract §6.2: ask the backend to send the OTP (demo mode returns it); errors are ignored, the demo OTP still works.
-    if (api.mode === 'live') void api.post('/api/auth/otp', { company_slug: backendSlug(company), login: login.trim() }).catch(() => undefined)
     toast(`OTP sent. Demo OTP is ${DEMO_OTP}.`)
   }
 
@@ -123,6 +131,7 @@ export default function LoginPage() {
   function pickDemo(slug: string, id: string) {
     setCompany(slug)
     setLogin(id)
+    if (api.mode === 'live') void requestOtp(slug, id)  // the demo OTP only works once the server made it
     setOtp(DEMO_OTP)
     setErr(null)
     setStep('otp')

@@ -44,6 +44,21 @@ export function InvoicesTab() {
   const q = useApi<InvoiceListResponse>('/api/invoices')
   const [filter, setFilter] = useState<Filter>('all')
   const [draftOpen, setDraftOpen] = useState(false)
+  const [issuing, setIssuing] = useState<string | null>(null)
+
+  // #94: a draft only counts in debtors, ageing, locks and revenue once it is issued (draft -> open)
+  const issue = async (inv: Invoice) => {
+    setIssuing(inv.id)
+    try {
+      await api.post<Invoice>(`/api/invoices/${encodeURIComponent(inv.id)}/issue`)
+      toast.success(`${inv.id} issued`, { description: 'It now counts in debtors and revenue.' })
+      if (!isMock) q.refetch()
+    } catch (e) {
+      toast.error(`Could not issue ${inv.id}`, { description: (e as Error).message })
+    } finally {
+      setIssuing(null)
+    }
+  }
 
   const columns: Column<Invoice>[] = useMemo(
     () => [
@@ -112,8 +127,19 @@ export function InvoicesTab() {
           )
         },
       },
+      {
+        key: 'action',
+        header: '',
+        cell: (r) =>
+          r.status === 'draft' ? (
+            <Button size="sm" onClick={() => issue(r)} loading={issuing === r.id} disabled={!!issuing}>
+              Issue invoice
+            </Button>
+          ) : null,
+      },
     ],
-    [],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [issuing],
   )
 
   return (

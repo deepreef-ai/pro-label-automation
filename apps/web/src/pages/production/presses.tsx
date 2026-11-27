@@ -25,6 +25,7 @@ import {
 } from '@/components/ui'
 import { describeError, InlineAlert } from '@/pages/store/common'
 import type { LiveCounter } from './useLiveCounter'
+import { appNowIso } from '@/lib/clock'
 
 export const DOWNTIME_REASONS = [
   'Make-ready',
@@ -328,7 +329,7 @@ export function StartRunDialog({
               client_name: job?.client_name ?? res.client_name,
               machine_name: machine.name,
               hour_rate: machine.hour_rate,
-              start: new Date().toISOString(),
+              start: appNowIso(),
               required_m: job?.required_m ?? res.required_m,
               printed_qty: 0,
               status: 'running',
@@ -500,7 +501,7 @@ function EndRunForm({
       printed_qty: p,
       used_m: u,
       stops: dm > 0 ? [...run.stops, { reason, minutes: dm }] : run.stops,
-      end: new Date().toISOString(),
+      end: appNowIso(),
     }
     setSaving(true)
     try {
@@ -577,11 +578,15 @@ function EndRunForm({
         </Field>
       </div>
       {wPct !== null && (
-        <InlineAlert tone={wPct > tol ? 'danger' : 'info'}>
+        <InlineAlert tone={wPct > tol ? 'danger' : wPct < 0 ? 'warn' : 'info'}>
           <span className="inline-flex items-center gap-1.5">
             <Timer className="size-4" aria-hidden />
-            Wastage will be {formatPercent(wPct)} ({formatNumber(u - required, 1)} m){' '}
-            {wPct > tol ? `: above the ${formatPercent(tol, { digits: 0 })} limit, the owner will be alerted.` : `: within the ${formatPercent(tol, { digits: 0 })} limit.`}
+            {wPct < 0
+              ? `Metres used (${formatNumber(u, 1)} m) are below the ${formatNumber(required, 1)} m the order needs: type the metres used from the press counter.`
+              : <>
+                  Wastage will be {formatPercent(wPct)} ({formatNumber(u - required, 1)} m){' '}
+                  {wPct > tol ? `: above the ${formatPercent(tol, { digits: 0 })} limit, the owner will be alerted.` : `: within the ${formatPercent(tol, { digits: 0 })} limit.`}
+                </>}
           </span>
         </InlineAlert>
       )}
